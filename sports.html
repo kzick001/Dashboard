@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Sports Hub - SSP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { darkMode: 'class' }
+    </script>
+    <style>
+        .sterling-green { color: #16a34a; }
+        .bg-sterling-green { background-color: #16a34a; }
+        
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
+        .dark ::-webkit-scrollbar-thumb { background: #4b5563; }
+    </style>
+    <script>
+        if (localStorage.getItem('ssp-theme') === 'dark') {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen flex flex-col font-sans text-gray-800 dark:text-gray-100 transition-colors duration-300">
+
+    <div class="w-full p-4 flex justify-between items-center">
+        <a href="../index.html" class="flex items-center text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors">
+            <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+            Back to Dashboard
+        </a>
+        
+        <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" id="theme-toggle" class="sr-only peer">
+            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-sterling-green"></div>
+            <span class="ml-3 text-sm font-medium text-gray-500 dark:text-gray-400">Dark Mode</span>
+        </label>
+    </div>
+
+    <div class="flex-1 flex flex-col items-center px-4 pb-8">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-bold sterling-green">Sports Hub</h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400 uppercase tracking-widest">Sterling Specialty Pharmacy Internal Tool</p>
+        </header>
+
+        <main class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow max-w-md w-full overflow-hidden">
+            <div class="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-900/50">
+                <h2 class="font-semibold text-sm">Personalized Feed</h2>
+                <button onclick="fetchAllData()" class="text-sterling-green hover:opacity-75">
+                    <svg id="refresh-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                </button>
+            </div>
+            
+            <div id="sports-feed" class="max-h-[600px] overflow-y-auto divide-y divide-gray-100 dark:divide-gray-700">
+                <div class="p-8 text-center text-sm text-gray-400">Loading live sports data...</div>
+            </div>
+        </main>
+
+        <footer class="mt-12 text-gray-400 text-xs text-center">
+            &copy; <span id="year"></span> Sterling Specialty Pharmacy. All rights reserved.
+        </footer>
+    </div>
+
+    <script>
+        // --- Core Dashboard Logic ---
+        const themeToggle = document.getElementById('theme-toggle');
+        const htmlClass = document.documentElement.classList;
+
+        if (htmlClass.contains('dark')) themeToggle.checked = true;
+
+        themeToggle.addEventListener('change', () => {
+            if (themeToggle.checked) {
+                htmlClass.add('dark');
+                localStorage.setItem('ssp-theme', 'dark');
+            } else {
+                htmlClass.remove('dark');
+                localStorage.setItem('ssp-theme', 'light');
+            }
+        });
+
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        // --- Hardcoded Tracker Configuration ---
+        // Format: [League Path, Team ID (or null for general league)]
+        const trackingConfig = [
+            { id: 'nfl-min', name: 'Minnesota Vikings', url: 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/15/schedule' },
+            { id: 'nfl-gb', name: 'Green Bay Packers', url: 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/9/schedule' },
+            { id: 'mlb-min', name: 'Minnesota Twins', url: 'https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/teams/10/schedule' },
+            { id: 'mlb-mil', name: 'Milwaukee Brewers', url: 'https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/teams/8/schedule' },
+            { id: 'nhl-min', name: 'Minnesota Wild', url: 'https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/teams/30/schedule' },
+            { id: 'ncaa-m', name: 'NCAA Men\'s Tournament', url: 'https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard', isScoreboard: true },
+            { id: 'ncaa-w', name: 'NCAA Women\'s Tournament', url: 'https://site.api.espn.com/apis/site/v2/sports/basketball/womens-college-basketball/scoreboard', isScoreboard: true }
+        ];
+
+        // --- Data Fetching & Rendering ---
+        async function fetchAllData() {
+            const feed = document.getElementById('sports-feed');
+            const refreshIcon = document.getElementById('refresh-icon');
+            refreshIcon.classList.add('animate-spin');
+
+            try {
+                const results = await Promise.all(
+                    trackingConfig.map(async (config) => {
+                        try {
+                            const resp = await fetch(config.url);
+                            const data = await resp.json();
+                            return processSportData(config, data);
+                        } catch (e) {
+                            console.error(`Failed to fetch ${config.name}`, e);
+                            return null;
+                        }
+                    })
+                );
+
+                const validHtml = results.filter(html => html !== null).join('');
+                feed.innerHTML = validHtml || '<div class="p-8 text-center text-sm text-gray-400">No data available at this time.</div>';
+            } catch (error) {
+                feed.innerHTML = '<div class="p-8 text-center text-sm text-red-400">System error loading feed.</div>';
+            } finally {
+                setTimeout(() => refreshIcon.classList.remove('animate-spin'), 500);
+            }
+        }
+
+        function processSportData(config, data) {
+            let event = null;
+
+            if (config.isScoreboard) {
+                // For NCAA general scoreboards, grab the first active or completed game
+                if (!data.events || data.events.length === 0) return generateEmptyCard(config.name, "No games currently scheduled.");
+                event = data.events.find(e => e.status.type.state === 'in') || data.events[0];
+            } else {
+                // For specific team schedules, find the most recently played or currently live game
+                if (!data.events || data.events.length === 0) return generateEmptyCard(config.name, "No recent games found.");
+                
+                // Reverse iterate to find the most recent/live game
+                for (let i = data.events.length - 1; i >= 0; i--) {
+                    const state = data.events[i].competitions[0].status.type.state;
+                    if (state === 'in' || state === 'post') {
+                        event = data.events[i];
+                        break;
+                    }
+                }
+                // Fallback to next upcoming if no past/live games
+                if (!event) event = data.events[0];
+            }
+
+            if (!event || !event.competitions || !event.competitions[0]) return null;
+
+            const comp = event.competitions[0];
+            const home = comp.competitors.find(c => c.homeAway === 'home');
+            const away = comp.competitors.find(c => c.homeAway === 'away');
+            
+            const state = comp.status.type.state;
+            const statusDetail = comp.status.type.shortDetail;
+            const isLive = state === 'in';
+            
+            // Extract Venue and Date
+            const venue = comp.venue ? comp.venue.fullName : 'TBD Venue';
+            const gameDate = new Date(comp.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+
+            // Extract Records
+            const homeRecord = home.records && home.records[0] ? home.records[0].summary : '0-0';
+            const awayRecord = away.records && away.records[0] ? away.records[0].summary : '0-0';
+
+            return `
+                <div class="p-4 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 block mb-1">
+                                ${config.name}
+                            </span>
+                            <div class="text-[11px] text-gray-500 dark:text-gray-400 flex items-center gap-2">
+                                <span>${gameDate}</span>
+                                <span>&bull;</span>
+                                <span class="truncate max-w-[150px]">${venue}</span>
+                            </div>
+                        </div>
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded ${isLive ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400 animate-pulse' : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-300'}">
+                            ${statusDetail}
+                        </span>
+                    </div>
+
+                    <div class="flex flex-col gap-2">
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center gap-3">
+                                <img src="${away.team.logos ? away.team.logos[0].href : ''}" class="w-6 h-6 object-contain" onerror="this.style.display='none'">
+                                <div class="flex flex-col">
+                                    <span class="text-sm ${away.winner ? 'font-bold' : ''}">${away.team.displayName}</span>
+                                    <span class="text-[10px] text-gray-400">${awayRecord}</span>
+                                </div>
+                            </div>
+                            <span class="text-lg font-mono ${away.winner ? 'text-sterling-green font-bold' : ''}">${away.score ? away.score : '-'}</span>
+                        </div>
+
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center gap-3">
+                                <img src="${home.team.logos ? home.team.logos[0].href : ''}" class="w-6 h-6 object-contain" onerror="this.style.display='none'">
+                                <div class="flex flex-col">
+                                    <span class="text-sm ${home.winner ? 'font-bold' : ''}">${home.team.displayName}</span>
+                                    <span class="text-[10px] text-gray-400">${homeRecord}</span>
+                                </div>
+                            </div>
+                            <span class="text-lg font-mono ${home.winner ? 'text-sterling-green font-bold' : ''}">${home.score ? home.score : '-'}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function generateEmptyCard(title, message) {
+            return `
+                <div class="p-4 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 block mb-2">${title}</span>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 italic">${message}</p>
+                </div>
+            `;
+        }
+
+        // Init
+        fetchAllData();
+        setInterval(fetchAllData, 60000);
+    </script>
+</body>
+</html>
