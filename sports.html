@@ -1,4 +1,68 @@
-<script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Sports Hub - SSP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { darkMode: 'class' }
+    </script>
+    <style>
+        .sterling-green { color: #16a34a; }
+        .bg-sterling-green { background-color: #16a34a; }
+        
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
+        .dark ::-webkit-scrollbar-thumb { background: #4b5563; }
+    </style>
+    <script>
+        if (localStorage.getItem('ssp-theme') === 'dark') {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen flex flex-col font-sans text-gray-800 dark:text-gray-100 transition-colors duration-300">
+
+    <div class="w-full p-4 flex justify-between items-center">
+        <a href="../index.html" class="flex items-center text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors">
+            <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+            Back to Dashboard
+        </a>
+        
+        <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" id="theme-toggle" class="sr-only peer">
+            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-sterling-green"></div>
+            <span class="ml-3 text-sm font-medium text-gray-500 dark:text-gray-400">Dark Mode</span>
+        </label>
+    </div>
+
+    <div class="flex-1 flex flex-col items-center px-4 pb-8">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-bold sterling-green">Sports Hub</h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400 uppercase tracking-widest">Sterling Specialty Pharmacy Internal Tool</p>
+        </header>
+
+        <main class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow max-w-md w-full overflow-hidden">
+            <div class="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-900/50">
+                <h2 class="font-semibold text-sm">Personalized Feed</h2>
+                <button onclick="fetchAllData(false)" class="text-sterling-green hover:opacity-75 focus:outline-none">
+                    <svg id="refresh-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                </button>
+            </div>
+            
+            <div id="sports-feed" class="max-h-[600px] overflow-y-auto divide-y divide-gray-100 dark:divide-gray-700">
+                <div class="p-8 text-center text-sm text-gray-400">Loading live sports data...</div>
+            </div>
+        </main>
+
+        <footer class="mt-12 text-gray-400 text-xs text-center">
+            &copy; <span id="year"></span> Sterling Specialty Pharmacy. All rights reserved.
+        </footer>
+    </div>
+
+    <script>
         // --- Core Dashboard Logic ---
         const themeToggle = document.getElementById('theme-toggle');
         const htmlClass = document.documentElement.classList;
@@ -18,21 +82,25 @@
         document.getElementById('year').textContent = new Date().getFullYear();
 
         // --- Hardcoded Tracker Configuration ---
+        // Added teamId to explicitly filter out generic league data during the offseason
         const trackingConfig = [
-            { id: 'nfl-min', name: 'Minnesota Vikings', url: 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/15/schedule' },
-            { id: 'nfl-gb', name: 'Green Bay Packers', url: 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/9/schedule' },
-            { id: 'mlb-min', name: 'Minnesota Twins', url: 'https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/teams/10/schedule' },
-            { id: 'mlb-mil', name: 'Milwaukee Brewers', url: 'https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/teams/8/schedule' },
-            { id: 'nhl-min', name: 'Minnesota Wild', url: 'https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/teams/30/schedule' },
+            { id: 'nfl-min', name: 'Minnesota Vikings', teamId: '15', url: 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/15/schedule' },
+            { id: 'nfl-gb', name: 'Green Bay Packers', teamId: '9', url: 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/9/schedule' },
+            { id: 'mlb-min', name: 'Minnesota Twins', teamId: '10', url: 'https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/teams/10/schedule' },
+            { id: 'mlb-mil', name: 'Milwaukee Brewers', teamId: '8', url: 'https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/teams/8/schedule' },
+            { id: 'nhl-min', name: 'Minnesota Wild', teamId: '30', url: 'https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/teams/30/schedule' },
             { id: 'ncaa-m', name: 'NCAA Men\'s Tournament', url: 'https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard', isScoreboard: true },
             { id: 'ncaa-w', name: 'NCAA Women\'s Tournament', url: 'https://site.api.espn.com/apis/site/v2/sports/basketball/womens-college-basketball/scoreboard', isScoreboard: true }
         ];
 
         // --- Data Fetching & Rendering ---
-        async function fetchAllData() {
+        async function fetchAllData(isAutoRefresh = false) {
             const feed = document.getElementById('sports-feed');
             const refreshIcon = document.getElementById('refresh-icon');
-            refreshIcon.classList.add('animate-spin');
+            
+            if (isAutoRefresh !== true) {
+                refreshIcon.classList.add('animate-spin');
+            }
 
             try {
                 const results = await Promise.all(
@@ -42,88 +110,112 @@
                             const data = await resp.json();
                             return processSportData(config, data);
                         } catch (e) {
-                            console.error(`Failed to fetch ${config.name}`, e);
-                            return null;
+                            console.warn(`Failed parsing ${config.name}:`, e);
+                            return createEmptyCard(config.name, 4, "Data feed temporarily unavailable.");
                         }
                     })
                 );
 
-                // Filter out nulls, sort by calculated weight (Live -> Active -> Offseason), and inject
                 const validResults = results.filter(r => r !== null);
                 validResults.sort((a, b) => a.weight - b.weight);
                 
                 feed.innerHTML = validResults.map(r => r.html).join('') || '<div class="p-8 text-center text-sm text-gray-400">No data available at this time.</div>';
             } catch (error) {
-                feed.innerHTML = '<div class="p-8 text-center text-sm text-red-400">System error loading feed.</div>';
+                if (isAutoRefresh !== true) {
+                    feed.innerHTML = '<div class="p-8 text-center text-sm text-red-400">System error loading feed.</div>';
+                }
             } finally {
-                setTimeout(() => refreshIcon.classList.remove('animate-spin'), 500);
+                if (isAutoRefresh !== true) {
+                    setTimeout(() => refreshIcon.classList.remove('animate-spin'), 500);
+                }
             }
         }
 
         function processSportData(config, data) {
             let event = null;
 
-            if (config.isScoreboard) {
-                if (!data.events || data.events.length === 0) return createEmptyCard(config.name, 4);
-                event = data.events.find(e => e.status.type.state === 'in') || data.events[0];
-            } else {
-                if (!data.events || data.events.length === 0) return createEmptyCard(config.name, 4);
+            if (!data?.events || data.events.length === 0) {
+                return createEmptyCard(config.name, 5, "No schedule data found.");
+            }
+
+            // FILTER: Ensure the game actually involves the requested team
+            if (!config.isScoreboard && config.teamId) {
+                data.events = data.events.filter(e => {
+                    const competitors = e?.competitions?.[0]?.competitors || [];
+                    return competitors.some(c => c?.team?.id === config.teamId);
+                });
                 
+                if (data.events.length === 0) {
+                     return createEmptyCard(config.name, 5, "Offseason / Schedule not released.");
+                }
+            }
+
+            if (config.isScoreboard) {
+                event = data.events.find(e => e?.status?.type?.state === 'in') || data.events[0];
+            } else {
                 for (let i = data.events.length - 1; i >= 0; i--) {
-                    const state = data.events[i].competitions[0].status.type.state;
+                    const state = data.events[i]?.competitions?.[0]?.status?.type?.state;
                     if (state === 'in' || state === 'post') {
                         event = data.events[i];
                         break;
                     }
                 }
-                if (!event) event = data.events[0];
+                if (!event) event = data.events[0]; 
             }
 
-            if (!event || !event.competitions || !event.competitions[0]) return null;
+            if (!event?.competitions?.[0]) return createEmptyCard(config.name, 4, "Incomplete game data.");
 
             const comp = event.competitions[0];
-            const home = comp.competitors.find(c => c.homeAway === 'home');
-            const away = comp.competitors.find(c => c.homeAway === 'away');
-            const state = comp.status.type.state;
+            const competitors = comp.competitors || [];
+            
+            const home = competitors.find(c => c?.homeAway === 'home') || competitors[0];
+            const away = competitors.find(c => c?.homeAway === 'away') || competitors[1];
+
+            if (!home || !away) return createEmptyCard(config.name, 4, "Team data missing.");
+
+            const state = comp.status?.type?.state || 'pre';
             const isLive = state === 'in';
             const isPre = state === 'pre';
 
-            // --- Date & Relevance Math ---
-            const gameDate = new Date(comp.date);
+            const gameDate = comp.date ? new Date(comp.date) : new Date();
             const now = new Date();
             const daysDiff = (gameDate - now) / (1000 * 60 * 60 * 24);
             const absDays = Math.abs(daysDiff);
-            const isOffseason = absDays > 21; // More than 3 weeks away or past
+            const isOffseason = absDays > 21; 
 
-            // Assign sorting weight
-            let weight = 4; // Default to bottom
-            if (isLive) weight = 1; // Top priority
-            else if (!isOffseason && daysDiff > 0) weight = 2; // Active Upcoming
-            else if (!isOffseason && daysDiff <= 0) weight = 3; // Active Past
-            if (isOffseason) weight = 5; // Absolute bottom
+            let weight = 4; 
+            if (isLive) weight = 1; 
+            else if (!isOffseason && daysDiff > 0) weight = 2; 
+            else if (!isOffseason && daysDiff <= 0) weight = 3; 
+            if (isOffseason) weight = 5; 
 
-            // Format UI details
-            const venue = comp.venue ? comp.venue.fullName : 'TBD Venue';
+            const venue = comp.venue?.fullName || 'TBD Venue';
             const displayDate = gameDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
             
-            // Fix the Object bug & handle pre-game scores
+            // PARSER: Handles nested objects from the schedule API
             const parseScore = (teamData) => {
-                if (isPre || !teamData.score || typeof teamData.score === 'object') return '-';
+                if (isPre || teamData?.score == null) return '-';
+                if (typeof teamData.score === 'object') {
+                    return teamData.score.displayValue ?? teamData.score.value ?? '-';
+                }
                 return teamData.score;
             };
+            
             const awayScore = parseScore(away);
             const homeScore = parseScore(home);
+            const awayLogo = away.team?.logos?.[0]?.href || '';
+            const homeLogo = home.team?.logos?.[0]?.href || '';
+            const awayName = away.team?.displayName || 'TBA';
+            const homeName = home.team?.displayName || 'TBA';
+            const awayRecord = away.records?.[0]?.summary || '';
+            const homeRecord = home.records?.[0]?.summary || '';
 
-            // Conditional styling based on relevance
-            const statusDetail = isOffseason ? 'OFFSEASON' : comp.status.type.shortDetail;
+            const statusDetail = isOffseason ? 'OFFSEASON' : (comp.status?.type?.shortDetail || 'Scheduled');
             const statusClass = isLive 
                 ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400 animate-pulse' 
                 : (isOffseason ? 'bg-gray-100 text-gray-400 dark:bg-gray-800 dark:text-gray-600' : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-300');
             
-            const rowClass = isOffseason ? 'p-4 opacity-60 grayscale hover:grayscale-0 transition-all' : 'p-4 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors';
-
-            const homeRecord = home.records && home.records[0] ? home.records[0].summary : '';
-            const awayRecord = away.records && away.records[0] ? away.records[0].summary : '';
+            const rowClass = isOffseason ? 'p-4 opacity-50 grayscale hover:grayscale-0 transition-all' : 'p-4 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors';
 
             const html = `
                 <div class="${rowClass}">
@@ -146,9 +238,9 @@
                     <div class="flex flex-col gap-2">
                         <div class="flex justify-between items-center">
                             <div class="flex items-center gap-3">
-                                <img src="${away.team.logos ? away.team.logos[0].href : ''}" class="w-6 h-6 object-contain" onerror="this.style.display='none'">
+                                ${awayLogo ? `<img src="${awayLogo}" class="w-6 h-6 object-contain" onerror="this.style.display='none'">` : '<div class="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700"></div>'}
                                 <div class="flex flex-col">
-                                    <span class="text-sm ${away.winner ? 'font-bold' : ''}">${away.team.displayName}</span>
+                                    <span class="text-sm ${away.winner ? 'font-bold' : ''}">${awayName}</span>
                                     <span class="text-[10px] text-gray-400">${awayRecord}</span>
                                 </div>
                             </div>
@@ -157,9 +249,9 @@
 
                         <div class="flex justify-between items-center">
                             <div class="flex items-center gap-3">
-                                <img src="${home.team.logos ? home.team.logos[0].href : ''}" class="w-6 h-6 object-contain" onerror="this.style.display='none'">
+                                ${homeLogo ? `<img src="${homeLogo}" class="w-6 h-6 object-contain" onerror="this.style.display='none'">` : '<div class="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700"></div>'}
                                 <div class="flex flex-col">
-                                    <span class="text-sm ${home.winner ? 'font-bold' : ''}">${home.team.displayName}</span>
+                                    <span class="text-sm ${home.winner ? 'font-bold' : ''}">${homeName}</span>
                                     <span class="text-[10px] text-gray-400">${homeRecord}</span>
                                 </div>
                             </div>
@@ -172,19 +264,23 @@
             return { html, weight };
         }
 
-        function createEmptyCard(title, weight) {
+        function createEmptyCard(title, weight, message = "Offseason / No active schedule.") {
             return {
                 html: `
                     <div class="p-4 opacity-50 grayscale">
                         <span class="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 block mb-2">${title}</span>
-                        <p class="text-sm text-gray-500 dark:text-gray-400 italic">Offseason / No active schedule.</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 italic">${message}</p>
                     </div>
                 `,
                 weight: weight
             };
         }
 
-        // Init
-        fetchAllData();
-        setInterval(fetchAllData, 60000);
+        // Init load manually (spinner shows)
+        fetchAllData(false);
+        
+        // Auto-refresh every 10 seconds silently (no spinner)
+        setInterval(() => fetchAllData(true), 10000);
     </script>
+</body>
+</html>
