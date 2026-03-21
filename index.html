@@ -27,6 +27,14 @@
         
         .toggle-checkbox:checked { right: 0; border-color: #3b82f6; }
         .toggle-checkbox:checked + .toggle-label { background-color: #3b82f6; }
+        
+        details > summary { list-style: none; }
+        details > summary::-webkit-details-marker { display: none; }
+        
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
+        .dark ::-webkit-scrollbar-thumb { background: #4b5563; }
     </style>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 min-h-screen flex flex-col font-sans text-gray-800 dark:text-gray-100 transition-colors duration-300">
@@ -67,7 +75,7 @@
                         </svg>
                     </div>
                     <div>
-                        <h2 class="text-xl font-bold">55426 Forecast</h2>
+                        <h2 class="text-xl font-bold">St. Louis Park Forecast</h2>
                         <p class="text-gray-600 dark:text-gray-400 text-sm">5-Day Outlook</p>
                     </div>
                 </div>
@@ -84,7 +92,6 @@
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                
                 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover-scale">
                     <div class="flex items-center mb-4">
                         <div class="bg-red-100 dark:bg-red-900/30 p-3 rounded-lg mr-4">
@@ -112,6 +119,80 @@
                         <span class="text-gray-400 text-sm italic animate-pulse">Syncing pipeline...</span>
                     </div>
                 </div>
+            </div>
+
+            <!-- Sports Section -->
+            <div class="w-full flex flex-col gap-4 mb-8">
+                <h2 class="text-2xl font-bold mt-4">Sports Feed</h2>
+
+                <!-- Pro Sports -->
+                <details class="group bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+                    <summary class="flex justify-between items-center font-bold cursor-pointer p-6">
+                        <div class="flex items-center">
+                            <div class="bg-indigo-100 dark:bg-indigo-900/30 p-2 rounded-lg mr-4">
+                                <span class="text-indigo-600 dark:text-indigo-400 text-xl">🏈</span>
+                            </div>
+                            Pro Sports
+                        </div>
+                        <span class="transition group-open:rotate-180">
+                            <svg fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="24"><polyline points="6 9 12 15 18 9"/></svg>
+                        </span>
+                    </summary>
+                    <div id="pro-feed" class="max-h-[500px] overflow-y-auto divide-y divide-gray-100 dark:divide-gray-700 border-t border-gray-100 dark:border-gray-700">
+                        <div class="p-8 text-center text-sm text-gray-400 animate-pulse">Loading data...</div>
+                    </div>
+                </details>
+
+                <!-- College Sports -->
+                <details class="group bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+                    <summary class="flex justify-between items-center font-bold cursor-pointer p-6">
+                        <div class="flex items-center">
+                            <div class="bg-orange-100 dark:bg-orange-900/30 p-2 rounded-lg mr-4">
+                                <span class="text-orange-600 dark:text-orange-400 text-xl">🎓</span>
+                            </div>
+                            Collegiate Athletics
+                        </div>
+                        <span class="transition group-open:rotate-180">
+                            <svg fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="24"><polyline points="6 9 12 15 18 9"/></svg>
+                        </span>
+                    </summary>
+                    <div id="college-feed" class="max-h-[500px] overflow-y-auto divide-y divide-gray-100 dark:divide-gray-700 border-t border-gray-100 dark:border-gray-700">
+                        <div class="p-8 text-center text-sm text-gray-400 animate-pulse">Loading data...</div>
+                    </div>
+                </details>
+
+                <!-- NCAA Tournament -->
+                <div id="ncaa-container" class="transition-all duration-300">
+                    <details id="ncaa-details" class="group bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+                        <summary id="ncaa-summary" class="flex justify-between items-center font-bold cursor-pointer p-6">
+                            <div class="flex items-center">
+                                <div class="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-lg mr-4">
+                                    <span class="text-blue-600 dark:text-blue-400 text-xl">🏀</span>
+                                </div>
+                                <span id="ncaa-title">NCAA Tournament</span>
+                            </div>
+                            <span class="transition group-open:rotate-180">
+                                <svg fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="24"><polyline points="6 9 12 15 18 9"/></svg>
+                            </span>
+                        </summary>
+                        <div class="p-0 border-t border-gray-100 dark:border-gray-700">
+                            <div class="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gray-100 dark:divide-gray-700">
+                                <div>
+                                    <h3 class="font-bold p-3 bg-gray-50 dark:bg-gray-900/50 text-sm text-center">Men's Bracket</h3>
+                                    <div id="ncaa-mens-feed" class="max-h-[400px] overflow-y-auto divide-y divide-gray-100 dark:divide-gray-700">
+                                        <div class="p-4 text-center text-sm text-gray-400">Loading live bracket...</div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold p-3 bg-gray-50 dark:bg-gray-900/50 text-sm text-center">Women's Bracket</h3>
+                                    <div id="ncaa-womens-feed" class="max-h-[400px] overflow-y-auto divide-y divide-gray-100 dark:divide-gray-700">
+                                        <div class="p-4 text-center text-sm text-gray-400">Loading live bracket...</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </details>
+                </div>
 
             </div>
 
@@ -128,9 +209,7 @@
 
         const htmlElement = document.documentElement;
         const darkModeToggle = document.getElementById('darkModeToggle');
-
-        const isDarkMode = localStorage.getItem('theme') === 'dark' || 
-                           (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        const isDarkMode = localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
         if (isDarkMode) {
             htmlElement.classList.add('dark');
@@ -147,17 +226,15 @@
             }
         });
 
+        // --- Weather & Google Pipelines ---
         async function fetchWeather() {
             const weatherContainer = document.getElementById('weatherContainer');
             try {
                 const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=44.95&longitude=-93.38&current=temperature_2m,weathercode&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=America%2FChicago&temperature_unit=fahrenheit');
-                
-                if (!res.ok) throw new Error('Network response was not ok');
+                if (!res.ok) throw new Error('Network error');
                 const data = await res.json();
                 
-                const currentTemp = Math.round(data.current.temperature_2m);
                 const currentCode = data.current.weathercode;
-                
                 let currentIcon = '☀️';
                 if (currentCode >= 1 && currentCode <= 3) currentIcon = '⛅';
                 if (currentCode >= 45 && currentCode <= 48) currentIcon = '🌫️';
@@ -167,21 +244,16 @@
                 if (currentCode >= 95 && currentCode <= 99) currentIcon = '⛈️';
 
                 document.getElementById('miniWeatherIcon').textContent = currentIcon;
-                document.getElementById('miniWeatherTemp').textContent = currentTemp + '°F';
+                document.getElementById('miniWeatherTemp').textContent = Math.round(data.current.temperature_2m) + '°F';
                 document.getElementById('miniWeather').classList.remove('hidden');
 
                 let weatherHTML = '<div class="flex flex-col sm:flex-row justify-between gap-4 w-full">';
-                
                 for (let i = 0; i < 5; i++) {
-                    const dateStr = data.daily.time[i] + 'T00:00:00';
-                    const date = new Date(dateStr);
+                    const date = new Date(data.daily.time[i] + 'T00:00:00');
                     const dayName = new Intl.DateTimeFormat('en-US', { weekday: 'short' }).format(date);
+                    const formattedDate = new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric' }).format(date);
                     
-                    const maxTemp = Math.round(data.daily.temperature_2m_max[i]);
-                    const minTemp = Math.round(data.daily.temperature_2m_min[i]);
                     const code = data.daily.weathercode[i];
-                    const precipProb = data.daily.precipitation_probability_max[i];
-                    
                     let icon = '☀️';
                     if (code >= 1 && code <= 3) icon = '⛅';
                     if (code >= 45 && code <= 48) icon = '🌫️';
@@ -190,8 +262,9 @@
                     if (code >= 80 && code <= 82) icon = '🌦️';
                     if (code >= 95 && code <= 99) icon = '⛈️';
 
-                    const precipDisplay = precipProb > 20 
-                        ? `<div class="text-xs text-blue-500 dark:text-blue-400 font-bold flex items-center mt-1" title="Precipitation Probability"><svg class="w-3 h-3 mr-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.5c-3.033 0-5.5-2.467-5.5-5.5 0-2.333 1.583-4.833 5.5-9.833 3.917 5 5.5 7.5 5.5 9.833 0 3.033-2.467 5.5-5.5 5.5z"/></svg>${precipProb}%</div>`
+                    const precip = data.daily.precipitation_probability_max[i];
+                    const precipDisplay = precip > 20 
+                        ? `<div class="text-xs text-blue-500 dark:text-blue-400 font-bold flex items-center mt-1"><svg class="w-3 h-3 mr-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.5c-3.033 0-5.5-2.467-5.5-5.5 0-2.333 1.583-4.833 5.5-9.833 3.917 5 5.5 7.5 5.5 9.833 0 3.033-2.467 5.5-5.5 5.5z"/></svg>${precip}%</div>`
                         : `<div class="text-xs opacity-0 mt-1">0%</div>`;
 
                     weatherHTML += `
@@ -199,38 +272,25 @@
                             <span class="font-bold text-sm text-gray-700 dark:text-gray-300 uppercase tracking-wide">${dayName}</span>
                             <span class="text-3xl my-1">${icon}</span>
                             <div class="text-sm font-semibold">
-                                <span class="text-gray-900 dark:text-white">${maxTemp}°</span>
+                                <span class="text-gray-900 dark:text-white">${Math.round(data.daily.temperature_2m_max[i])}°</span>
                                 <span class="text-gray-300 dark:text-gray-500 mx-1">|</span>
-                                <span class="text-gray-500 dark:text-gray-400">${minTemp}°</span>
+                                <span class="text-gray-500 dark:text-gray-400">${Math.round(data.daily.temperature_2m_min[i])}°</span>
                             </div>
                             ${precipDisplay}
+                            <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">${formattedDate}</div>
                         </div>
                     `;
                 }
-                
-                weatherHTML += '</div>';
-                weatherContainer.innerHTML = weatherHTML;
-
+                weatherContainer.innerHTML = weatherHTML + '</div>';
             } catch (error) {
-                console.error("Weather fetch failed:", error);
-                weatherContainer.innerHTML = `
-                    <div class="text-center text-red-500 bg-red-50 dark:bg-red-900/20 p-4 rounded-lg border border-red-200 dark:border-red-800 w-full">
-                        Unable to connect to weather service.
-                    </div>
-                `;
+                weatherContainer.innerHTML = `<div class="text-center text-red-500 text-sm">Weather service unavailable.</div>`;
             }
         }
 
         async function fetchGoogleData() {
             const url = 'https://script.google.com/macros/s/AKfycbxQbf7ex5rJcVgavVsaFs7BfhOWi6ioy3HD7TA1Oo9lAaUFitR6seFZrvMiU8_J8uLRPw/exec'; 
-            
             try {
-                const res = await fetch(url, { 
-                    method: 'GET',
-                    redirect: 'follow' 
-                });
-                
-                if (!res.ok) throw new Error('Network response was not ok');
+                const res = await fetch(url, { method: 'GET', redirect: 'follow' });
                 const data = await res.json();
                 
                 const emailList = document.getElementById('emailList');
@@ -242,17 +302,284 @@
                 calList.innerHTML = data.calendar && data.calendar.length > 0
                     ? data.calendar.map(item => `<a href="https://calendar.google.com/" target="_blank" class="block text-sm border-b border-gray-100 dark:border-gray-700 pb-2 hover:text-green-500 transition-colors cursor-pointer"><strong class="text-gray-900 dark:text-gray-200">${item.date}</strong><br/>${item.title}</a>`).join('')
                     : '<span class="text-sm text-gray-500">Schedule clear for the next 3 days.</span>';
-                    
             } catch (error) {
-                console.error('Google Data Error:', error);
-                document.getElementById('emailList').innerHTML = '<span class="text-sm text-red-500">Pipeline error. Check console.</span>';
-                document.getElementById('calendarList').innerHTML = '<span class="text-sm text-red-500">Pipeline error. Check console.</span>';
+                document.getElementById('emailList').innerHTML = '<span class="text-sm text-red-500">Pipeline error.</span>';
+                document.getElementById('calendarList').innerHTML = '<span class="text-sm text-red-500">Pipeline error.</span>';
             }
         }
 
-        document.addEventListener("DOMContentLoaded", () => {
+        // --- Sports Pipelines ---
+        const proConfig = [
+            { id: 'min-nfl', name: 'Minnesota Vikings', teamId: '15', league: 'nfl', url: 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/15/schedule' },
+            { id: 'gb-nfl', name: 'Green Bay Packers', teamId: '9', league: 'nfl', url: 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/9/schedule' },
+            { id: 'min-nba', name: 'Minnesota Timberwolves', teamId: '16', league: 'nba', url: 'https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/16/schedule' },
+            { id: 'mil-nba', name: 'Milwaukee Bucks', teamId: '15', league: 'nba', url: 'https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/15/schedule' },
+            { id: 'min-mlb', name: 'Minnesota Twins', teamId: '10', league: 'mlb', url: 'https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/teams/10/schedule' },
+            { id: 'mil-mlb', name: 'Milwaukee Brewers', teamId: '8', league: 'mlb', url: 'https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/teams/8/schedule' },
+            { id: 'min-nhl', name: 'Minnesota Wild', teamId: '30', league: 'nhl', url: 'https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/teams/30/schedule' }
+        ];
+
+        const collegeConfig = [
+            { name: 'Wisconsin Football', teamId: '275', url: 'https://site.api.espn.com/apis/site/v2/sports/football/college-football/teams/275/schedule' },
+            { name: 'Minnesota Football', teamId: '135', url: 'https://site.api.espn.com/apis/site/v2/sports/football/college-football/teams/135/schedule' },
+            { name: 'Wisconsin M. Basketball', teamId: '275', url: 'https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/teams/275/schedule' },
+            { name: 'Minnesota M. Basketball', teamId: '135', url: 'https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/teams/135/schedule' },
+            { name: 'Wisconsin W. Basketball', teamId: '275', url: 'https://site.api.espn.com/apis/site/v2/sports/basketball/womens-college-basketball/teams/275/schedule' },
+            { name: 'Minnesota W. Basketball', teamId: '135', url: 'https://site.api.espn.com/apis/site/v2/sports/basketball/womens-college-basketball/teams/135/schedule' },
+            { name: 'Wisconsin M. Hockey', teamId: '275', url: 'https://site.api.espn.com/apis/site/v2/sports/hockey/mens-college-hockey/teams/275/schedule' },
+            { name: 'Minnesota M. Hockey', teamId: '135', url: 'https://site.api.espn.com/apis/site/v2/sports/hockey/mens-college-hockey/teams/135/schedule' },
+            { name: 'Wisconsin W. Hockey', teamId: '275', url: 'https://site.api.espn.com/apis/site/v2/sports/hockey/womens-college-hockey/teams/275/schedule' },
+            { name: 'Minnesota W. Hockey', teamId: '135', url: 'https://site.api.espn.com/apis/site/v2/sports/hockey/womens-college-hockey/teams/135/schedule' }
+        ];
+
+        let standingsCache = {};
+
+        async function fetchAllStandings() {
+            const leagues = [
+                { id: 'nfl', sport: 'football' }, { id: 'nba', sport: 'basketball' },
+                { id: 'mlb', sport: 'baseball' }, { id: 'nhl', sport: 'hockey' },
+                { id: 'mens-college-basketball', sport: 'basketball' },
+                { id: 'womens-college-basketball', sport: 'basketball' }
+            ];
+            for (const lg of leagues) {
+                try {
+                    const resp = await fetch(`https://site.api.espn.com/apis/v2/sports/${lg.sport}/${lg.id}/standings`);
+                    standingsCache[lg.id] = await resp.json();
+                } catch (e) {}
+            }
+        }
+
+        function getRecord(teamData, leagueId) {
+            let record = teamData?.records?.[0]?.summary || teamData?.team?.record?.items?.[0]?.summary || teamData?.team?.record?.summary;
+            if (record) return record;
+            
+            const data = standingsCache[leagueId];
+            if (!data || !teamData?.team?.id) return '';
+            
+            function search(obj) {
+                if (record) return; 
+                if (!obj || typeof obj !== 'object') return;
+                if (obj.team && String(obj.team.id) === String(teamData.team.id)) {
+                    const stats = obj.stats || [];
+                    const overall = stats.find(s => s.name === 'overall') || stats.find(s => s.type === 'overall') || stats[0];
+                    if (overall) record = overall.displayValue || overall.summary || '';
+                    return;
+                }
+                if (Array.isArray(obj)) { for (let item of obj) search(item); } 
+                else { for (let key in obj) search(obj[key]); }
+            }
+            search(data);
+            return record;
+        }
+
+        function renderStatusCard(title, status, statusClass) {
+            return `
+                <div class="p-4 flex items-center justify-between bg-gray-50/50 dark:bg-gray-800/50">
+                    <span class="text-sm font-bold text-gray-500 dark:text-gray-400">${title}</span>
+                    <span class="text-[10px] font-bold px-2 py-1 rounded tracking-widest ${statusClass}">${status}</span>
+                </div>
+            `;
+        }
+
+        function processTeamData(config, data) {
+            if (!data?.events || data.events.length === 0) return { html: renderStatusCard(config.name, 'UNAVAILABLE', 'bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400'), weight: 6 };
+
+            const isPreseason = data.events.some(e => e.season?.type === 1);
+            if (config.league === 'mlb' && isPreseason) {
+                return { html: renderStatusCard(config.name, 'SPRING TRAINING', 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-500'), weight: 5 };
+            }
+
+            const teamEvents = data.events.filter(e => {
+                const comps = e?.competitions?.[0]?.competitors || [];
+                return comps.some(c => String(c?.team?.id) === String(config.teamId));
+            });
+            
+            if (teamEvents.length === 0) return { html: renderStatusCard(config.name, 'OFFSEASON', 'bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400'), weight: 5 };
+
+            const now = new Date();
+            let event = teamEvents.find(e => e.status?.type?.state === 'in');
+            
+            if (!event) {
+                event = teamEvents.reduce((closest, current) => {
+                    const cDate = new Date(current.competitions?.[0]?.date || 0);
+                    const clDate = new Date(closest.competitions?.[0]?.date || 0);
+                    return Math.abs(cDate - now) < Math.abs(clDate - now) ? current : closest;
+                });
+            }
+
+            const comp = event?.competitions?.[0];
+            if (!comp) return { html: renderStatusCard(config.name, 'OFFSEASON', 'bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400'), weight: 5 };
+
+            const gameDate = new Date(comp.date);
+            const daysDiff = (gameDate - now) / (1000 * 60 * 60 * 24);
+            
+            if (Math.abs(daysDiff) > 21) return { html: renderStatusCard(config.name, 'OFFSEASON', 'bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400'), weight: 5 };
+
+            const comps = comp.competitors || [];
+            const home = comps.find(c => c?.homeAway === 'home') || comps[0];
+            const away = comps.find(c => c?.homeAway === 'away') || comps[1];
+
+            const state = comp.status?.type?.state || 'pre';
+            const isLive = state === 'in';
+            const weight = isLive ? 1 : (daysDiff > 0 ? 2 : 3); 
+
+            const venue = comp.notes?.[0]?.headline || comp.venue?.fullName || 'TBD Venue';
+            const displayDate = gameDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+            
+            const parseScore = (team) => {
+                if (state === 'pre' || team?.score == null) return '-';
+                return typeof team.score === 'object' ? (team.score.displayValue ?? team.score.value ?? '-') : team.score;
+            };
+            
+            const statusClass = isLive 
+                ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400 animate-pulse' 
+                : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-300';
+            
+            const renderRow = (t) => `
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        ${t?.team?.logos?.[0]?.href ? `<img src="${t.team.logos[0].href}" class="w-6 h-6 object-contain" onerror="this.style.opacity='0'">` : '<div class="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700"></div>'}
+                        <div class="flex flex-col">
+                            <span class="text-sm ${t?.winner ? 'font-bold text-gray-900 dark:text-white' : 'text-gray-700 dark:text-gray-200'}">${t?.team?.shortDisplayName || t?.team?.displayName || 'TBA'}</span>
+                            <span class="text-[10px] text-gray-400">${getRecord(t, config.league)}</span>
+                        </div>
+                    </div>
+                    <span class="text-lg font-mono ${t?.winner ? 'text-blue-500 font-bold' : 'text-gray-600 dark:text-gray-400'}">${parseScore(t)}</span>
+                </div>
+            `;
+
+            const titleStr = (config.league === 'nfl' && event.season?.type === 1) ? `${config.name} <span class="text-orange-500 ml-1">(PRE)</span>` : config.name;
+
+            const html = `
+                <div class="p-4 bg-white dark:bg-gray-800">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-gray-400 block mb-1">${titleStr}</span>
+                            <div class="text-[11px] text-gray-500 flex items-center gap-2">
+                                <span>${displayDate}</span><span>&bull;</span><span class="truncate max-w-[150px]">${venue}</span>
+                            </div>
+                        </div>
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded ${statusClass}">${comp.status?.type?.shortDetail || 'TBD'}</span>
+                    </div>
+                    <div class="flex flex-col gap-2">${renderRow(away)}${renderRow(home)}</div>
+                </div>
+            `;
+            return { html, weight };
+        }
+
+        async function fetchFeedGroup(configArray, containerId) {
+            const container = document.getElementById(containerId);
+            try {
+                const results = await Promise.all(configArray.map(async (config) => {
+                    try {
+                        const resp = await fetch(config.url);
+                        return processTeamData(config, await resp.json());
+                    } catch (e) {
+                        return { html: renderStatusCard(config.name, 'UNAVAILABLE', 'bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400'), weight: 6 };
+                    }
+                }));
+                const valid = results.filter(r => r !== null).sort((a, b) => a.weight - b.weight);
+                container.innerHTML = valid.map(r => r.html).join('') || '<div class="p-8 text-center text-sm text-gray-400">No data available.</div>';
+            } catch (e) {
+                container.innerHTML = '<div class="p-8 text-center text-sm text-red-400">Feed error.</div>';
+            }
+        }
+
+        async function fetchNCAATournament(gender, containerId) {
+            const container = document.getElementById(containerId);
+            try {
+                const now = new Date();
+                const d = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;
+                const url = `https://site.api.espn.com/apis/site/v2/sports/basketball/${gender}-college-basketball/scoreboard?dates=${d}`;
+                
+                const resp = await fetch(url);
+                const data = await resp.json();
+                
+                if (!data?.events || data.events.length === 0) {
+                    container.innerHTML = '<div class="p-6 text-center text-sm text-gray-500 italic">No tournament games today.</div>';
+                    return;
+                }
+                
+                let targetGames = data.events.sort((a, b) => {
+                    const sA = a.status?.type?.state; const sB = b.status?.type?.state;
+                    if (sA === 'in' && sB !== 'in') return -1;
+                    if (sA !== 'in' && sB === 'in') return 1;
+                    return new Date(a.date) - new Date(b.date);
+                });
+
+                container.innerHTML = targetGames.map(event => {
+                    const comp = event.competitions?.[0];
+                    if (!comp) return '';
+                    const home = comp.competitors?.find(c => c.homeAway === 'home');
+                    const away = comp.competitors?.find(c => c.homeAway === 'away');
+                    if (!home || !away) return '';
+
+                    const state = comp.status?.type?.state;
+                    const isLive = state === 'in';
+                    const isPre = state === 'pre';
+                    
+                    const time = new Date(comp.date).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+                    const statusClass = isLive ? 'text-red-600 dark:text-red-400 animate-pulse' : 'text-gray-500 dark:text-gray-400';
+
+                    const renderTeam = (t) => `
+                        <div class="flex items-center gap-2">
+                            ${t.curatedRank?.current < 26 ? `<span class="text-[10px] text-gray-400 font-mono">${t.curatedRank.current}</span>` : ''}
+                            <span class="text-sm ${t.winner ? 'font-bold text-gray-900 dark:text-white' : 'text-gray-700 dark:text-gray-200'}">${t.team?.shortDisplayName || 'TBA'}</span>
+                        </div>
+                        <span class="text-sm font-mono ${t.winner ? 'font-bold text-blue-500' : 'text-gray-600 dark:text-gray-400'}">${isPre ? '-' : (t.score || '-')}</span>
+                    `;
+
+                    return `
+                        <div class="p-3 bg-white dark:bg-gray-800">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-[10px] font-bold text-gray-400 tracking-wider truncate">${event.shortName}</span>
+                                <span class="text-[10px] font-bold ${statusClass}">${isPre ? time : comp.status?.type?.shortDetail}</span>
+                            </div>
+                            <div class="flex flex-col gap-1 w-full">
+                                <div class="flex justify-between">${renderTeam(away)}</div>
+                                <div class="flex justify-between">${renderTeam(home)}</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (e) {
+                container.innerHTML = '<div class="p-4 text-center text-sm text-red-400">Unavailable.</div>';
+            }
+        }
+
+        function checkNCAAWindow() {
+            const container = document.getElementById('ncaa-container');
+            const details = document.getElementById('ncaa-details');
+            const title = document.getElementById('ncaa-title');
+            
+            const now = new Date();
+            const year = now.getFullYear();
+            
+            // Active window: March 10 to April 15.
+            const activeStart = new Date(year, 2, 10);
+            const activeEnd = new Date(year, 3, 15);
+            
+            if (now < activeStart || now > activeEnd) {
+                container.classList.add('opacity-40', 'grayscale', 'pointer-events-none');
+                details.classList.remove('hover-scale');
+                title.innerHTML += ' <span class="text-xs font-normal text-gray-500 ml-2">(Off-season)</span>';
+                return false;
+            }
+            return true;
+        }
+
+        document.addEventListener("DOMContentLoaded", async () => {
             fetchWeather();
             fetchGoogleData();
+            
+            await fetchAllStandings();
+            fetchFeedGroup(proConfig, 'pro-feed');
+            fetchFeedGroup(collegeConfig, 'college-feed');
+            
+            if (checkNCAAWindow()) {
+                fetchNCAATournament('mens', 'ncaa-mens-feed');
+                fetchNCAATournament('womens', 'ncaa-womens-feed');
+            }
         });
     </script>
 </body>
