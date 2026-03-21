@@ -92,11 +92,11 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                             </svg>
                         </div>
-                        <h2 class="text-xl font-bold">Starred Emails</h2>
+                        <h2 class="text-xl font-bold">Recent Emails</h2>
                     </div>
-                    <ul id="emailList" class="space-y-3 mt-4">
-                        <li class="text-gray-400 text-sm italic animate-pulse">Syncing pipeline...</li>
-                    </ul>
+                    <div id="emailList" class="space-y-3 mt-4 flex flex-col">
+                        <span class="text-gray-400 text-sm italic animate-pulse">Syncing pipeline...</span>
+                    </div>
                 </div>
 
                 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover-scale">
@@ -108,9 +108,9 @@
                         </div>
                         <h2 class="text-xl font-bold">Upcoming Events</h2>
                     </div>
-                    <ul id="calendarList" class="space-y-3 mt-4">
-                        <li class="text-gray-400 text-sm italic animate-pulse">Syncing pipeline...</li>
-                    </ul>
+                    <div id="calendarList" class="space-y-3 mt-4 flex flex-col">
+                        <span class="text-gray-400 text-sm italic animate-pulse">Syncing pipeline...</span>
+                    </div>
                 </div>
 
             </div>
@@ -222,7 +222,7 @@
         }
 
         async function fetchGoogleData() {
-            const url = 'https://script.google.com/macros/s/AKfycbxKIcuEZgMfopDpAhczuHvyTAh4qJhqZw7OeWMfxqhY9BmPyIYu4o1K9lchTODYeVGSrg/exec'; 
+            const url = 'https://script.google.com/macros/s/AKfycbxQbf7ex5rJcVgavVsaFs7BfhOWi6ioy3HD7TA1Oo9lAaUFitR6seFZrvMiU8_J8uLRPw/exec'; 
             
             try {
                 const res = await fetch(url, { 
@@ -235,18 +235,18 @@
                 
                 const emailList = document.getElementById('emailList');
                 emailList.innerHTML = data.emails && data.emails.length > 0 
-                    ? data.emails.map(subject => `<li class="text-sm border-b border-gray-100 dark:border-gray-700 pb-2">${subject}</li>`).join('')
-                    : '<li class="text-sm text-gray-500">Inbox clear. No starred emails.</li>';
+                    ? data.emails.map(subject => `<a href="https://mail.google.com/" target="_blank" class="block text-sm border-b border-gray-100 dark:border-gray-700 pb-2 hover:text-red-500 transition-colors cursor-pointer">${subject}</a>`).join('')
+                    : '<span class="text-sm text-gray-500">Inbox clear.</span>';
 
                 const calList = document.getElementById('calendarList');
                 calList.innerHTML = data.calendar && data.calendar.length > 0
-                    ? data.calendar.map(item => `<li class="text-sm border-b border-gray-100 dark:border-gray-700 pb-2"><strong class="text-gray-900 dark:text-gray-200">${item.date}</strong><br/>${item.title}</li>`).join('')
-                    : '<li class="text-sm text-gray-500">Schedule clear for the next 3 days.</li>';
+                    ? data.calendar.map(item => `<a href="https://calendar.google.com/" target="_blank" class="block text-sm border-b border-gray-100 dark:border-gray-700 pb-2 hover:text-green-500 transition-colors cursor-pointer"><strong class="text-gray-900 dark:text-gray-200">${item.date}</strong><br/>${item.title}</a>`).join('')
+                    : '<span class="text-sm text-gray-500">Schedule clear for the next 3 days.</span>';
                     
             } catch (error) {
                 console.error('Google Data Error:', error);
-                document.getElementById('emailList').innerHTML = '<li class="text-sm text-red-500">Pipeline error. Check console.</li>';
-                document.getElementById('calendarList').innerHTML = '<li class="text-sm text-red-500">Pipeline error. Check console.</li>';
+                document.getElementById('emailList').innerHTML = '<span class="text-sm text-red-500">Pipeline error. Check console.</span>';
+                document.getElementById('calendarList').innerHTML = '<span class="text-sm text-red-500">Pipeline error. Check console.</span>';
             }
         }
 
