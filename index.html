@@ -130,7 +130,7 @@
                     <summary class="flex justify-between items-center font-bold cursor-pointer p-6">
                         <div class="flex items-center">
                             <div class="bg-indigo-100 dark:bg-indigo-900/30 p-2 rounded-lg mr-4">
-                                <span class="text-indigo-600 dark:text-indigo-400 text-xl">🏈</span>
+                                <span class="text-indigo-600 dark:text-indigo-400 text-xl">🏆</span>
                             </div>
                             Pro Sports
                         </div>
@@ -310,26 +310,28 @@
 
         // --- Sports Pipelines ---
         const proConfig = [
-            { id: 'min-nfl', name: 'Minnesota Vikings', teamId: '15', league: 'nfl', url: 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/15/schedule' },
-            { id: 'gb-nfl', name: 'Green Bay Packers', teamId: '9', league: 'nfl', url: 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/9/schedule' },
-            { id: 'min-nba', name: 'Minnesota Timberwolves', teamId: '16', league: 'nba', url: 'https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/16/schedule' },
-            { id: 'mil-nba', name: 'Milwaukee Bucks', teamId: '15', league: 'nba', url: 'https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/15/schedule' },
-            { id: 'min-mlb', name: 'Minnesota Twins', teamId: '10', league: 'mlb', url: 'https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/teams/10/schedule' },
-            { id: 'mil-mlb', name: 'Milwaukee Brewers', teamId: '8', league: 'mlb', url: 'https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/teams/8/schedule' },
-            { id: 'min-nhl', name: 'Minnesota Wild', teamId: '30', league: 'nhl', url: 'https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/teams/30/schedule' }
+            { id: 'min-nfl', name: 'Minnesota Vikings', teamId: '15', league: 'nfl', icon: '🏈', gender: 'M', url: 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/15/schedule' },
+            { id: 'gb-nfl', name: 'Green Bay Packers', teamId: '9', league: 'nfl', icon: '🏈', gender: 'M', url: 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/9/schedule' },
+            { id: 'min-nba', name: 'Minnesota Timberwolves', teamId: '16', league: 'nba', icon: '🏀', gender: 'M', url: 'https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/16/schedule' },
+            { id: 'min-wnba', name: 'Minnesota Lynx', teamId: '14', league: 'wnba', icon: '🏀', gender: 'W', url: 'https://site.api.espn.com/apis/site/v2/sports/basketball/wnba/teams/14/schedule' },
+            { id: 'mil-nba', name: 'Milwaukee Bucks', teamId: '15', league: 'nba', icon: '🏀', gender: 'M', url: 'https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/15/schedule' },
+            { id: 'min-mlb', name: 'Minnesota Twins', teamId: '10', league: 'mlb', icon: '⚾', gender: 'M', url: 'https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/teams/10/schedule' },
+            { id: 'mil-mlb', name: 'Milwaukee Brewers', teamId: '8', league: 'mlb', icon: '⚾', gender: 'M', url: 'https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/teams/8/schedule' },
+            { id: 'min-nhl', name: 'Minnesota Wild', teamId: '30', league: 'nhl', icon: '🏒', gender: 'M', url: 'https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/teams/30/schedule' },
+            { id: 'min-pwhl', name: 'Minnesota Frost', teamId: '4', league: 'pwhl', icon: '🏒', gender: 'W', url: 'https://site.api.espn.com/apis/site/v2/sports/hockey/pwhl/teams/4/schedule' }
         ];
 
         const collegeConfig = [
-            { name: 'Wisconsin Football', teamId: '275', url: 'https://site.api.espn.com/apis/site/v2/sports/football/college-football/teams/275/schedule' },
-            { name: 'Minnesota Football', teamId: '135', url: 'https://site.api.espn.com/apis/site/v2/sports/football/college-football/teams/135/schedule' },
-            { name: 'Wisconsin M. Basketball', teamId: '275', url: 'https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/teams/275/schedule' },
-            { name: 'Minnesota M. Basketball', teamId: '135', url: 'https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/teams/135/schedule' },
-            { name: 'Wisconsin W. Basketball', teamId: '275', url: 'https://site.api.espn.com/apis/site/v2/sports/basketball/womens-college-basketball/teams/275/schedule' },
-            { name: 'Minnesota W. Basketball', teamId: '135', url: 'https://site.api.espn.com/apis/site/v2/sports/basketball/womens-college-basketball/teams/135/schedule' },
-            { name: 'Wisconsin M. Hockey', teamId: '275', url: 'https://site.api.espn.com/apis/site/v2/sports/hockey/mens-college-hockey/teams/275/schedule' },
-            { name: 'Minnesota M. Hockey', teamId: '135', url: 'https://site.api.espn.com/apis/site/v2/sports/hockey/mens-college-hockey/teams/135/schedule' },
-            { name: 'Wisconsin W. Hockey', teamId: '275', url: 'https://site.api.espn.com/apis/site/v2/sports/hockey/womens-college-hockey/teams/275/schedule' },
-            { name: 'Minnesota W. Hockey', teamId: '135', url: 'https://site.api.espn.com/apis/site/v2/sports/hockey/womens-college-hockey/teams/135/schedule' }
+            { name: 'Wisconsin Football', teamId: '275', icon: '🏈', gender: 'M', url: 'https://site.api.espn.com/apis/site/v2/sports/football/college-football/teams/275/schedule' },
+            { name: 'Minnesota Football', teamId: '135', icon: '🏈', gender: 'M', url: 'https://site.api.espn.com/apis/site/v2/sports/football/college-football/teams/135/schedule' },
+            { name: 'Wisconsin Basketball', teamId: '275', icon: '🏀', gender: 'M', url: 'https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/teams/275/schedule' },
+            { name: 'Minnesota Basketball', teamId: '135', icon: '🏀', gender: 'M', url: 'https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/teams/135/schedule' },
+            { name: 'Wisconsin Basketball', teamId: '275', icon: '🏀', gender: 'W', url: 'https://site.api.espn.com/apis/site/v2/sports/basketball/womens-college-basketball/teams/275/schedule' },
+            { name: 'Minnesota Basketball', teamId: '135', icon: '🏀', gender: 'W', url: 'https://site.api.espn.com/apis/site/v2/sports/basketball/womens-college-basketball/teams/135/schedule' },
+            { name: 'Wisconsin Hockey', teamId: '275', icon: '🏒', gender: 'M', url: 'https://site.api.espn.com/apis/site/v2/sports/hockey/mens-college-hockey/teams/275/schedule' },
+            { name: 'Minnesota Hockey', teamId: '135', icon: '🏒', gender: 'M', url: 'https://site.api.espn.com/apis/site/v2/sports/hockey/mens-college-hockey/teams/135/schedule' },
+            { name: 'Wisconsin Hockey', teamId: '275', icon: '🏒', gender: 'W', url: 'https://site.api.espn.com/apis/site/v2/sports/hockey/womens-college-hockey/teams/275/schedule' },
+            { name: 'Minnesota Hockey', teamId: '135', icon: '🏒', gender: 'W', url: 'https://site.api.espn.com/apis/site/v2/sports/hockey/womens-college-hockey/teams/135/schedule' }
         ];
 
         let standingsCache = {};
@@ -337,8 +339,8 @@
         async function fetchAllStandings() {
             const leagues = [
                 { id: 'nfl', sport: 'football' }, { id: 'nba', sport: 'basketball' },
-                { id: 'mlb', sport: 'baseball' }, { id: 'nhl', sport: 'hockey' },
-                { id: 'mens-college-basketball', sport: 'basketball' },
+                { id: 'wnba', sport: 'basketball' }, { id: 'mlb', sport: 'baseball' }, 
+                { id: 'nhl', sport: 'hockey' }, { id: 'mens-college-basketball', sport: 'basketball' },
                 { id: 'womens-college-basketball', sport: 'basketball' }
             ];
             for (const lg of leagues) {
@@ -372,21 +374,32 @@
             return record;
         }
 
-        function renderStatusCard(title, status, statusClass) {
+        function buildTitle(config, event) {
+            let name = config.name;
+            if (config.league === 'nfl' && event?.season?.type === 1) name += ' <span class="text-orange-500 ml-1">(PRE)</span>';
+            
+            let genderTag = '';
+            if (config.gender === 'W') genderTag = '<span class="bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300 px-1 py-0.5 rounded text-[8px] ml-1 font-bold">WOMEN</span>';
+            if (config.gender === 'M') genderTag = '<span class="bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300 px-1 py-0.5 rounded text-[8px] ml-1 font-bold">MEN</span>';
+            
+            return `${config.icon} ${name} ${genderTag}`;
+        }
+
+        function renderStatusCard(config, status, statusClass) {
             return `
                 <div class="p-4 flex items-center justify-between bg-gray-50/50 dark:bg-gray-800/50">
-                    <span class="text-sm font-bold text-gray-500 dark:text-gray-400">${title}</span>
+                    <span class="text-sm font-bold text-gray-500 dark:text-gray-400 flex items-center">${buildTitle(config, null)}</span>
                     <span class="text-[10px] font-bold px-2 py-1 rounded tracking-widest ${statusClass}">${status}</span>
                 </div>
             `;
         }
 
         function processTeamData(config, data) {
-            if (!data?.events || data.events.length === 0) return { html: renderStatusCard(config.name, 'UNAVAILABLE', 'bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400'), weight: 6 };
+            if (!data?.events || data.events.length === 0) return { html: renderStatusCard(config, 'UNAVAILABLE', 'bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400'), weight: 6 };
 
             const isPreseason = data.events.some(e => e.season?.type === 1);
             if (config.league === 'mlb' && isPreseason) {
-                return { html: renderStatusCard(config.name, 'SPRING TRAINING', 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-500'), weight: 5 };
+                return { html: renderStatusCard(config, 'SPRING TRAINING', 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-500'), weight: 5 };
             }
 
             const teamEvents = data.events.filter(e => {
@@ -394,7 +407,7 @@
                 return comps.some(c => String(c?.team?.id) === String(config.teamId));
             });
             
-            if (teamEvents.length === 0) return { html: renderStatusCard(config.name, 'OFFSEASON', 'bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400'), weight: 5 };
+            if (teamEvents.length === 0) return { html: renderStatusCard(config, 'OFFSEASON', 'bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400'), weight: 5 };
 
             const now = new Date();
             let event = teamEvents.find(e => e.status?.type?.state === 'in');
@@ -408,12 +421,12 @@
             }
 
             const comp = event?.competitions?.[0];
-            if (!comp) return { html: renderStatusCard(config.name, 'OFFSEASON', 'bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400'), weight: 5 };
+            if (!comp) return { html: renderStatusCard(config, 'OFFSEASON', 'bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400'), weight: 5 };
 
             const gameDate = new Date(comp.date);
             const daysDiff = (gameDate - now) / (1000 * 60 * 60 * 24);
             
-            if (Math.abs(daysDiff) > 21) return { html: renderStatusCard(config.name, 'OFFSEASON', 'bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400'), weight: 5 };
+            if (Math.abs(daysDiff) > 21) return { html: renderStatusCard(config, 'OFFSEASON', 'bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400'), weight: 5 };
 
             const comps = comp.competitors || [];
             const home = comps.find(c => c?.homeAway === 'home') || comps[0];
@@ -448,13 +461,11 @@
                 </div>
             `;
 
-            const titleStr = (config.league === 'nfl' && event.season?.type === 1) ? `${config.name} <span class="text-orange-500 ml-1">(PRE)</span>` : config.name;
-
             const html = `
                 <div class="p-4 bg-white dark:bg-gray-800">
                     <div class="flex justify-between items-start mb-3">
                         <div>
-                            <span class="text-[10px] font-bold uppercase tracking-wider text-gray-400 block mb-1">${titleStr}</span>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-gray-400 block mb-1 flex items-center">${buildTitle(config, event)}</span>
                             <div class="text-[11px] text-gray-500 flex items-center gap-2">
                                 <span>${displayDate}</span><span>&bull;</span><span class="truncate max-w-[150px]">${venue}</span>
                             </div>
@@ -475,7 +486,7 @@
                         const resp = await fetch(config.url);
                         return processTeamData(config, await resp.json());
                     } catch (e) {
-                        return { html: renderStatusCard(config.name, 'UNAVAILABLE', 'bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400'), weight: 6 };
+                        return { html: renderStatusCard(config, 'UNAVAILABLE', 'bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400'), weight: 6 };
                     }
                 }));
                 const valid = results.filter(r => r !== null).sort((a, b) => a.weight - b.weight);
@@ -555,7 +566,6 @@
             const now = new Date();
             const year = now.getFullYear();
             
-            // Active window: March 10 to April 15.
             const activeStart = new Date(year, 2, 10);
             const activeEnd = new Date(year, 3, 15);
             
