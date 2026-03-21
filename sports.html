@@ -3,16 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kozicki Sports Network</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='grad' x1='0%' y1='0%' x2='0%' y2='100%'><stop offset='0%' style='stop-color:%2316a34a;stop-opacity:1' /><stop offset='100%' style='stop-color:%23118a3d;stop-opacity:1' /></linearGradient></defs><path d='M50 5 L92 20 V62 C92 86 50 96 50 96 C50 96 8 86 8 62 V20 L50 5 Z' fill='url(%23grad)' stroke='%23ffffff' stroke-width='3'/><text x='50' y='65' font-size='44' font-family='Arial Black, sans-serif' font-weight='900' text-anchor='middle' fill='white' letter-spacing='-2'>KSN</text><path d='M25 72 L75 72 Q50 90 25 72 Z' fill='white'/></svg>">
+    <title>Sterling Sports Network - SSP</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%2316a34a%22/><g transform=%22skewX(-15) translate(15,0)%22 fill=%22white%22><rect x=%2215%22 y=%2232%22 width=%2222%22 height=%224%22/><rect x=%225%22 y=%2248%22 width=%2232%22 height=%224%22/><rect x=%2210%22 y=%2264%22 width=%2227%22 height=%224%22/><text x=%2260%22 y=%2276%22 font-size=%2270%22 font-family=%22Arial, sans-serif%22 font-weight=%22900%22 text-anchor=%22middle%22>S</text></g></svg>">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = { darkMode: 'class' }
     </script>
     <style>
-        /* Modern sports network accent color */
-        .ksn-accent { color: #16a34a; }
-        .bg-ksn-accent { background-color: #16a34a; }
+        .sterling-green { color: #16a34a; }
+        .bg-sterling-green { background-color: #16a34a; }
         
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -20,8 +19,7 @@
         .dark ::-webkit-scrollbar-thumb { background: #4b5563; }
     </style>
     <script>
-        // Check local storage for theme preference immediately to prevent FOUC
-        if (localStorage.getItem('ksn-theme') === 'dark') {
+        if (localStorage.getItem('ssp-theme') === 'dark') {
             document.documentElement.classList.add('dark');
         }
     </script>
@@ -36,203 +34,346 @@
         
         <label class="relative inline-flex items-center cursor-pointer">
             <input type="checkbox" id="theme-toggle" class="sr-only peer">
-            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-ksn-accent"></div>
+            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-sterling-green"></div>
             <span class="ml-3 text-sm font-medium text-gray-500 dark:text-gray-400">Dark Mode</span>
         </label>
     </div>
 
     <div class="flex-1 flex flex-col items-center px-4 pb-8">
         <header class="text-center mb-6 flex flex-col items-center">
-            <svg class="w-24 h-24 mb-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-                <defs>
-                    <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" style="stop-color:#16a34a;stop-opacity:1" />
-                        <stop offset="100%" style="stop-color:#118a3d;stop-opacity:1" />
-                    </linearGradient>
-                </defs>
-                <path d="M50 5 L92 20 V62 C92 86 50 96 50 96 C50 96 8 86 8 62 V20 L50 5 Z" fill="url(#shieldGrad)" stroke="#ffffff" stroke-width="2"/>
-                <path d="M25 28 L75 28 M20 38 L80 38 M25 48 L75 48" stroke="white" stroke-width="1.5" opacity="0.3"/>
-                <text x="50" y="65" font-size="44" font-family="Arial Black, sans-serif" font-weight="900" text-anchor="middle" fill="white" letter-spacing="-2">KSN</text>
-                <path d="M25 72 L75 72 Q50 90 25 72 Z" fill="white"/>
+            <svg class="w-16 h-16 mb-3 shadow-md rounded-2xl" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+                <rect width="100" height="100" rx="20" fill="#16a34a"/>
+                <g transform="skewX(-15) translate(15,0)" fill="white">
+                    <rect x="15" y="32" width="22" height="4"/>
+                    <rect x="5" y="48" width="32" height="4"/>
+                    <rect x="10" y="64" width="27" height="4"/>
+                    <text x="60" y="76" font-size="70" font-family="Arial, sans-serif" font-weight="900" text-anchor="middle">S</text>
+                </g>
             </svg>
-            <h1 class="text-3xl font-bold ksn-accent tracking-tight">Kozicki Sports Network</h1>
+            <h1 class="text-3xl font-bold sterling-green tracking-tight">Sterling Sports Network</h1>
         </header>
 
-        <main class="w-full max-w-md flex flex-col gap-6">
+        <main class="w-full max-w-2xl flex flex-col gap-6">
             
-            <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow w-full overflow-hidden hover:shadow-lg transition-shadow duration-300">
-                <div class="p-3 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 flex justify-between items-center cursor-pointer select-none" onclick="toggleNCAAFeed()">
+            <!-- Pro Sports -->
+            <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow w-full overflow-hidden transition-all duration-200 hover:shadow-md">
+                <div class="p-3 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 flex justify-between items-center cursor-pointer select-none" onclick="toggleFeed('pro')">
                     <h2 class="font-bold text-sm text-gray-700 dark:text-gray-200 flex items-center gap-2">
-                        <span>🏀</span> NCAA Men's Tournament
+                        <span>🏆</span> Local Pro Feed
                     </h2>
                     <div class="flex items-center gap-4">
-                        <button onclick="event.stopPropagation(); fetchNCAA(false)" class="text-ksn-accent hover:opacity-75 focus:outline-none" title="Refresh Feed">
-                            <svg id="refresh-ncaa" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-                        </button>
-                        <svg id="ncaa-feed-chevron" class="w-4 h-4 text-gray-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                    </div>
-                </div>
-                <div id="ncaa-feed" class="block max-h-[350px] overflow-y-auto divide-y divide-gray-100 dark:divide-gray-700 transition-all duration-300 origin-top">
-                    <div class="p-8 text-center text-sm text-gray-400">Loading live bracket...</div>
-                </div>
-            </div>
-
-            <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow w-full overflow-hidden hover:shadow-lg transition-shadow duration-300">
-                <div class="p-3 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 flex justify-between items-center cursor-pointer select-none" onclick="toggleProFeed()">
-                    <h2 class="font-bold text-sm text-gray-700 dark:text-gray-200 flex items-center gap-2">
-                        <span>📡</span> Local Pro Feed
-                    </h2>
-                    <div class="flex items-center gap-4">
-                        <button onclick="event.stopPropagation(); fetchProTeams(false)" class="text-ksn-accent hover:opacity-75 focus:outline-none" title="Refresh Feed">
+                        <button onclick="event.stopPropagation(); fetchFeedGroup(proConfig, 'pro-feed', 'refresh-pro', false)" class="text-sterling-green hover:opacity-75 focus:outline-none">
                             <svg id="refresh-pro" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
                         </button>
                         <svg id="pro-feed-chevron" class="w-4 h-4 text-gray-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                     </div>
                 </div>
-                <div id="pro-feed" class="divide-y divide-gray-100 dark:divide-gray-700 block transition-all duration-300 origin-top">
+                <div id="pro-feed" class="divide-y divide-gray-100 dark:divide-gray-700 max-h-[500px] overflow-y-auto block transition-all duration-300 origin-top">
                     <div class="p-8 text-center text-sm text-gray-400">Loading pro sports data...</div>
+                </div>
+            </div>
+
+            <!-- College Sports -->
+            <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow w-full overflow-hidden transition-all duration-200 hover:shadow-md">
+                <div class="p-3 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 flex justify-between items-center cursor-pointer select-none" onclick="toggleFeed('college')">
+                    <h2 class="font-bold text-sm text-gray-700 dark:text-gray-200 flex items-center gap-2">
+                        <span>🎓</span> Collegiate Athletics
+                    </h2>
+                    <div class="flex items-center gap-4">
+                        <button onclick="event.stopPropagation(); fetchFeedGroup(collegeConfig, 'college-feed', 'refresh-college', false)" class="text-sterling-green hover:opacity-75 focus:outline-none">
+                            <svg id="refresh-college" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                        </button>
+                        <svg id="college-feed-chevron" class="w-4 h-4 text-gray-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                    </div>
+                </div>
+                <div id="college-feed" class="divide-y divide-gray-100 dark:divide-gray-700 max-h-[500px] overflow-y-auto block transition-all duration-300 origin-top">
+                    <div class="p-8 text-center text-sm text-gray-400">Loading collegiate data...</div>
+                </div>
+            </div>
+
+            <!-- NCAA Tournament -->
+            <div id="ncaa-container" class="transition-all duration-300">
+                <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow w-full overflow-hidden transition-all duration-200 hover:shadow-md">
+                    <div class="p-3 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 flex justify-between items-center cursor-pointer select-none" onclick="toggleFeed('ncaa')">
+                        <h2 id="ncaa-title" class="font-bold text-sm text-gray-700 dark:text-gray-200 flex items-center gap-2">
+                            <span>🏀</span> NCAA Tournament
+                        </h2>
+                        <div class="flex items-center gap-4">
+                            <button onclick="event.stopPropagation(); refreshNCAA(false)" class="text-sterling-green hover:opacity-75 focus:outline-none">
+                                <svg id="refresh-ncaa" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                            </button>
+                            <svg id="ncaa-feed-chevron" class="w-4 h-4 text-gray-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </div>
+                    </div>
+                    <div id="ncaa-feed" class="block transition-all duration-300 origin-top bg-white dark:bg-gray-800">
+                        <div class="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gray-100 dark:divide-gray-700">
+                            <div>
+                                <h3 class="font-bold p-3 bg-gray-50 dark:bg-gray-900/50 text-xs text-center uppercase tracking-wider text-gray-500">Men's Bracket</h3>
+                                <div id="ncaa-mens-feed" class="max-h-[350px] overflow-y-auto divide-y divide-gray-100 dark:divide-gray-700">
+                                    <div class="p-4 text-center text-sm text-gray-400">Loading bracket...</div>
+                                </div>
+                            </div>
+                            <div>
+                                <h3 class="font-bold p-3 bg-gray-50 dark:bg-gray-900/50 text-xs text-center uppercase tracking-wider text-gray-500">Women's Bracket</h3>
+                                <div id="ncaa-womens-feed" class="max-h-[350px] overflow-y-auto divide-y divide-gray-100 dark:divide-gray-700">
+                                    <div class="p-4 text-center text-sm text-gray-400">Loading bracket...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
         </main>
 
         <footer class="mt-12 text-gray-400 text-xs text-center">
-            &copy; <span id="year"></span> Kozicki Sports Network. All rights reserved.
+            &copy; <span id="year"></span> Sterling Specialty Pharmacy. All rights reserved.
         </footer>
     </div>
 
     <script>
-        // --- Core Dashboard Logic ---
+        // --- Core UI Logic ---
         const themeToggle = document.getElementById('theme-toggle');
         const htmlClass = document.documentElement.classList;
 
-        // Initialize toggle based on current class (set by head script)
         if (htmlClass.contains('dark')) themeToggle.checked = true;
 
         themeToggle.addEventListener('change', () => {
             if (themeToggle.checked) {
                 htmlClass.add('dark');
-                localStorage.setItem('ksn-theme', 'dark');
+                localStorage.setItem('ssp-theme', 'dark');
             } else {
                 htmlClass.remove('dark');
-                localStorage.setItem('ksn-theme', 'light');
+                localStorage.setItem('ssp-theme', 'light');
             }
         });
 
         document.getElementById('year').textContent = new Date().getFullYear();
 
-        // --- UI Interactions ---
-        function toggleProFeed() {
-            const feed = document.getElementById('pro-feed');
-            const chevron = document.getElementById('pro-feed-chevron');
+        function toggleFeed(prefix) {
+            const feed = document.getElementById(`${prefix}-feed`);
+            const chevron = document.getElementById(`${prefix}-feed-chevron`);
             feed.classList.toggle('hidden');
             chevron.classList.toggle('rotate-180');
         }
 
-        function toggleNCAAFeed() {
-            const feed = document.getElementById('ncaa-feed');
-            const chevron = document.getElementById('ncaa-feed-chevron');
-            feed.classList.toggle('hidden');
-            chevron.classList.toggle('rotate-180');
-        }
+        // --- Configuration Arrays ---
+        const proConfig = [
+            { id: 'min-nfl', name: 'Minnesota Vikings', teamId: '15', league: 'nfl', icon: '🏈', gender: 'M', url: 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/15/schedule' },
+            { id: 'gb-nfl', name: 'Green Bay Packers', teamId: '9', league: 'nfl', icon: '🏈', gender: 'M', url: 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/9/schedule' },
+            { id: 'min-nba', name: 'Minnesota Timberwolves', teamId: '16', league: 'nba', icon: '🏀', gender: 'M', url: 'https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/16/schedule' },
+            { id: 'min-wnba', name: 'Minnesota Lynx', teamId: '14', league: 'wnba', icon: '🏀', gender: 'W', url: 'https://site.api.espn.com/apis/site/v2/sports/basketball/wnba/teams/14/schedule' },
+            { id: 'mil-nba', name: 'Milwaukee Bucks', teamId: '15', league: 'nba', icon: '🏀', gender: 'M', url: 'https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/15/schedule' },
+            { id: 'min-mlb', name: 'Minnesota Twins', teamId: '10', league: 'mlb', icon: '⚾', gender: 'M', url: 'https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/teams/10/schedule' },
+            { id: 'mil-mlb', name: 'Milwaukee Brewers', teamId: '8', league: 'mlb', icon: '⚾', gender: 'M', url: 'https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/teams/8/schedule' },
+            { id: 'min-nhl', name: 'Minnesota Wild', teamId: '30', league: 'nhl', icon: '🏒', gender: 'M', url: 'https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/teams/30/schedule' },
+            { id: 'min-pwhl', name: 'Minnesota Frost', teamId: '4', league: 'pwhl', icon: '🏒', gender: 'W', url: 'https://site.api.espn.com/apis/site/v2/sports/hockey/pwhl/teams/4/schedule' }
+        ];
 
-        // --- Memory Caching for Standings ---
+        const collegeConfig = [
+            { name: 'Wisconsin Football', teamId: '275', icon: '🏈', gender: 'M', url: 'https://site.api.espn.com/apis/site/v2/sports/football/college-football/teams/275/schedule' },
+            { name: 'Minnesota Football', teamId: '135', icon: '🏈', gender: 'M', url: 'https://site.api.espn.com/apis/site/v2/sports/football/college-football/teams/135/schedule' },
+            { name: 'Wisconsin Basketball', teamId: '275', icon: '🏀', gender: 'M', url: 'https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/teams/275/schedule' },
+            { name: 'Minnesota Basketball', teamId: '135', icon: '🏀', gender: 'M', url: 'https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/teams/135/schedule' },
+            { name: 'Wisconsin Basketball', teamId: '275', icon: '🏀', gender: 'W', url: 'https://site.api.espn.com/apis/site/v2/sports/basketball/womens-college-basketball/teams/275/schedule' },
+            { name: 'Minnesota Basketball', teamId: '135', icon: '🏀', gender: 'W', url: 'https://site.api.espn.com/apis/site/v2/sports/basketball/womens-college-basketball/teams/135/schedule' },
+            { name: 'Wisconsin Hockey', teamId: '275', icon: '🏒', gender: 'M', url: 'https://site.api.espn.com/apis/site/v2/sports/hockey/mens-college-hockey/teams/275/schedule' },
+            { name: 'Minnesota Hockey', teamId: '135', icon: '🏒', gender: 'M', url: 'https://site.api.espn.com/apis/site/v2/sports/hockey/mens-college-hockey/teams/135/schedule' },
+            { name: 'Wisconsin Hockey', teamId: '275', icon: '🏒', gender: 'W', url: 'https://site.api.espn.com/apis/site/v2/sports/hockey/womens-college-hockey/teams/275/schedule' },
+            { name: 'Minnesota Hockey', teamId: '135', icon: '🏒', gender: 'W', url: 'https://site.api.espn.com/apis/site/v2/sports/hockey/womens-college-hockey/teams/135/schedule' }
+        ];
+
+        // --- Data Fetching & Rendering Engines ---
         let standingsCache = {};
 
         async function fetchAllStandings() {
             const leagues = [
-                { id: 'nfl', sport: 'football' },
-                { id: 'nba', sport: 'basketball' },
-                { id: 'mlb', sport: 'baseball' },
-                { id: 'nhl', sport: 'hockey' }
+                { id: 'nfl', sport: 'football' }, { id: 'nba', sport: 'basketball' },
+                { id: 'wnba', sport: 'basketball' }, { id: 'mlb', sport: 'baseball' }, 
+                { id: 'nhl', sport: 'hockey' }, { id: 'mens-college-basketball', sport: 'basketball' },
+                { id: 'womens-college-basketball', sport: 'basketball' }
             ];
-
-            for (const league of leagues) {
+            for (const lg of leagues) {
                 try {
-                    const resp = await fetch(`https://site.api.espn.com/apis/v2/sports/${league.sport}/${league.id}/standings`);
-                    if(!resp.ok) throw new Error(`HTTP Error ${resp.status}`);
-                    standingsCache[league.id] = await resp.json();
-                } catch (e) {
-                    console.warn(`Failed to cache ${league.id} standings`, e);
-                }
+                    const resp = await fetch(`https://site.api.espn.com/apis/v2/sports/${lg.sport}/${lg.id}/standings`);
+                    standingsCache[lg.id] = await resp.json();
+                } catch (e) {}
             }
         }
 
-        function getRecordFromCache(leagueId, targetTeamId) {
-            const data = standingsCache[leagueId];
-            if (!data || !targetTeamId) return '';
+        function getRecord(teamData, leagueId) {
+            let record = teamData?.records?.[0]?.summary || teamData?.team?.record?.items?.[0]?.summary || teamData?.team?.record?.summary;
+            if (record) return record;
             
-            let record = '';
-            // Helper function to recursively search for the team record in nested standings structure
+            const data = standingsCache[leagueId];
+            if (!data || !teamData?.team?.id) return '';
+            
             function search(obj) {
                 if (record) return; 
                 if (!obj || typeof obj !== 'object') return;
-                
-                if (obj.team && String(obj.team.id) === String(targetTeamId)) {
+                if (obj.team && String(obj.team.id) === String(teamData.team.id)) {
                     const stats = obj.stats || [];
-                    // Look for common record summary names used by ESPN API
                     const overall = stats.find(s => s.name === 'overall') || stats.find(s => s.type === 'overall') || stats[0];
                     if (overall) record = overall.displayValue || overall.summary || '';
                     return;
                 }
-                
-                if (Array.isArray(obj)) {
-                    for (let item of obj) search(item);
-                } else {
-                    for (let key in obj) search(obj[key]);
-                }
+                if (Array.isArray(obj)) { for (let item of obj) search(item); } 
+                else { for (let key in obj) search(obj[key]); }
             }
             search(data);
             return record;
         }
 
-        // --- Pro Teams Configuration ---
-        // Preservation of original clinical logic team config (MN/WI regional focus)
-        const proConfig = [
-            { id: 'nfl-min', name: 'Minnesota Vikings', teamId: '15', league: 'nfl', url: 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/15/schedule' },
-            { id: 'nfl-gb', name: 'Green Bay Packers', teamId: '9', league: 'nfl', url: 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/9/schedule' },
-            { id: 'nba-min', name: 'Minnesota Timberwolves', teamId: '16', league: 'nba', url: 'https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/16/schedule' },
-            { id: 'nba-mil', name: 'Milwaukee Bucks', teamId: '15', league: 'nba', url: 'https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/15/schedule' },
-            { id: 'mlb-min', name: 'Minnesota Twins', teamId: '10', league: 'mlb', url: 'https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/teams/10/schedule' },
-            { id: 'mlb-mil', name: 'Milwaukee Brewers', teamId: '8', league: 'mlb', url: 'https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/teams/8/schedule' },
-            { id: 'nhl-min', name: 'Minnesota Wild', teamId: '30', league: 'nhl', url: 'https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/teams/30/schedule' }
-        ];
+        function buildTitle(config, event) {
+            let name = config.name;
+            if (config.league === 'nfl' && event?.season?.type === 1) name += ' <span class="text-orange-500 ml-1">(PRE)</span>';
+            
+            let genderTag = '';
+            if (config.gender === 'W') genderTag = '<span class="bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300 px-1 py-0.5 rounded text-[8px] ml-1 font-bold">WOMEN</span>';
+            if (config.gender === 'M') genderTag = '<span class="bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300 px-1 py-0.5 rounded text-[8px] ml-1 font-bold">MEN</span>';
+            
+            return `${config.icon} ${name} ${genderTag}`;
+        }
 
-        // --- Data Fetching & Rendering: NCAA ---
-        async function fetchNCAA(isSilent = true) {
-            const feed = document.getElementById('ncaa-feed');
-            const icon = document.getElementById('refresh-ncaa');
-            if (!isSilent) icon.classList.add('animate-spin');
+        function renderStatusCard(config, status, statusClass) {
+            return `
+                <div class="p-4 flex items-center justify-between bg-gray-50/50 dark:bg-gray-800/50">
+                    <span class="text-sm font-bold text-gray-500 dark:text-gray-400 flex items-center">${buildTitle(config, null)}</span>
+                    <span class="text-[10px] font-bold px-2 py-1 rounded tracking-widest ${statusClass}">${status}</span>
+                </div>
+            `;
+        }
+
+        function processTeamData(config, data) {
+            if (!data?.events || data.events.length === 0) return { html: renderStatusCard(config, 'UNAVAILABLE', 'bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400'), weight: 6 };
+
+            const isPreseason = data.events.some(e => e.season?.type === 1);
+            if (config.league === 'mlb' && isPreseason) {
+                return { html: renderStatusCard(config, 'SPRING TRAINING', 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-500'), weight: 5 };
+            }
+
+            const teamEvents = data.events.filter(e => {
+                const comps = e?.competitions?.[0]?.competitors || [];
+                return comps.some(c => String(c?.team?.id) === String(config.teamId));
+            });
+            
+            if (teamEvents.length === 0) return { html: renderStatusCard(config, 'OFFSEASON', 'bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400'), weight: 5 };
+
+            const now = new Date();
+            let event = teamEvents.find(e => e.status?.type?.state === 'in');
+            
+            if (!event) {
+                event = teamEvents.reduce((closest, current) => {
+                    const cDate = new Date(current.competitions?.[0]?.date || 0);
+                    const clDate = new Date(closest.competitions?.[0]?.date || 0);
+                    return Math.abs(cDate - now) < Math.abs(clDate - now) ? current : closest;
+                });
+            }
+
+            const comp = event?.competitions?.[0];
+            if (!comp) return { html: renderStatusCard(config, 'OFFSEASON', 'bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400'), weight: 5 };
+
+            const gameDate = new Date(comp.date);
+            const daysDiff = (gameDate - now) / (1000 * 60 * 60 * 24);
+            
+            if (Math.abs(daysDiff) > 21) return { html: renderStatusCard(config, 'OFFSEASON', 'bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400'), weight: 5 };
+
+            const comps = comp.competitors || [];
+            const home = comps.find(c => c?.homeAway === 'home') || comps[0];
+            const away = comps.find(c => c?.homeAway === 'away') || comps[1];
+
+            const state = comp.status?.type?.state || 'pre';
+            const isLive = state === 'in';
+            const weight = isLive ? 1 : (daysDiff > 0 ? 2 : 3); 
+
+            const venue = comp.notes?.[0]?.headline || comp.venue?.fullName || 'TBD Venue';
+            const displayDate = gameDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+            
+            const parseScore = (team) => {
+                if (state === 'pre' || team?.score == null) return '-';
+                return typeof team.score === 'object' ? (team.score.displayValue ?? team.score.value ?? '-') : team.score;
+            };
+            
+            const statusClass = isLive 
+                ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400 animate-pulse' 
+                : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-300';
+            
+            const renderRow = (t) => `
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        ${t?.team?.logos?.[0]?.href ? `<img src="${t.team.logos[0].href}" class="w-6 h-6 object-contain" onerror="this.style.opacity='0'">` : '<div class="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700"></div>'}
+                        <div class="flex flex-col">
+                            <span class="text-sm ${t?.winner ? 'font-bold text-gray-900 dark:text-white' : 'text-gray-700 dark:text-gray-200'}">${t?.team?.shortDisplayName || t?.team?.displayName || 'TBA'}</span>
+                            <span class="text-[10px] text-gray-400">${getRecord(t, config.league)}</span>
+                        </div>
+                    </div>
+                    <span class="text-lg font-mono ${t?.winner ? 'text-sterling-green font-bold' : 'text-gray-600 dark:text-gray-400'}">${parseScore(t)}</span>
+                </div>
+            `;
+
+            const html = `
+                <div class="p-4 bg-white dark:bg-gray-800">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-gray-400 block mb-1 flex items-center">${buildTitle(config, event)}</span>
+                            <div class="text-[11px] text-gray-500 flex items-center gap-2">
+                                <span>${displayDate}</span><span>&bull;</span><span class="truncate max-w-[150px]">${venue}</span>
+                            </div>
+                        </div>
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded ${statusClass}">${comp.status?.type?.shortDetail || 'TBD'}</span>
+                    </div>
+                    <div class="flex flex-col gap-2">${renderRow(away)}${renderRow(home)}</div>
+                </div>
+            `;
+            return { html, weight };
+        }
+
+        async function fetchFeedGroup(configArray, containerId, iconId, isSilent) {
+            const container = document.getElementById(containerId);
+            const icon = document.getElementById(iconId);
+            if (!isSilent && icon) icon.classList.add('animate-spin');
 
             try {
-                // Get current date to fetch today's scoreboard
-                const now = new Date();
-                const yyyy = now.getFullYear();
-                const mm = String(now.getMonth() + 1).padStart(2, '0');
-                const dd = String(now.getDate()).padStart(2, '0');
-                const dateParam = `${yyyy}${mm}${dd}`;
+                const results = await Promise.all(configArray.map(async (config) => {
+                    try {
+                        const resp = await fetch(config.url);
+                        return processTeamData(config, await resp.json());
+                    } catch (e) {
+                        return { html: renderStatusCard(config, 'UNAVAILABLE', 'bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400'), weight: 6 };
+                    }
+                }));
+                const valid = results.filter(r => r !== null).sort((a, b) => a.weight - b.weight);
+                container.innerHTML = valid.map(r => r.html).join('') || '<div class="p-8 text-center text-sm text-gray-400">No data available.</div>';
+            } catch (e) {
+                if (!isSilent) container.innerHTML = '<div class="p-8 text-center text-sm text-red-400">Feed error.</div>';
+            } finally {
+                if (!isSilent && icon) setTimeout(() => icon.classList.remove('animate-spin'), 500);
+            }
+        }
 
-                const resp = await fetch(`https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard?dates=${dateParam}`);
-                if (!resp.ok) throw new Error('Network response not ok');
+        async function fetchNCAATournament(gender, containerId) {
+            const container = document.getElementById(containerId);
+            try {
+                const now = new Date();
+                const d = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;
+                const url = `https://site.api.espn.com/apis/site/v2/sports/basketball/${gender}-college-basketball/scoreboard?dates=${d}`;
+                
+                const resp = await fetch(url);
                 const data = await resp.json();
                 
                 if (!data?.events || data.events.length === 0) {
-                    feed.innerHTML = '<div class="p-6 text-center text-sm text-gray-500 italic">No tournament games live or scheduled for today.</div>';
+                    container.innerHTML = '<div class="p-6 text-center text-sm text-gray-500 italic">No games today.</div>';
                     return;
                 }
                 
-                let targetGames = data.events;
-
-                // Sort games: Live first, then scheduled time
-                targetGames.sort((a, b) => {
-                    const stateA = a.status?.type?.state;
-                    const stateB = b.status?.type?.state;
-                    if (stateA === 'in' && stateB !== 'in') return -1;
-                    if (stateA !== 'in' && stateB === 'in') return 1;
+                let targetGames = data.events.sort((a, b) => {
+                    const sA = a.status?.type?.state; const sB = b.status?.type?.state;
+                    if (sA === 'in' && sB !== 'in') return -1;
+                    if (sA !== 'in' && sB === 'in') return 1;
                     return new Date(a.date) - new Date(b.date);
                 });
 
-                feed.innerHTML = targetGames.map(event => {
+                container.innerHTML = targetGames.map(event => {
                     const comp = event.competitions?.[0];
                     if (!comp) return '';
                     const home = comp.competitors?.find(c => c.homeAway === 'home');
@@ -243,234 +384,85 @@
                     const isLive = state === 'in';
                     const isPre = state === 'pre';
                     
-                    const timeString = new Date(comp.date).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-                    const statusText = isPre ? timeString : (comp.status?.type?.shortDetail || 'TBD');
-                    
-                    const statusClass = isLive 
-                        ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400 animate-pulse' 
-                        : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-300';
+                    const time = new Date(comp.date).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+                    const statusClass = isLive ? 'text-red-600 dark:text-red-400 animate-pulse' : 'text-gray-500 dark:text-gray-400';
 
-                    const renderTeam = (team) => `
+                    const renderTeam = (t) => `
                         <div class="flex items-center gap-2">
-                            ${team.curatedRank?.current < 26 ? `<span class="text-[10px] text-gray-400 font-mono">${team.curatedRank.current}</span>` : ''}
-                            <span class="text-sm ${team.winner ? 'font-bold text-gray-900 dark:text-white' : 'text-gray-700 dark:text-gray-200'}">${team.team?.shortDisplayName || 'TBA'}</span>
+                            ${t.curatedRank?.current < 26 ? `<span class="text-[10px] text-gray-400 font-mono">${t.curatedRank.current}</span>` : ''}
+                            <span class="text-sm ${t.winner ? 'font-bold text-gray-900 dark:text-white' : 'text-gray-700 dark:text-gray-200'}">${t.team?.shortDisplayName || 'TBA'}</span>
                         </div>
-                        <span class="text-sm font-mono ${team.winner ? 'font-bold text-ksn-accent' : 'text-gray-600 dark:text-gray-400'}">
-                            ${isPre ? '-' : (team.score || '-')}
-                        </span>
+                        <span class="text-sm font-mono ${t.winner ? 'font-bold text-sterling-green' : 'text-gray-600 dark:text-gray-400'}">${isPre ? '-' : (t.score || '-')}</span>
                     `;
 
                     return `
                         <div class="p-3 bg-white dark:bg-gray-800">
                             <div class="flex justify-between items-center mb-2">
-                                <span class="text-[10px] font-bold text-gray-400 tracking-wider truncate max-w-[200px]">${event.shortName || 'NCAA Game'}</span>
-                                <span class="text-[10px] font-bold px-1.5 py-0.5 rounded ${statusClass}">${statusText}</span>
+                                <span class="text-[10px] font-bold text-gray-400 tracking-wider truncate max-w-[150px]">${event.shortName}</span>
+                                <span class="text-[10px] font-bold ${statusClass}">${isPre ? time : comp.status?.type?.shortDetail}</span>
                             </div>
                             <div class="flex flex-col gap-1 w-full">
-                                <div class="flex justify-between items-center w-full">${renderTeam(away)}</div>
-                                <div class="flex justify-between items-center w-full">${renderTeam(home)}</div>
+                                <div class="flex justify-between">${renderTeam(away)}</div>
+                                <div class="flex justify-between">${renderTeam(home)}</div>
                             </div>
                         </div>
                     `;
                 }).join('');
-
-            } catch (error) {
-                console.warn("NCAA Fetch Error:", error);
-                feed.innerHTML = '<div class="p-4 text-center text-sm text-red-400">NCAA feed temporarily unavailable.</div>';
-            } finally {
-                if (!isSilent) setTimeout(() => icon.classList.remove('animate-spin'), 500);
+            } catch (e) {
+                container.innerHTML = '<div class="p-4 text-center text-sm text-red-400">Unavailable.</div>';
             }
         }
 
-        // --- Data Fetching & Rendering: Pro Teams ---
-        async function fetchProTeams(isSilent = true) {
-            const feed = document.getElementById('pro-feed');
-            const icon = document.getElementById('refresh-pro');
-            if (!isSilent) icon.classList.add('animate-spin');
-
-            try {
-                // Fetch schedule data for all configured teams in parallel
-                const results = await Promise.all(
-                    proConfig.map(async (config) => {
-                        try {
-                            const resp = await fetch(config.url);
-                            if(!resp.ok) throw new Error('Fetch Error');
-                            const data = await resp.json();
-                            return processProData(config, data);
-                        } catch (e) {
-                            // Render offseason card on fetch failure
-                            return { html: renderOffseasonCard(config.name), weight: 5 };
-                        }
-                    })
-                );
-
-                const validResults = results.filter(r => r !== null);
-                // Sort by state (Live, then upcoming, then recently finished/offseason)
-                validResults.sort((a, b) => a.weight - b.weight);
-                
-                feed.innerHTML = validResults.map(r => r.html).join('') || '<div class="p-8 text-center text-sm text-gray-400">No data available at this time.</div>';
-            } catch (error) {
-                console.warn("Pro Feed Error:", error);
-                if (!isSilent) feed.innerHTML = '<div class="p-8 text-center text-sm text-red-400">System error loading feed.</div>';
-            } finally {
-                if (!isSilent) setTimeout(() => icon.classList.remove('animate-spin'), 500);
-            }
-        }
-
-        // Helper renderers for specific season states
-        function renderOffseasonCard(teamName) {
-            return `
-                <div class="p-4 flex items-center justify-between bg-gray-50/50 dark:bg-gray-800/50">
-                    <span class="text-sm font-bold text-gray-500 dark:text-gray-400">${teamName}</span>
-                    <span class="text-[10px] font-bold px-2 py-1 rounded bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400 tracking-widest">OFFSEASON</span>
-                </div>
-            `;
-        }
-
-        function renderSpringTrainingCard(teamName) {
-            return `
-                <div class="p-4 flex items-center justify-between bg-gray-50/50 dark:bg-gray-800/50">
-                    <span class="text-sm font-bold text-gray-500 dark:text-gray-400">${teamName}</span>
-                    <span class="text-[10px] font-bold px-2 py-1 rounded bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-500 tracking-widest">SPRING TRAINING</span>
-                </div>
-            `;
-        }
-
-        // --- Main Processing Logic for ESPN Team Data ---
-        function processProData(config, data) {
-            if (!data?.events || data.events.length === 0) return { html: renderOffseasonCard(config.name), weight: 5 };
-
-            const isPreseasonEvent = data.events.some(e => e.season?.type === 1);
+        async function refreshNCAA(isSilent) {
+            const icon = document.getElementById('refresh-ncaa');
+            if (!isSilent && icon) icon.classList.add('animate-spin');
             
-            // --- Intercept MLB Spring Training ---
-            if (config.league === 'mlb' && isPreseasonEvent) {
-                return { html: renderSpringTrainingCard(config.name), weight: 5 };
+            if (checkNCAAWindow()) {
+                await Promise.all([
+                    fetchNCAATournament('mens', 'ncaa-mens-feed'),
+                    fetchNCAATournament('womens', 'ncaa-womens-feed')
+                ]);
             }
-
-            // Filter for events where the specific configured team ID is a competitor
-            const teamEvents = data.events.filter(e => {
-                const competitors = e?.competitions?.[0]?.competitors || [];
-                return competitors.some(c => String(c?.team?.id) === String(config.teamId));
-            });
             
-            if (teamEvents.length === 0) return { html: renderOffseasonCard(config.name), weight: 5 };
+            if (!isSilent && icon) setTimeout(() => icon.classList.remove('animate-spin'), 500);
+        }
 
+        function checkNCAAWindow() {
+            const container = document.getElementById('ncaa-container');
+            const title = document.getElementById('ncaa-title');
+            
             const now = new Date();
-
-            // Priority 1: Live game
-            let event = teamEvents.find(e => e.status?.type?.state === 'in');
+            const year = now.getFullYear();
             
-            // Priority 2: Closest game to right now
-            if (!event) {
-                event = teamEvents.reduce((closest, current) => {
-                    const currentDate = new Date(current.competitions?.[0]?.date || 0);
-                    const closestDate = new Date(closest.competitions?.[0]?.date || 0);
-                    return Math.abs(currentDate - now) < Math.abs(closestDate - now) ? current : closest;
-                });
+            const activeStart = new Date(year, 2, 10);
+            const activeEnd = new Date(year, 3, 15);
+            
+            if (now < activeStart || now > activeEnd) {
+                container.classList.add('opacity-40', 'grayscale', 'pointer-events-none');
+                if (!title.innerHTML.includes('Off-season')) {
+                    title.innerHTML += ' <span class="text-xs font-normal text-gray-500 ml-2">(Off-season)</span>';
+                }
+                return false;
             }
-
-            const comp = event?.competitions?.[0];
-            if (!comp) return { html: renderOffseasonCard(config.name), weight: 5 };
-
-            const gameDate = new Date(comp.date);
-            const daysDiff = (gameDate - now) / (1000 * 60 * 60 * 24);
-            
-            // If the closest game is too far in past or future (3 weeks), assume offseason
-            const isOffseason = Math.abs(daysDiff) > 21; 
-
-            if (isOffseason) {
-                return { html: renderOffseasonCard(config.name), weight: 5 };
-            }
-
-            const competitors = comp.competitors || [];
-            const home = competitors.find(c => c?.homeAway === 'home') || competitors[0];
-            const away = competitors.find(c => c?.homeAway === 'away') || competitors[1];
-
-            const state = comp.status?.type?.state || 'pre';
-            const isLive = state === 'in';
-
-            // Sorting weight for feed ordering
-            let weight = isLive ? 1 : (daysDiff > 0 ? 2 : 3); 
-
-            const venue = comp.notes?.[0]?.headline || comp.venue?.fullName || 'TBD Venue';
-            const displayDate = gameDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-            
-            // Helper to handle inconsistent ESPN score formats
-            const parseScore = (teamData) => {
-                if (state === 'pre' || teamData?.score == null) return '-';
-                if (typeof teamData.score === 'object') return teamData.score.displayValue ?? teamData.score.value ?? '-';
-                return teamData.score;
-            };
-
-            // Helper to handle inconsistent record storage, fallback to cache
-            const getRecord = (teamData) => {
-                let immediateRecord = teamData?.records?.[0]?.summary || teamData?.team?.record?.items?.[0]?.summary || teamData?.team?.record?.summary;
-                if (immediateRecord) return immediateRecord;
-                return getRecordFromCache(config.league, teamData?.team?.id);
-            };
-            
-            const statusDetail = comp.status?.type?.shortDetail || 'Scheduled';
-            const statusClass = isLive 
-                ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400 animate-pulse' 
-                : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-300';
-            
-            const renderTeamRow = (team) => `
-                <div class="flex justify-between items-center">
-                    <div class="flex items-center gap-3">
-                        ${team?.team?.logos?.[0]?.href ? `<img src="${team.team.logos[0].href}" class="w-6 h-6 object-contain" onerror="this.style.opacity='0'">` : '<div class="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700"></div>'}
-                        <div class="flex flex-col">
-                            <span class="text-sm ${team?.winner ? 'font-bold text-gray-900 dark:text-white' : 'text-gray-700 dark:text-gray-200'}">${team?.team?.shortDisplayName || team?.team?.displayName || 'TBA'}</span>
-                            <span class="text-[10px] text-gray-400">${getRecord(team)}</span>
-                        </div>
-                    </div>
-                    <span class="text-lg font-mono ${team?.winner ? 'text-ksn-accent font-bold' : 'text-gray-600 dark:text-gray-400'}">${parseScore(team)}</span>
-                </div>
-            `;
-
-            // NFL Preseason Display Logic
-            const isNflPreseason = config.league === 'nfl' && event.season?.type === 1;
-            const titleDisplay = isNflPreseason 
-                ? `${config.name} <span class="text-orange-500 dark:text-orange-400 ml-1">(PRESEASON)</span>`
-                : config.name;
-
-            const html = `
-                <div class="p-4 bg-white dark:bg-gray-800 transition-colors">
-                    <div class="flex justify-between items-start mb-3">
-                        <div>
-                            <span class="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 block mb-1">${titleDisplay}</span>
-                            <div class="text-[11px] text-gray-500 dark:text-gray-400 flex items-center gap-2">
-                                <span>${displayDate}</span><span>&bull;</span><span class="truncate max-w-[150px]" title="${venue}">${venue}</span>
-                            </div>
-                        </div>
-                        <span class="text-[10px] font-bold px-2 py-0.5 rounded ${statusClass}">${statusDetail}</span>
-                    </div>
-                    <div class="flex flex-col gap-2">
-                        ${renderTeamRow(away)}
-                        ${renderTeamRow(home)}
-                    </div>
-                </div>
-            `;
-            
-            return { html, weight };
+            return true;
         }
 
         // --- Initialization ---
         async function initializeDashboard() {
-            // First load stands, then fetch specific team data
             await fetchAllStandings();
-            fetchNCAA(false);
-            fetchProTeams(false);
+            fetchFeedGroup(proConfig, 'pro-feed', 'refresh-pro', false);
+            fetchFeedGroup(collegeConfig, 'college-feed', 'refresh-college', false);
+            refreshNCAA(false);
         }
 
-        initializeDashboard();
+        document.addEventListener("DOMContentLoaded", initializeDashboard);
         
-        // Auto-refresh feeds every 30 seconds silently (increased from 10s for efficiency)
         setInterval(() => {
-            fetchNCAA(true);
-            fetchProTeams(true);
-        }, 30000);
+            fetchFeedGroup(proConfig, 'pro-feed', null, true);
+            fetchFeedGroup(collegeConfig, 'college-feed', null, true);
+            refreshNCAA(true);
+        }, 15000);
         
-        // Refresh standings memory cache every hour to keep records up-to-date
         setInterval(fetchAllStandings, 3600000);
     </script>
 </body>
