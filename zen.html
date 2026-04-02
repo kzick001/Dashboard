@@ -3,513 +3,428 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mothership | Elite Visualizer</title>
+    <title>Flow</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
                     fontFamily: { sans: ['Inter', 'sans-serif'] },
-                    animation: {
-                        'scanline': 'scanline 6s linear infinite',
-                        'electric-pulse': 'electric-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                        'pulse-fast': 'pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                    },
-                    keyframes: {
-                        scanline: {
-                            '0%': { transform: 'translateY(-100%)' },
-                            '100%': { transform: 'translateY(100vh)' }
-                        },
-                        'electric-pulse': {
-                            '0%, 100%': { boxShadow: '0 0 0 0 rgba(6, 182, 212, 0.4)' },
-                            '50%': { boxShadow: '0 0 15px 2px rgba(6, 182, 212, 0.1)' }
-                        }
-                    }
                 }
             }
         }
     </script>
     <style>
-        body {
-            /* Drifting mesh gradient */
-            background: radial-gradient(circle at 15% 50%, rgba(2, 6, 23, 1), transparent 50%),
-                        radial-gradient(circle at 85% 30%, rgba(8, 47, 73, 0.8), transparent 50%),
-                        #020617;
-            background-size: 200% 200%;
-            animation: gradientDrift 15s ease infinite;
-        }
-        @keyframes gradientDrift {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        .hover-scale { transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+        body { background-color: #020617; overflow: hidden; margin: 0; padding: 0; }
         
-        .glitch-active {
-            filter: contrast(1.5) hue-rotate(90deg) brightness(1.2) drop-shadow(4px 0px 0px rgba(225, 29, 72, 0.8));
-            transform: skewX(3deg) translateY(-2px);
-        }
-
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #0891b2; border-radius: 4px; }
-
-        .cyber-toggle:checked { right: 0; border-color: #06b6d4; }
-        .cyber-toggle:checked + .toggle-label { background-color: #0891b2; }
+        /* Custom UI Transitions */
+        .ghost-fade { transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+        .panel-slide { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
         
-        input[type=range] {
-            -webkit-appearance: none;
-            background: transparent;
-        }
-        input[type=range]::-webkit-slider-runnable-track {
-            height: 4px;
-            background: #1e293b;
-            border-radius: 2px;
-        }
-        input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            height: 12px;
-            width: 12px;
-            border-radius: 50%;
-            background: #06b6d4;
-            margin-top: -4px;
-            cursor: pointer;
-        }
+        /* Custom Inputs */
+        input[type=range] { -webkit-appearance: none; background: transparent; width: 100%; }
+        input[type=range]::-webkit-slider-runnable-track { height: 2px; background: #334155; border-radius: 1px; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 12px; width: 12px; border-radius: 50%; background: #94a3b8; margin-top: -5px; cursor: pointer; transition: background 0.2s; }
+        input[type=range]:hover::-webkit-slider-thumb { background: #cbd5e1; }
+        
+        .cyber-toggle:checked { right: 0; border-color: #94a3b8; }
+        .cyber-toggle:checked + .toggle-label { background-color: #475569; }
     </style>
 </head>
-<body class="min-h-screen text-slate-100 flex items-center justify-center p-4 overflow-hidden">
+<body class="w-screen h-screen text-slate-100 font-sans select-none">
 
-    <div class="relative bg-slate-900/80 backdrop-blur-sm rounded-xl shadow-lg border border-cyan-500/20 p-6 hover-scale overflow-hidden group w-full max-w-7xl h-[90vh] flex flex-col">
+    <canvas id="coreCanvas" class="fixed inset-0 w-full h-full z-0"></canvas>
+
+    <div class="fixed bottom-6 right-8 text-right z-10 drop-shadow-lg pointer-events-none">
+        <div id="hudTime" class="text-4xl font-light text-slate-200 tracking-widest">--:--</div>
+        <div class="flex items-center justify-end gap-2 mt-1 text-slate-400 font-mono text-xs uppercase tracking-wider">
+            <span id="hudWeatherTemp">SYNCING...</span>
+        </div>
+    </div>
+
+    <div id="ghostLayer" class="fixed inset-0 z-20 pointer-events-none ghost-fade">
         
-        <div class="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent via-cyan-500/5 to-transparent h-20 w-full animate-scanline opacity-20 z-10"></div>
-        
-        <a href="https://kzick001.github.io/dashboard/" class="absolute top-4 left-4 text-[10px] font-black text-cyan-800 hover:text-cyan-400 transition-colors tracking-tighter z-30">&larr; DASHBOARD</a>
+        <button id="menuToggle" class="absolute top-6 left-6 w-12 h-12 rounded-full bg-slate-900/50 backdrop-blur-md border border-slate-700/50 flex items-center justify-center text-slate-400 hover:text-slate-100 hover:bg-slate-800/80 transition-all pointer-events-auto">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
+            </svg>
+        </button>
 
-        <canvas id="coreCanvas" class="absolute inset-0 w-full h-full z-0"></canvas>
-
-        <div class="relative z-20 flex flex-col h-full pointer-events-none">
+        <div id="commandDeck" class="absolute top-24 left-6 w-80 bg-slate-950/80 backdrop-blur-xl border border-slate-800/60 rounded-xl p-6 pointer-events-auto panel-slide -translate-x-[120%] shadow-2xl">
             
-            <header class="flex items-center gap-4 ml-24 pointer-events-auto w-max">
-                <div class="w-10 h-10 rounded-lg bg-cyan-950/60 border border-cyan-500/30 flex items-center justify-center group-hover:animate-electric-pulse transition-all">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5" />
-                    </svg>
-                </div>
-                <div>
-                    <h2 class="text-xl font-bold truncate text-slate-100">Kzick Core Matrix</h2>
-                    <div class="text-[10px] font-mono text-cyan-500/70 uppercase tracking-widest mt-0.5">Mothership System v3.0</div>
-                </div>
-            </header>
+            <div class="mb-6 pb-4 border-b border-slate-800">
+                <h2 class="text-lg font-semibold tracking-wide text-slate-200">Flow Parameters</h2>
+                <p class="text-[10px] font-mono text-slate-500 uppercase tracking-widest mt-1">Zen Engine v1.0</p>
+            </div>
 
-            <div class="flex-1 flex items-end justify-between mt-6 gap-6">
-                
-                <div class="w-1/4 bg-slate-950/90 border border-slate-800 rounded-lg p-3 pointer-events-auto backdrop-blur-md shadow-2xl">
-                    <div class="flex justify-between items-center mb-2 border-b border-slate-800 pb-1">
-                        <span class="text-[10px] font-mono text-slate-500">SYS_LOG_PIPELINE</span>
-                        <div class="w-2 h-2 rounded-full bg-cyan-500 animate-pulse-fast"></div>
+            <div class="space-y-6">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-[10px] font-mono text-slate-500 mb-1.5 uppercase">Visual Matrix</label>
+                        <select id="themeSelect" class="w-full bg-slate-900/50 border border-slate-700 rounded p-2 text-xs font-mono text-slate-300 focus:outline-none focus:border-slate-500">
+                            <option value="saturn">Saturn Vector (Audio Focus)</option>
+                            <option value="zen">Zen Garden</option>
+                            <option value="neural">Neural Synapse</option>
+                            <option value="orbs">Bioluminescent Orbs</option>
+                        </select>
                     </div>
-                    <div id="terminalBody" class="font-mono text-[11px] leading-relaxed h-32 overflow-y-auto flex flex-col justify-end text-slate-400">
-                        <div class="text-cyan-400">> Syncing secure pipeline...</div>
-                        <div>> Initializing Canvas Context... OK</div>
-                    </div>
-                </div>
-
-                <div class="w-1/4 bg-slate-950/90 border border-slate-800 rounded-lg p-4 pointer-events-auto backdrop-blur-md shadow-2xl">
-                    <span class="text-[10px] font-mono text-slate-500 border-b border-slate-800 block mb-3 pb-1">RENDER_PARAMETERS</span>
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-[11px] font-mono text-slate-400 mb-1">THEME_SELECT</label>
-                            <select id="themeSelect" class="w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-xs font-mono text-cyan-400 focus:outline-none focus:border-cyan-500">
-                                <option value="neural">Neural Synapse</option>
-                                <option value="orbs">Bioluminescent Orbs</option>
-                                <option value="geometric">Geometric Drift</option>
-                                <option value="stellar">Stellar Nursery</option>
-                                <option value="waves">Sine Waves</option>
-                                <option value="zen">Zen Garden</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="flex justify-between text-[11px] font-mono text-slate-400 mb-1">
-                                VELOCITY_MULTI <span id="velVal" class="text-cyan-500">1.0x</span>
-                            </label>
-                            <input type="range" id="velocitySlider" min="0.1" max="3" step="0.1" value="1" class="w-full">
-                        </div>
-                        <div>
-                            <label class="flex justify-between text-[11px] font-mono text-slate-400 mb-1">
-                                PARTICLE_DENSITY <span id="denVal" class="text-cyan-500">80</span>
-                            </label>
-                            <input type="range" id="densitySlider" min="20" max="200" step="10" value="80" class="w-full">
-                        </div>
+                    <div>
+                        <label class="block text-[10px] font-mono text-slate-500 mb-1.5 uppercase">Color Palette</label>
+                        <select id="paletteSelect" class="w-full bg-slate-900/50 border border-slate-700 rounded p-2 text-xs font-mono text-slate-300 focus:outline-none focus:border-slate-500">
+                            <option value="nordic">Nordic Drift (Slate/Blue)</option>
+                            <option value="matcha">Matcha (Sage/Forest)</option>
+                            <option value="grayscale">Grayscale (Monochrome)</option>
+                            <option value="neon">Neon Tokyo (Pink/Cyan)</option>
+                        </select>
                     </div>
                 </div>
 
-                <div class="w-1/4 bg-slate-950/90 border border-cyan-900/50 rounded-lg p-4 pointer-events-auto backdrop-blur-md shadow-2xl">
-                    <span class="text-[10px] font-mono text-slate-500 border-b border-slate-800 block mb-3 pb-1">SYS_MODIFIERS</span>
-                    <div class="space-y-3 font-mono">
-                        
-                        <div class="flex justify-between items-center group/toggle">
-                            <span class="text-[11px] text-slate-300 flex items-center gap-2">
-                                <svg class="w-3 h-3 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/></svg>
-                                SYSTEM_AUDIO
-                            </span>
-                            <div class="relative inline-block w-8 align-middle select-none">
-                                <input type="checkbox" id="toggleAudio" class="cyber-toggle absolute block w-4 h-4 rounded-full bg-slate-200 border-2 border-slate-600 appearance-none cursor-pointer transition-all z-10 top-0 bottom-0 m-auto"/>
-                                <label for="toggleAudio" class="toggle-label block overflow-hidden h-4 rounded-full bg-slate-800 cursor-pointer transition-colors"></label>
-                            </div>
-                        </div>
-
-                        <div class="flex justify-between items-center">
-                            <span class="text-[11px] text-slate-300">GHOST_TRAILS</span>
-                            <div class="relative inline-block w-8 align-middle select-none">
-                                <input type="checkbox" id="togglePersistence" checked class="cyber-toggle absolute block w-4 h-4 rounded-full bg-slate-200 border-2 border-slate-600 appearance-none cursor-pointer transition-all z-10 top-0 bottom-0 m-auto"/>
-                                <label for="togglePersistence" class="toggle-label block overflow-hidden h-4 rounded-full bg-slate-800 cursor-pointer transition-colors"></label>
-                            </div>
-                        </div>
-
-                        <div class="flex justify-between items-center">
-                            <span class="text-[11px] text-slate-300">ORBITAL_CAPTURE</span>
-                            <div class="relative inline-block w-8 align-middle select-none">
-                                <input type="checkbox" id="toggleOrbital" checked class="cyber-toggle absolute block w-4 h-4 rounded-full bg-slate-200 border-2 border-slate-600 appearance-none cursor-pointer transition-all z-10 top-0 bottom-0 m-auto"/>
-                                <label for="toggleOrbital" class="toggle-label block overflow-hidden h-4 rounded-full bg-slate-800 cursor-pointer transition-colors"></label>
-                            </div>
-                        </div>
-
-                        <div class="flex justify-between items-center">
-                            <span class="text-[11px] text-slate-300">FRACTAL_LOOP</span>
-                            <div class="relative inline-block w-8 align-middle select-none">
-                                <input type="checkbox" id="toggleFractal" class="cyber-toggle absolute block w-4 h-4 rounded-full bg-slate-200 border-2 border-slate-600 appearance-none cursor-pointer transition-all z-10 top-0 bottom-0 m-auto"/>
-                                <label for="toggleFractal" class="toggle-label block overflow-hidden h-4 rounded-full bg-slate-800 cursor-pointer transition-colors"></label>
-                            </div>
-                        </div>
-
-                        <div class="flex justify-between items-center mt-2 pt-2 border-t border-rose-900/30">
-                            <span class="text-[11px] text-rose-500">FORCE_GLITCH</span>
-                            <div class="relative inline-block w-8 align-middle select-none">
-                                <input type="checkbox" id="toggleGlitch" class="cyber-toggle absolute block w-4 h-4 rounded-full bg-slate-200 border-2 border-slate-600 appearance-none cursor-pointer transition-all z-10 top-0 bottom-0 m-auto right-0"/>
-                                <label for="toggleGlitch" class="toggle-label block overflow-hidden h-4 rounded-full bg-slate-800 cursor-pointer transition-colors"></label>
-                            </div>
-                        </div>
-
+                <div class="space-y-4">
+                    <div>
+                        <label class="flex justify-between text-[10px] font-mono text-slate-500 mb-1.5 uppercase">
+                            Audio Sensitivity <span id="sensVal" class="text-slate-300">1.0x</span>
+                        </label>
+                        <input type="range" id="sensitivitySlider" min="0.1" max="3" step="0.1" value="1.0">
+                    </div>
+                    <div>
+                        <label class="flex justify-between text-[10px] font-mono text-slate-500 mb-1.5 uppercase">
+                            Velocity <span id="velVal" class="text-slate-300">1.0x</span>
+                        </label>
+                        <input type="range" id="velocitySlider" min="0.1" max="2" step="0.1" value="1.0">
+                    </div>
+                    <div>
+                        <label class="flex justify-between text-[10px] font-mono text-slate-500 mb-1.5 uppercase">
+                            Density <span id="denVal" class="text-slate-300">80</span>
+                        </label>
+                        <input type="range" id="densitySlider" min="20" max="200" step="10" value="80">
                     </div>
                 </div>
+
+                <div class="pt-4 border-t border-slate-800 space-y-3">
+                    <div class="flex justify-between items-center group">
+                        <span class="text-xs font-mono text-slate-400 flex items-center gap-2">
+                            <svg class="w-3 h-3 text-slate-500 group-hover:text-slate-300 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/></svg>
+                            SYSTEM AUDIO
+                        </span>
+                        <div class="relative inline-block w-8 align-middle">
+                            <input type="checkbox" id="toggleAudio" class="cyber-toggle absolute block w-4 h-4 rounded-full bg-slate-300 border-2 border-slate-600 appearance-none cursor-pointer transition-all z-10 top-0 bottom-0 m-auto"/>
+                            <label for="toggleAudio" class="toggle-label block overflow-hidden h-4 rounded-full bg-slate-800 cursor-pointer transition-colors"></label>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-mono text-slate-400">GHOST TRAILS</span>
+                        <div class="relative inline-block w-8 align-middle">
+                            <input type="checkbox" id="togglePersistence" checked class="cyber-toggle absolute block w-4 h-4 rounded-full bg-slate-300 border-2 border-slate-600 appearance-none cursor-pointer transition-all z-10 top-0 bottom-0 m-auto"/>
+                            <label for="togglePersistence" class="toggle-label block overflow-hidden h-4 rounded-full bg-slate-800 cursor-pointer transition-colors"></label>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-mono text-slate-400">DEEP BREATH</span>
+                        <div class="relative inline-block w-8 align-middle">
+                            <input type="checkbox" id="toggleBreath" class="cyber-toggle absolute block w-4 h-4 rounded-full bg-slate-300 border-2 border-slate-600 appearance-none cursor-pointer transition-all z-10 top-0 bottom-0 m-auto"/>
+                            <label for="toggleBreath" class="toggle-label block overflow-hidden h-4 rounded-full bg-slate-800 cursor-pointer transition-colors"></label>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
 
     <script>
         (function() {
+            // --- Architecture Setup ---
             const canvas = document.getElementById('coreCanvas');
             const ctx = canvas.getContext('2d', { alpha: false });
-            const terminal = document.getElementById('terminalBody');
-            
             let width, height, timeTick = 0;
-            let particles = [], ripples = [];
+            let particles = [], ripples = [], stars = [];
 
-            // Architecture State
+            const palettes = {
+                nordic: ['#94a3b8', '#64748b', '#38bdf8', '#818cf8', '#0f172a'],
+                matcha: ['#d9f99d', '#a3e635', '#4d7c0f', '#ecfccb', '#052e16'],
+                grayscale: ['#333333', '#666666', '#999999', '#cccccc', '#111111'],
+                neon: ['#f43f5e', '#8b5cf6', '#06b6d4', '#fcd34d', '#2e1065']
+            };
+
             const state = {
-                theme: 'neural',
+                theme: 'saturn',
+                colors: palettes.nordic,
                 velocity: 1.0,
                 density: 80,
                 audio: false,
+                sensitivity: 1.0,
                 persistence: true,
-                orbital: true,
-                fractal: false,
-                glitch: false,
-                mouseX: -1000,
-                mouseY: -1000,
-                audioData: 0,
-                colorPool: ['#06b6d4', '#3b82f6', '#8b5cf6', '#64748b'] // Cyan, Blue, Purple, Slate
+                breath: false,
+                mouseX: -1000, mouseY: -1000,
+                audioData: new Uint8Array(256).fill(0) // Safe default
             };
 
-            // Audio Nodes
-            let audioCtx, analyser, dataArray, mediaStream;
+            let audioCtx, analyser, mediaStream;
 
-            function log(msg, type = 'info') {
-                const div = document.createElement('div');
-                div.textContent = `> ${msg}`;
-                if(type === 'error') div.className = 'text-rose-500 animate-pulse';
-                if(type === 'warn') div.className = 'text-amber-400';
-                terminal.appendChild(div);
-                terminal.scrollTop = terminal.scrollHeight;
+            // --- UI & Ghost Logic ---
+            let idleTimer;
+            const ghostLayer = document.getElementById('ghostLayer');
+            const cmdDeck = document.getElementById('commandDeck');
+            let isMenuOpen = false;
+
+            function resetIdleTimer() {
+                ghostLayer.classList.remove('opacity-0');
+                clearTimeout(idleTimer);
+                idleTimer = setTimeout(() => {
+                    if (!isMenuOpen) ghostLayer.classList.add('opacity-0');
+                }, 3000);
             }
+            window.addEventListener('mousemove', resetIdleTimer);
+            window.addEventListener('click', resetIdleTimer);
+            resetIdleTimer();
 
-            function resize() {
-                const rect = canvas.parentElement.getBoundingClientRect();
-                width = canvas.width = rect.width;
-                height = canvas.height = rect.height;
-                initSystem();
-            }
-            window.addEventListener('resize', resize);
-
-            // Inputs
-            canvas.addEventListener('mousemove', (e) => {
-                const rect = canvas.getBoundingClientRect();
-                state.mouseX = e.clientX - rect.left;
-                state.mouseY = e.clientY - rect.top;
+            document.getElementById('menuToggle').addEventListener('click', () => {
+                isMenuOpen = !isMenuOpen;
+                if(isMenuOpen) {
+                    cmdDeck.classList.remove('-translate-x-[120%]');
+                } else {
+                    cmdDeck.classList.add('-translate-x-[120%]');
+                    resetIdleTimer(); // Allow it to fade if closed
+                }
             });
-            canvas.addEventListener('mouseleave', () => { state.mouseX = -1000; state.mouseY = -1000; });
 
-            // UI Bindings
-            document.getElementById('themeSelect').addEventListener('change', e => { state.theme = e.target.value; initSystem(); log(`SYS_THEME -> ${state.theme.toUpperCase()}`); });
-            document.getElementById('velocitySlider').addEventListener('input', e => { state.velocity = parseFloat(e.target.value); document.getElementById('velVal').textContent = state.velocity.toFixed(1) + 'x'; });
-            document.getElementById('densitySlider').addEventListener('input', e => { state.density = parseInt(e.target.value); document.getElementById('denVal').textContent = state.density; initSystem(); });
+            // HUD Weather & Time
+            function updateTime() { document.getElementById('hudTime').textContent = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}); }
+            setInterval(updateTime, 1000); updateTime();
             
-            document.getElementById('togglePersistence').addEventListener('change', e => state.persistence = e.target.checked);
-            document.getElementById('toggleOrbital').addEventListener('change', e => state.orbital = e.target.checked);
-            document.getElementById('toggleFractal').addEventListener('change', e => state.fractal = e.target.checked);
-            document.getElementById('toggleGlitch').addEventListener('change', e => {
-                state.glitch = e.target.checked;
-                if(!state.glitch) canvas.parentElement.classList.remove('glitch-active');
-                log(`SYS_INSTABILITY -> ${state.glitch ? 'FORCED' : 'NORMALIZED'}`, state.glitch ? 'error' : 'info');
-            });
+            async function fetchWeather() {
+                try {
+                    const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=44.95&longitude=-93.36&current=temperature_2m&temperature_unit=fahrenheit');
+                    if(res.ok) {
+                        const data = await res.json();
+                        document.getElementById('hudWeatherTemp').textContent = `${Math.round(data.current.temperature_2m)}°F // LOCAL`;
+                    }
+                } catch(e) { console.warn("Weather fetch failed."); }
+            }
+            fetchWeather(); setInterval(fetchWeather, 600000);
 
-            // The System Audio Hack
+            // --- Input Bindings ---
+            document.getElementById('themeSelect').addEventListener('change', e => { state.theme = e.target.value; initSystem(); });
+            document.getElementById('paletteSelect').addEventListener('change', e => { state.colors = palettes[e.target.value]; initSystem(); });
+            document.getElementById('sensitivitySlider').addEventListener('input', e => { state.sensitivity = parseFloat(e.target.value); document.getElementById('sensVal').textContent = state.sensitivity.toFixed(1) + 'x'; });
+            document.getElementById('velocitySlider').addEventListener('input', e => { state.velocity = parseFloat(e.target.value); document.getElementById('velVal').textContent = state.velocity.toFixed(1) + 'x'; });
+            document.getElementById('densitySlider').addEventListener('input', e => { state.density = parseInt(e.target.value); initSystem(); });
+            document.getElementById('togglePersistence').addEventListener('change', e => state.persistence = e.target.checked);
+            document.getElementById('toggleBreath').addEventListener('change', e => state.breath = e.target.checked);
+
+            // Audio Link
             document.getElementById('toggleAudio').addEventListener('change', async (e) => {
                 if(e.target.checked) {
                     try {
-                        log("Requesting SYS_AUDIO stream... Select 'Share Audio'.", 'warn');
-                        // Crucial: getDisplayMedia is required to capture system audio. 
-                        mediaStream = await navigator.mediaDevices.getDisplayMedia({
-                            video: true, // Must request video for screenshare
-                            audio: true
-                        });
-                        
-                        // Immediately kill the video track to save processing power
-                        mediaStream.getVideoTracks().forEach(track => track.stop());
-
-                        // Check if user actually shared audio
-                        if (mediaStream.getAudioTracks().length === 0) {
-                            throw new Error("NO_AUDIO_TRACK");
-                        }
+                        mediaStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+                        mediaStream.getVideoTracks().forEach(t => t.stop()); // Kill video immediately
+                        if (mediaStream.getAudioTracks().length === 0) throw new Error("NO_AUDIO");
 
                         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                         analyser = audioCtx.createAnalyser();
-                        const source = audioCtx.createMediaStreamSource(mediaStream);
-                        source.connect(analyser);
+                        audioCtx.createMediaStreamSource(mediaStream).connect(analyser);
                         analyser.fftSize = 256;
-                        dataArray = new Uint8Array(analyser.frequencyBinCount);
                         state.audio = true;
-                        log("SYS_AUDIO locked. Analyzing frequencies.");
 
-                        // Handle stream stop from browser UI
-                        mediaStream.getAudioTracks()[0].onended = () => {
-                            document.getElementById('toggleAudio').checked = false;
-                            disableAudio();
-                        };
-
+                        mediaStream.getAudioTracks()[0].onended = disableAudio;
                     } catch (err) {
-                        log(err.message === "NO_AUDIO_TRACK" ? "ERR: System Audio not shared." : "ERR: Screen capture denied.", 'error');
-                        e.target.checked = false;
+                        console.error("Audio failed or denied.");
                         disableAudio();
                     }
-                } else {
-                    disableAudio();
-                }
+                } else disableAudio();
             });
 
             function disableAudio() {
                 if(audioCtx) audioCtx.suspend();
                 if(mediaStream) mediaStream.getTracks().forEach(t => t.stop());
                 state.audio = false;
-                state.audioData = 0;
-                log("SYS_AUDIO disconnected.");
+                document.getElementById('toggleAudio').checked = false;
             }
 
-            // Physics Engine
+            // --- Canvas Engine ---
+            function resize() {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+                initSystem();
+            }
+            window.addEventListener('resize', resize);
+            window.addEventListener('mousemove', e => { state.mouseX = e.clientX; state.mouseY = e.clientY; });
+            window.addEventListener('mouseleave', () => { state.mouseX = -1000; state.mouseY = -1000; });
+
             class Particle {
                 constructor() { this.reset(); }
                 reset() {
-                    this.x = Math.random() * width;
-                    this.y = Math.random() * height;
-                    this.size = Math.random() * 3 + 1;
-                    if(state.theme === 'orbs') this.size = Math.random() * 20 + 10;
-                    if(state.theme === 'geometric') this.size = Math.random() * 15 + 5;
-                    this.vx = (Math.random() - 0.5) * 1.5;
-                    this.vy = (Math.random() - 0.5) * 1.5;
-                    this.color = state.colorPool[Math.floor(Math.random() * state.colorPool.length)];
-                    this.type = Math.floor(Math.random() * 3);
+                    this.x = Math.random() * width; this.y = Math.random() * height;
+                    this.size = Math.random() * 2 + 1;
+                    if(state.theme === 'orbs') this.size = Math.random() * 15 + 5;
+                    this.vx = (Math.random() - 0.5) * 1.2; this.vy = (Math.random() - 0.5) * 1.2;
+                    this.color = state.colors[Math.floor(Math.random() * 4)];
                     this.angle = Math.random() * Math.PI * 2;
-                    this.pulseOffset = Math.random() * 100;
                 }
                 update() {
-                    let cvx = this.vx * state.velocity;
-                    let cvy = this.vy * state.velocity;
+                    let spd = state.velocity;
+                    
+                    // Simple repel
+                    let dx = this.x - state.mouseX, dy = this.y - state.mouseY, dist = Math.sqrt(dx*dx + dy*dy);
+                    if(dist < 150) { this.x += (dx/dist) * 2; this.y += (dy/dist) * 2; }
 
-                    // Orbital Logic
-                    if (state.orbital) {
-                        let dx = this.x - state.mouseX;
-                        let dy = this.y - state.mouseY;
-                        let dist = Math.sqrt(dx * dx + dy * dy);
-                        if (dist < 250 && dist > 10) {
-                            let force = (250 - dist) / 250;
-                            cvx += (-dy / dist) * force * 4;
-                            cvy += (dx / dist) * force * 4;
-                            cvx -= (dx / dist) * force * 0.5; // pull inward
-                            cvy -= (dy / dist) * force * 0.5;
-                        }
-                    }
-
-                    this.x += cvx;
-                    this.y += cvy;
-                    this.angle += 0.02 * state.velocity;
-
-                    if (this.x < -50) this.x = width + 50;
-                    if (this.x > width + 50) this.x = -50;
-                    if (this.y < -50) this.y = height + 50;
-                    if (this.y > height + 50) this.y = -50;
+                    this.x += this.vx * spd; this.y += this.vy * spd;
+                    if (this.x < 0) this.x = width; if (this.x > width) this.x = 0;
+                    if (this.y < 0) this.y = height; if (this.y > height) this.y = 0;
                 }
                 draw() {
-                    let audioScale = state.audio ? (state.audioData / 60) : 1;
-                    let currentSize = this.size * Math.max(1, audioScale * 0.8);
-
-                    ctx.save();
-                    ctx.translate(this.x, this.y);
-                    ctx.rotate(this.angle);
-
-                    if (state.theme === 'orbs') {
-                        let pulse = Math.sin(timeTick * 0.05 + this.pulseOffset) * 0.3 + 0.7;
-                        let grad = ctx.createRadialGradient(0,0,0, 0,0, currentSize * pulse);
-                        grad.addColorStop(0, this.color);
-                        grad.addColorStop(1, 'transparent');
-                        ctx.fillStyle = grad;
-                        ctx.globalAlpha = 0.6;
-                        ctx.beginPath(); ctx.arc(0,0, currentSize * pulse, 0, Math.PI*2); ctx.fill();
-                    } 
-                    else if (state.theme === 'geometric') {
-                        ctx.strokeStyle = this.color;
-                        ctx.lineWidth = 1.5;
-                        ctx.globalAlpha = 0.7;
-                        ctx.beginPath();
-                        if (this.type === 0) ctx.rect(-currentSize/2, -currentSize/2, currentSize, currentSize);
-                        else if (this.type === 1) { ctx.moveTo(0, -currentSize); ctx.lineTo(currentSize, 0); ctx.lineTo(0, currentSize); ctx.lineTo(-currentSize, 0); ctx.closePath(); }
-                        else ctx.arc(0,0, currentSize, 0, Math.PI*2);
-                        ctx.stroke();
-                    }
-                    else {
-                        ctx.fillStyle = this.color;
+                    ctx.fillStyle = this.color;
+                    ctx.beginPath();
+                    if(state.theme === 'orbs') {
+                        ctx.globalAlpha = 0.4;
+                        ctx.arc(this.x, this.y, this.size * (1 + (state.audioData[0]/255)), 0, Math.PI*2);
+                    } else {
                         ctx.globalAlpha = 0.8;
-                        ctx.beginPath(); ctx.arc(0,0, currentSize, 0, Math.PI*2); ctx.fill();
+                        ctx.arc(this.x, this.y, this.size, 0, Math.PI*2);
                     }
-                    ctx.restore();
+                    ctx.fill(); ctx.globalAlpha = 1;
                 }
             }
 
             function initSystem() {
-                particles = []; ripples = [];
+                particles = []; ripples = []; stars = [];
                 for(let i=0; i<state.density; i++) particles.push(new Particle());
+                for(let i=0; i<150; i++) stars.push({x: Math.random()*width, y: Math.random()*height, s: Math.random()*1.5});
             }
 
-            function drawNeuralNet() {
-                let maxDist = state.audio ? 100 + state.audioData : 120;
-                ctx.lineWidth = 1;
-                for(let i=0; i<particles.length; i++) {
-                    for(let j=i+1; j<particles.length; j++) {
-                        let dx = particles[i].x - particles[j].x;
-                        let dy = particles[i].y - particles[j].y;
-                        let dist = Math.sqrt(dx*dx + dy*dy);
-                        if(dist < maxDist) {
-                            ctx.beginPath();
-                            ctx.strokeStyle = '#06b6d4';
-                            ctx.globalAlpha = (1 - dist/maxDist) * 0.4;
-                            ctx.moveTo(particles[i].x, particles[i].y);
-                            ctx.lineTo(particles[j].x, particles[j].y);
-                            ctx.stroke();
-                        }
-                    }
-                }
-                ctx.globalAlpha = 1;
-            }
+            // --- Theme: Saturn Monolith ---
+            function drawSaturn() {
+                // Background Stars (slow drift)
+                ctx.fillStyle = state.colors[1];
+                stars.forEach(s => {
+                    s.x -= 0.1 * state.velocity;
+                    if(s.x < 0) s.x = width;
+                    ctx.beginPath(); ctx.arc(s.x, s.y, s.s, 0, Math.PI*2); ctx.fill();
+                });
 
-            function drawWaves() {
+                const cx = width / 2;
+                const cy = height / 2;
+                const rPlanet = Math.min(width, height) * 0.15;
+                const rRing = rPlanet * 1.8;
+                const ringTilt = 0.35; // 3D angle squish
+
                 ctx.lineWidth = 2;
-                let audioOffset = state.audio ? state.audioData * 0.5 : 0;
-                for(let j = 0; j < 3; j++) {
+                
+                // Helper to draw half a ring
+                const drawRingArc = (startAngle, endAngle) => {
                     ctx.beginPath();
-                    ctx.strokeStyle = state.colorPool[j];
-                    ctx.globalAlpha = 0.3;
-                    for(let x = 0; x < width; x += 20) {
-                        let y = height / 2 
-                              + Math.sin(x * 0.01 + timeTick * 0.02 * state.velocity + j) * (100 + audioOffset)
-                              + Math.cos(x * 0.005 - timeTick * 0.01 * state.velocity) * 50;
-                        if (x === 0) ctx.moveTo(x, y);
+                    for(let i = startAngle; i <= endAngle; i += 0.05) {
+                        // Map angle to a frequency bin (wrap around cleanly)
+                        let bin = Math.floor((Math.abs(i - Math.PI) / Math.PI) * (analyser ? analyser.frequencyBinCount / 2 : 128));
+                        let audioMod = state.audio ? (state.audioData[bin] || 0) / 255 * 80 * state.sensitivity : 0;
+                        
+                        let r = rRing + audioMod;
+                        let x = cx + Math.cos(i) * r;
+                        let y = cy + Math.sin(i) * r * ringTilt;
+                        
+                        if (i === startAngle) ctx.moveTo(x, y);
                         else ctx.lineTo(x, y);
                     }
                     ctx.stroke();
-                }
+                };
+
+                // 1. Draw back of ring (Pi to 2Pi)
+                ctx.strokeStyle = state.colors[2];
+                ctx.globalAlpha = 0.4;
+                drawRingArc(Math.PI, Math.PI * 2);
+
+                // 2. Draw Planet Sphere
+                ctx.globalAlpha = 1;
+                let grad = ctx.createLinearGradient(cx - rPlanet, cy - rPlanet, cx + rPlanet, cy + rPlanet);
+                grad.addColorStop(0, state.colors[4]); // Dark base
+                grad.addColorStop(1, '#000000');
+                ctx.fillStyle = grad;
+                ctx.beginPath(); ctx.arc(cx, cy, rPlanet, 0, Math.PI*2); ctx.fill();
+                
+                // Planet Vector Outline
+                ctx.strokeStyle = state.colors[1];
+                ctx.lineWidth = 1;
+                ctx.stroke();
+
+                // 3. Draw front of ring (0 to Pi)
+                ctx.strokeStyle = state.colors[3]; // Highlight color for front
+                ctx.lineWidth = 3;
+                ctx.globalAlpha = 0.9;
+                drawRingArc(0, Math.PI);
+                
                 ctx.globalAlpha = 1;
             }
 
-            // Core Loop
+            // --- Render Loop ---
             function animate() {
                 timeTick++;
-
+                
                 if(state.audio && analyser) {
-                    analyser.getByteFrequencyData(dataArray);
-                    let sum = 0;
-                    for(let i=0; i<dataArray.length; i++) sum += dataArray[i];
-                    state.audioData = sum / dataArray.length;
+                    analyser.getByteFrequencyData(state.audioData);
+                } else {
+                    state.audioData.fill(0); // decay gracefully if off
                 }
 
-                // Glitch Matrix
-                if(state.glitch && Math.random() < 0.08) {
-                    canvas.parentElement.classList.add('glitch-active');
-                    setTimeout(() => canvas.parentElement.classList.remove('glitch-active'), 50);
-                }
+                // Global Breath Opacity (Zen overlay)
+                let breathAlpha = state.breath ? 0.7 + Math.sin(timeTick * 0.02) * 0.3 : 1;
 
-                // Render Base
-                ctx.globalAlpha = 1;
-                if(state.persistence && state.theme !== 'waves') {
-                    ctx.fillStyle = 'rgba(2, 6, 23, 0.2)';
+                // Persistence fade
+                if(state.persistence && state.theme !== 'saturn') {
+                    ctx.fillStyle = `rgba(2, 6, 23, 0.15)`; // Slate 950 base
                     ctx.fillRect(0, 0, width, height);
                 } else {
                     ctx.fillStyle = '#020617';
                     ctx.fillRect(0, 0, width, height);
                 }
 
-                ctx.globalCompositeOperation = (state.theme === 'orbs' || state.theme === 'neural') ? 'lighter' : 'source-over';
+                ctx.globalAlpha = breathAlpha;
 
-                // Render Themes
-                if (state.theme === 'waves') {
-                    drawWaves();
-                } else if (state.theme === 'zen') {
-                    if (Math.random() < 0.03 * state.velocity && ripples.length < 8) {
-                        ripples.push({ x: Math.random()*width, y: Math.random()*height, r: 1, max: Math.random()*150+50, c: state.colorPool[Math.floor(Math.random()*4)] });
+                // Route Themes
+                if (state.theme === 'saturn') {
+                    drawSaturn();
+                } 
+                else if (state.theme === 'zen') {
+                    if (Math.random() < 0.02 * state.velocity && ripples.length < 10) {
+                        ripples.push({ x: Math.random()*width, y: Math.random()*height, r: 1, max: Math.random()*150+50, c: state.colors[Math.floor(Math.random()*4)] });
                     }
                     for (let i = ripples.length - 1; i >= 0; i--) {
                         let rip = ripples[i];
-                        rip.r += 0.8 * state.velocity + (state.audioData * 0.02);
+                        let audioBoost = state.audio ? (state.audioData[10]/255) * 5 * state.sensitivity : 0;
+                        rip.r += (0.5 * state.velocity) + audioBoost;
                         ctx.beginPath(); ctx.strokeStyle = rip.c; ctx.globalAlpha = 0.5 * (1 - rip.r/rip.max);
-                        ctx.lineWidth = 2; ctx.arc(rip.x, rip.y, rip.r, 0, Math.PI*2); ctx.stroke();
+                        ctx.lineWidth = 1.5; ctx.arc(rip.x, rip.y, rip.r, 0, Math.PI*2); ctx.stroke();
                         if (rip.r >= rip.max) ripples.splice(i, 1);
                     }
-                    particles.forEach(p => { p.update(); p.draw(); });
-                } else {
-                    particles.forEach(p => { p.update(); p.draw(); });
-                    if (state.theme === 'neural') drawNeuralNet();
+                    ctx.globalAlpha = breathAlpha;
                 }
-                ctx.globalCompositeOperation = 'source-over';
-
-                // Fractal Recursion
-                if(state.fractal) {
-                    ctx.save();
-                    ctx.translate(width/2, height/2);
-                    let rotSpeed = 0.002 * state.velocity + (state.audioData * 0.00005);
-                    ctx.rotate(rotSpeed);
-                    ctx.scale(0.97, 0.97); 
-                    ctx.globalAlpha = 0.6;
-                    ctx.drawImage(canvas, -width/2, -height/2, width, height);
-                    ctx.restore();
+                else {
+                    particles.forEach(p => { p.update(); p.draw(); });
+                    
+                    if (state.theme === 'neural') {
+                        ctx.lineWidth = 1;
+                        for(let i=0; i<particles.length; i++) {
+                            for(let j=i+1; j<particles.length; j++) {
+                                let dx = particles[i].x - particles[j].x, dy = particles[i].y - particles[j].y;
+                                let dist = Math.sqrt(dx*dx + dy*dy);
+                                let threshold = state.audio ? 100 + (state.audioData[i%20]/255)*100*state.sensitivity : 120;
+                                if(dist < threshold) {
+                                    ctx.beginPath(); ctx.strokeStyle = state.colors[2];
+                                    ctx.globalAlpha = (1 - dist/threshold) * 0.5 * breathAlpha;
+                                    ctx.moveTo(particles[i].x, particles[i].y); ctx.lineTo(particles[j].x, particles[j].y); ctx.stroke();
+                                }
+                            }
+                        }
+                    }
                 }
 
+                ctx.globalAlpha = 1; // Reset
                 requestAnimationFrame(animate);
             }
 
             setTimeout(resize, 100);
             animate();
-            setTimeout(() => log("Matrix stabilized. Waiting for input..."), 1000);
 
         })();
     </script>
