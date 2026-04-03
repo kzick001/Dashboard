@@ -34,21 +34,17 @@
         }
     </script>
     <style>
-        body {
-            /* The drifting slate mesh */
-            background: radial-gradient(circle at 50% 50%, #020617 0%, #0f172a 100%);
-        }
-        /* Hide scrollbar for clean aesthetic */
+        body { background: radial-gradient(circle at 50% 50%, #020617 0%, #0f172a 100%); }
         ::-webkit-scrollbar { display: none; }
         
-        /* Custom hardware toggles */
-        .hardware-toggle:checked + div { background-color: currentColor; }
-        .hardware-toggle:checked + div > div { transform: translateX(100%); }
+        /* Custom Hardware Toggle Styles */
+        .cyber-switch input:checked + div { background-color: currentColor; box-shadow: 0 0 15px currentColor; }
+        .cyber-switch input:checked + div > div { transform: translateX(100%); background-color: #fff; }
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-4 text-slate-300">
 
-    <div class="relative bg-slate-900/80 backdrop-blur-sm rounded-xl shadow-lg border border-amber-500/20 p-6 overflow-hidden group w-full max-w-3xl">
+    <div class="relative bg-slate-900/80 backdrop-blur-sm rounded-xl shadow-lg border border-amber-500/20 p-6 hover-scale overflow-hidden group w-full max-w-4xl">
         
         <div class="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent via-amber-500/5 to-transparent h-20 w-full animate-scanline opacity-20"></div>
         
@@ -66,46 +62,51 @@
         <div id="loading-state" class="font-mono text-sm text-red-500 animate-pulse mb-4 z-10 relative">
             > Syncing secure pipeline... 
             <br>> Establishing isolated canvas context...
+            <br>> Calibrating Z-Depth buffer...
         </div>
 
         <div id="app-core" class="hidden z-10 relative flex flex-col gap-6">
             
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 font-mono text-xs p-4 bg-slate-950/50 rounded-lg border border-slate-800/50">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-6 p-5 bg-slate-950/80 rounded-lg border border-slate-800 shadow-inner">
                 
-                <label class="flex items-center space-x-3 cursor-pointer group">
-                    <div class="relative text-yellow-500">
-                        <input type="checkbox" id="switch-yellow" class="hardware-toggle sr-only">
-                        <div class="block w-10 h-6 bg-slate-800 rounded-full border border-slate-700 transition-colors duration-200">
-                            <div class="dot absolute left-1 top-1 bg-slate-300 w-4 h-4 rounded-full transition-transform duration-200"></div>
+                <div class="flex gap-6">
+                    <label class="cyber-switch flex flex-col space-y-2 cursor-pointer group text-yellow-500">
+                        <span class="font-mono text-[10px] text-slate-500 group-hover:text-yellow-500 transition-colors tracking-widest">YIELD: SINGULARITY</span>
+                        <div class="relative w-12 h-6">
+                            <input type="checkbox" id="switch-yellow" class="sr-only">
+                            <div class="block w-full h-full bg-slate-800 rounded-full border border-slate-700 transition-all duration-300">
+                                <div class="absolute left-1 top-1 bg-slate-500 w-4 h-4 rounded-full transition-transform duration-300"></div>
+                            </div>
                         </div>
-                    </div>
-                    <span class="text-slate-400 group-hover:text-yellow-500 transition-colors">YIELD: SINGULARITY</span>
-                </label>
+                    </label>
 
-                <label class="flex items-center space-x-3 cursor-pointer group">
-                    <div class="relative text-red-600">
-                        <input type="checkbox" id="switch-red" class="hardware-toggle sr-only">
-                        <div class="block w-10 h-6 bg-slate-800 rounded-full border border-slate-700 transition-colors duration-200">
-                            <div class="dot absolute left-1 top-1 bg-slate-300 w-4 h-4 rounded-full transition-transform duration-200"></div>
+                    <label class="cyber-switch flex flex-col space-y-2 cursor-pointer group text-red-600">
+                        <span class="font-mono text-[10px] text-slate-500 group-hover:text-red-500 transition-colors tracking-widest">CRITICAL: EJECTION</span>
+                        <div class="relative w-12 h-6">
+                            <input type="checkbox" id="switch-red" class="sr-only">
+                            <div class="block w-full h-full bg-slate-800 rounded-full border border-slate-700 transition-all duration-300">
+                                <div class="absolute left-1 top-1 bg-slate-500 w-4 h-4 rounded-full transition-transform duration-300"></div>
+                            </div>
                         </div>
-                    </div>
-                    <span class="text-slate-400 group-hover:text-red-500 transition-colors">CRITICAL: KINETIC EJECTION</span>
-                </label>
+                    </label>
+                </div>
 
-                <div class="flex items-center space-x-3">
-                    <span class="text-slate-400">CHROMA_SAT:</span>
+                <div class="flex flex-col space-y-2 w-full md:w-48">
+                    <div class="flex justify-between font-mono text-[10px] text-slate-500 tracking-widest">
+                        <span>CHROMA_SAT</span>
+                        <span id="sat-val" class="text-amber-500 font-bold">70%</span>
+                    </div>
                     <input type="range" id="slider-sat" min="0" max="100" value="70" class="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-amber-500">
-                    <span id="sat-val" class="w-8 text-right text-amber-500 font-bold">70</span>
                 </div>
             </div>
 
-            <div class="flex justify-between text-[10px] text-slate-500 font-mono px-2">
+            <div class="flex justify-between text-[10px] text-slate-500 font-mono px-2 border-b border-slate-800/50 pb-2">
                 <span>SYS_VELOCITY: <span id="telemetry-vel" class="text-amber-400">0.10</span></span>
                 <span>PEAK_DISTORTION: <span id="telemetry-dist" class="text-amber-400">0.00</span></span>
                 <span>STATE: <span id="telemetry-state" class="text-emerald-400">NOMINAL</span></span>
             </div>
 
-            <div class="relative w-full aspect-video bg-slate-950 rounded border border-slate-800 overflow-hidden shadow-inner">
+            <div class="relative w-full aspect-[21/9] bg-[#020617] rounded border border-slate-800 overflow-hidden shadow-inner">
                 <canvas id="saturn-canvas" class="absolute inset-0 w-full h-full"></canvas>
             </div>
         </div>
@@ -116,15 +117,11 @@
             'use strict';
 
             document.addEventListener('DOMContentLoaded', () => {
-                const loading = document.getElementById('loading-state');
-                const core = document.getElementById('app-core');
-                
-                // Pragmatic faked load time because instant rendering feels cheap.
                 setTimeout(() => {
-                    loading.style.display = 'none';
-                    core.classList.remove('hidden');
+                    document.getElementById('loading-state').style.display = 'none';
+                    document.getElementById('app-core').classList.remove('hidden');
                     initEngine();
-                }, 1200);
+                }, 800);
             });
 
             function initEngine() {
@@ -139,45 +136,45 @@
                 const tDist = document.getElementById('telemetry-dist');
                 const tState = document.getElementById('telemetry-state');
 
-                let width = canvas.width = canvas.offsetWidth;
-                let height = canvas.height = canvas.offsetHeight;
+                let width, height, centerX, centerY;
                 
-                window.addEventListener('resize', () => {
+                function resize() {
                     width = canvas.width = canvas.offsetWidth;
                     height = canvas.height = canvas.offsetHeight;
-                });
+                    centerX = width / 2;
+                    centerY = height / 2;
+                }
+                window.addEventListener('resize', resize);
+                resize();
 
-                // Update slider text
                 satSlider.addEventListener('input', (e) => {
-                    satValText.innerText = e.target.value;
+                    satValText.innerText = e.target.value + '%';
                 });
 
-                // The Ring Buffer
                 const rings = [];
                 const ringCount = 16;
                 for(let i = 0; i < ringCount; i++) {
-                    rings.push({ baseRadius: 40 + (i * 12), phase: Math.random() * Math.PI * 2 });
+                    rings.push({ baseRadius: 60 + (i * 15), phaseOffset: Math.random() * Math.PI * 2 });
                 }
 
                 let time = 0;
 
                 function render() {
-                    time += 0.016; // Approx 60fps delta
-                    
-                    // 1 & 2. State Management & Conflict Resolution
                     const isYellow = yellowSwitch.checked;
                     const isRed = redSwitch.checked;
                     
+                    // Baseline Config
                     let config = {
                         wireframe: false,
                         scale: 1.0,
                         mass: 1,
-                        velocity: 0.1, // Clamped default (0.1 - 0.3 conceptually)
-                        particleDensity: 30,
+                        velocity: 0.1, 
+                        particleDensity: 40,
                         audioSensitivity: 1,
                         distortionMulti: 1
                     };
 
+                    // Anomaly Overrides
                     if (isRed) {
                         config = { wireframe: true, scale: 1.8, mass: 3, velocity: 1.7, particleDensity: 100, audioSensitivity: 3, distortionMulti: 4 };
                         tState.innerText = "CATASTROPHIC";
@@ -191,113 +188,123 @@
                         tState.className = "text-emerald-400";
                     }
 
-                    // 4. "Through" Direction processing
-                    time += config.velocity * 0.1;
+                    time += config.velocity * 0.05;
                     tVel.innerText = config.velocity.toFixed(2);
 
-                    // 6. Mocking the Audio Pipeline
-                    // Simulating a frequency data array where lower rings get low freqs, outer rings get high freqs
+                    // Mock FFT Audio Pipeline
                     const audioData = rings.map((_, i) => {
-                        const freqSim = Math.sin(time * 5 + i * 0.5) * 0.5 + 0.5; // 0 to 1
-                        const noise = Math.random() * 0.2;
-                        return (freqSim + noise) * config.audioSensitivity;
+                        const freqSim = Math.sin(time * 3 + i * 0.5) * 0.5 + 0.5;
+                        return (freqSim + (Math.random() * 0.1)) * config.audioSensitivity;
                     });
-
-                    // Global Peak Amplitude for Geometric Distortion
                     const peakAmp = Math.max(...audioData);
                     tDist.innerText = (peakAmp * config.distortionMulti).toFixed(2);
 
-                    // 3. Dialing in Saturation
-                    const saturation = satSlider.value; // 0-100
+                    const saturation = satSlider.value;
 
-                    // --- DRAW CYCLE ---
-                    // Clear with pragmatic trail effect instead of complex frame buffering
+                    // Clear Canvas (Trail Effect)
                     ctx.fillStyle = `rgba(2, 6, 23, ${config.wireframe ? 1 : 0.3})`;
                     ctx.fillRect(0, 0, width, height);
 
-                    ctx.save();
-                    ctx.translate(width / 2, height / 2);
-                    
-                    // Tilt the system
-                    ctx.scale(1, 0.4); 
-                    ctx.rotate(time * 0.2);
+                    const tilt = 0.35; // 3D Camera pitch
 
-                    // Draw Multiplexer Rings
-                    rings.forEach((ring, i) => {
-                        // Ring size dictated by local freq bin
-                        const currentRadius = (ring.baseRadius + (audioData[i] * 15)) * config.scale;
+                    // Helper to generate orbital points for a ring
+                    function getRingGeometry(ring, index) {
+                        const points = [];
+                        const currentRadius = (ring.baseRadius + (audioData[index] * 20)) * config.scale;
+                        const distortion = peakAmp * config.distortionMulti * 15;
+                        const segments = config.wireframe ? config.particleDensity : 60;
                         
-                        // Shape distortion dictated by global peak
-                        const distortion = peakAmp * config.distortionMulti * 10;
-                        
-                        ctx.beginPath();
-                        
-                        // Calculate color with dynamic saturation
-                        const hue = (i * (360 / ringCount) + (time * 50)) % 360;
-                        // Use HSL for cheap native browser saturation control
-                        ctx.strokeStyle = `hsla(${hue}, ${saturation}%, 60%, ${config.wireframe ? 0.8 : 0.4})`;
-                        ctx.lineWidth = config.wireframe ? 1 : 2 + (audioData[i] * 2);
-
-                        // Draw deformed circle based on global peak amplitude
-                        const segments = config.wireframe ? config.particleDensity : 40;
                         for(let s = 0; s <= segments; s++) {
                             const angle = (s / segments) * Math.PI * 2;
-                            // Add noise based on distortion
-                            const noiseOffset = Math.sin(angle * 8 + time * 10) * distortion;
-                            const r = currentRadius + noiseOffset;
+                            const rotatedAngle = angle + (time * 0.5) + ring.phaseOffset;
                             
-                            const x = Math.cos(angle) * r;
-                            const y = Math.sin(angle) * r;
+                            // Apply global peak distortion
+                            const noise = Math.sin(angle * 6 + time * 2) * distortion;
+                            const r = currentRadius + noise;
                             
-                            if(s === 0) ctx.moveTo(x, y);
-                            else ctx.lineTo(x, y);
+                            // 3D coordinates (Orbiting on X/Z plane)
+                            const x3d = Math.cos(rotatedAngle) * r;
+                            const z3d = Math.sin(rotatedAngle) * r;
+                            
+                            // Project to 2D with tilt
+                            const x2d = centerX + x3d;
+                            const y2d = centerY + (z3d * tilt);
+                            
+                            points.push({ x: x2d, y: y2d, z: z3d });
                         }
+                        return points;
+                    }
+
+                    // Render Pass Logic
+                    function drawRingPass(points, index, isFront) {
+                        const hue = (index * (360 / ringCount) + (time * 20)) % 360;
+                        ctx.strokeStyle = `hsla(${hue}, ${saturation}%, 60%, ${config.wireframe ? 0.9 : 0.5})`;
+                        ctx.lineWidth = config.wireframe ? 1 : 1.5 + (audioData[index] * 2);
                         
-                        ctx.closePath();
+                        ctx.beginPath();
+                        let isDrawing = false;
+                        
+                        for(let i = 0; i < points.length; i++) {
+                            const p = points[i];
+                            // Check depth to split front/back arcs (slight overlap at 0 to prevent visual gaps)
+                            const shouldDraw = isFront ? p.z >= -1 : p.z < 1; 
+                            
+                            if (shouldDraw) {
+                                if (!isDrawing) { ctx.moveTo(p.x, p.y); isDrawing = true; }
+                                else { ctx.lineTo(p.x, p.y); }
+                            } else {
+                                isDrawing = false;
+                            }
+                        }
                         ctx.stroke();
-                    });
+                    }
 
-                    ctx.restore();
+                    // Pre-calculate geometry for this frame
+                    const ringGeometries = rings.map((ring, i) => getRingGeometry(ring, i));
 
-                    // Draw Central Planet (Entity)
-                    ctx.save();
-                    ctx.translate(width / 2, height / 2);
-                    const planetRadius = 25 * config.scale * config.mass;
-                    
+                    // PASS 1: BACKGROUND ARCS (Z < 0)
+                    ringGeometries.forEach((points, i) => drawRingPass(points, i, false));
+
+                    // PASS 2: THE ENTITY
+                    const planetRadius = 35 * config.scale * config.mass;
                     if (config.wireframe) {
                         ctx.strokeStyle = '#f8fafc';
                         ctx.lineWidth = 1;
                         ctx.beginPath();
-                        ctx.arc(0, 0, planetRadius, 0, Math.PI * 2);
+                        ctx.arc(centerX, centerY, planetRadius, 0, Math.PI * 2);
                         ctx.stroke();
-                        // Crosshairs for wireframe aesthetic
+                        // Tactical Crosshairs
                         ctx.beginPath();
-                        ctx.moveTo(-planetRadius - 10, 0); ctx.lineTo(planetRadius + 10, 0);
-                        ctx.moveTo(0, -planetRadius - 10); ctx.lineTo(0, planetRadius + 10);
+                        ctx.moveTo(centerX - planetRadius - 15, centerY); ctx.lineTo(centerX + planetRadius + 15, centerY);
+                        ctx.moveTo(centerX, centerY - planetRadius - 15); ctx.lineTo(centerX, centerY + planetRadius + 15);
                         ctx.stroke();
                     } else {
                         const gradient = ctx.createRadialGradient(
-                            -planetRadius * 0.3, -planetRadius * 0.3, 0, 
-                            0, 0, planetRadius
+                            centerX - planetRadius * 0.3, centerY - planetRadius * 0.3, 0, 
+                            centerX, centerY, planetRadius
                         );
-                        gradient.addColorStop(0, '#334155');
-                        gradient.addColorStop(1, '#020617');
+                        gradient.addColorStop(0, '#475569'); // slate-600
+                        gradient.addColorStop(0.8, '#0f172a'); // slate-900
+                        gradient.addColorStop(1, '#020617'); // slate-950
+                        
                         ctx.fillStyle = gradient;
                         ctx.beginPath();
-                        ctx.arc(0, 0, planetRadius, 0, Math.PI * 2);
+                        ctx.arc(centerX, centerY, planetRadius, 0, Math.PI * 2);
                         ctx.fill();
                         
-                        // Inner glow
-                        ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+                        // Atmosphere Glow
+                        ctx.strokeStyle = 'rgba(148, 163, 184, 0.2)';
                         ctx.lineWidth = 2;
                         ctx.stroke();
                     }
-                    ctx.restore();
+
+                    // PASS 3: FOREGROUND ARCS (Z >= 0)
+                    ringGeometries.forEach((points, i) => drawRingPass(points, i, true));
 
                     requestAnimationFrame(render);
                 }
 
-                render(); // Ignite the engine
+                render();
             }
         })();
     </script>
