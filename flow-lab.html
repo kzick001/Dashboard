@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Flow Lab v1.1 | Sterling Specialty</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { darkMode: 'class' }
+    </script>
+    <script>
+        // FOUC Prevention & Memory strictly per SSP Dashboard Rules
+        if (localStorage.getItem('ssp-theme') === 'dark') { 
+            document.documentElement.classList.add('dark'); 
+        }
+    </script>
+    
+    <style>
+        /* SSP Dashboard Required Colors */
+        .sterling-green { color: #16a34a; }
+        .bg-sterling-green { background-color: #16a34a; }
+        
+        /* Custom UI Toggles & Sliders */
+        .toggle-checkbox:checked { right: 0; border-color: #16a34a; }
+        .toggle-checkbox:checked + .toggle-label { background-color: #16a34a; }
+        input[type=range] { accent-color: #16a34a; }
+
+        /* Hide Scrollbars in panel */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Tab Active State */
+        .tab-btn.active { border-bottom: 2px solid #16a34a; color: #16a34a; }
+
+        /* Fullscreen Canvas */
+        #visualizerCanvas {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: 0; pointer-events: none;
+        }
+        
+        /* Idle UI Fader (Zen Mode) */
+        .ui-layer { transition: opacity 0.7s ease-in-out, transform 0.3s ease-in-out; }
+        .ui-hidden { opacity: 0 !important; pointer-events: none !important; }
+        
+        /* Manual Collapse State */
+        .controls-collapsed { transform: translateY(10px); opacity: 0; pointer-events: none; position: absolute; }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen flex flex-col font-sans text-gray-800 dark:text-gray-100 transition-colors duration-300 overflow-hidden">
+
+    <canvas id="visualizerCanvas"></canvas>
+
+    <div id="debugger" class="fixed top-20 right-4 text-xs font-mono text-gray-500 bg-white/80 dark:bg-gray-800/80 p-2 rounded shadow-sm z-10 hidden ui-layer">
+        FPS: <span id="fpsCount">0</span> | P: <span id="pCount">0</span>
+    </div>
+
+    <div class="w-full p-4 flex justify-between items-center z-20 relative bg-transparent ui-layer drop-shadow-md">
+        <a href="../index.html" class="flex items-center text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to Dashboard
+        </a>
+        <div class="flex items-center">
+            <span class="mr-2 text-sm text-gray-500 dark:text-gray-400 bg-white/50 dark:bg-gray-900/50 px-2 py-0.5 rounded backdrop-blur">Dark Mode</span>
+            <div class="relative inline-block w-10 align-middle select-none transition duration-200 ease-in">
+                <input type="checkbox" name="toggle" id="darkModeToggle" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 border-gray-300 appearance-none cursor-pointer transition-transform duration-300 z-10 top-0 bottom-0 m-auto right-4"/>
+                <label for="darkModeToggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer transition-colors duration-300"></label>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex-1 flex flex-col items-center px-4 z-20 relative mb-10 ui-layer w-full">
+        
+        <header class="mb-4 text-center pointer-events-auto w-full max-w-md shrink-0">
+            <div class="bg-white/80 dark:bg-gray-900/80 p-4 rounded-xl shadow-sm backdrop-blur border border-gray-200 dark:border-gray-800 mb-2">
+                <h1 class="text-3xl font-bold tracking-tight mb-1 text-gray-900 dark:text-white">The Flow Lab <span class="text-sm text-sterling-green font-mono">v1.1</span></h1>
+                <p class="text-gray-500 dark:text-gray-400 font-medium text-sm">Sterling Specialty Pharmacy Internal Tool</p>
+            </div>
+            <button id="toggleMenuBtn" class="mx-auto flex items-center justify-center gap-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm rounded-full px-4 py-1.5 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-sterling-green" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" /></svg>
+                Toggle Controls
+            </button>
+        </header>
+
+        <main id="controlsContainer" class="bg-white/95 dark:bg-gray-800/95 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg max-w-md w-full pointer-events-auto backdrop-blur-md flex flex-col max-h-[60vh] shrink-0">
+            
+            <div class="flex border-b border-gray-200 dark:border-gray-700 rounded-t-xl overflow-hidden">
+                <button class="tab-btn active flex-1 py-3 text-xs font-semibold uppercase tracking-wider transition-colors hover:bg-gray-50 dark:hover:bg-gray-700" data-target="tab-physics">Physics</button>
+                <button class="tab-btn flex-1 py-3 text-xs font-semibold uppercase tracking-wider transition-colors hover:bg-gray-50 dark:hover:bg-gray-700" data-target="tab-audio">Audio</button>
+                <button class="tab-btn flex-1 py-3 text-xs font-semibold uppercase tracking-wider transition-colors hover:bg-gray-50 dark:hover:bg-gray-700" data-target="tab-shape">Shape</button>
+                <button class="tab-btn flex-1 py-3 text-xs font-semibold uppercase tracking-wider transition-colors hover:bg-gray-50 dark:hover:bg-gray-700" data-target="tab-svg">Custom SVG</button>
+            </div>
+
+            <div class="p-5 overflow-y-auto no-scrollbar flex-1">
+                
+                <div id="tab-physics" class="tab-content space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold mb-1 text-gray-500 uppercase tracking-wide">Flow Direction</label>
+                        <div class="flex gap-2">
+                            <button class="dir-btn flex-1 py-1.5 border border-gray-300 dark:border-gray-600 rounded text-xs font-medium bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 ring-2 ring-green-500 text-green-700 dark:text-green-400" data-val="float">Float</button>
+                            <button class="dir-btn flex-1 py-1.5 border border-gray-300 dark:border-gray-600 rounded text-xs font-medium bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600" data-val="rising">Rising</button>
+                            <button class="dir-btn flex-1 py-1.5 border border-gray-300 dark:border-gray-600 rounded text-xs font-medium bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600" data-val="falling">Falling</button>
+                            <button class="dir-btn flex-1 py-1.5 border border-gray-300 dark:border-gray-600 rounded text-xs font-medium bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600" data-val="through">Through</button>
+                        </div>
+                    </div>
+
+                    <div class="pt-2">
+                        <label class="block text-xs font-semibold mb-1 flex justify-between">
+                            Velocity Multiplier <span id="val-vel" class="text-gray-500 font-normal">1.0x</span>
+                        </label>
+                        <input type="range" id="ctrl-vel" min="0.1" max="3.0" step="0.1" value="1.0" class="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
+                    </div>
+
+                    <div class="pt-2">
+                        <label class="block text-xs font-semibold mb-1 flex justify-between">
+                            Particle Density <span id="val-density" class="text-gray-500 font-normal">150</span>
+                        </label>
+                        <input type="range" id="ctrl-density" min="10" max="500" step="10" value="150" class="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
+                    </div>
+
+                    <div class="pt-3 border-t border-gray-200 dark:border-gray-700">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">Object Collisions</span>
+                            <div class="relative inline-block w-10">
+                                <input type="checkbox" id="ctrl-collisions" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 border-gray-300 appearance-none cursor-pointer transition-transform duration-300 z-10 top-0 bottom-0 m-auto right-4"/>
+                                <label for="ctrl-collisions" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer transition-colors duration-300"></label>
+                            </div>
+                        </div>
+                        <p id="col-warn" class="text-[10px] text-amber-600 dark:text-amber-400 font-medium hidden">High density detected. Collisions disabled to preserve performance.</p>
+                    </div>
+                </div>
+
+                <div id="tab-audio" class="tab-content hidden space-y-4">
+                    <div class="bg-gray-50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
+                        <div class="flex justify-between items-center mb-2">
+                            <div class="flex items-center gap-2 text-sm font-semibold">
+                                <svg class="w-5 h-5 text-sterling-green" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                                Sync System Audio
+                            </div>
+                            <div class="relative inline-block w-10">
+                                <input type="checkbox" id="ctrl-audio" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 border-gray-300 appearance-none cursor-pointer transition-transform duration-300 z-10 top-0 bottom-0 m-auto right-4"/>
+                                <label for="ctrl-audio" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer transition-colors duration-300"></label>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 italic">Select the tab or app playing audio. Ensure <strong>"Also share system audio"</strong> is checked in the browser prompt. Video tracks are automatically dropped.</p>
+                    </div>
+
+                    <div class="space-y-3 pt-2">
+                        <label class="flex items-center justify-between cursor-pointer">
+                            <span class="text-sm">Bass &rarr; Dynamic Scale</span>
+                            <input type="checkbox" id="ctrl-linkBass" class="rounded text-green-600 focus:ring-green-500 bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600 h-4 w-4">
+                        </label>
+                        <label class="flex items-center justify-between cursor-pointer">
+                            <span class="text-sm">Treble &rarr; Jitter Velocity</span>
+                            <input type="checkbox" id="ctrl-linkTreble" class="rounded text-green-600 focus:ring-green-500 bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600 h-4 w-4">
+                        </label>
+                    </div>
+                </div>
+
+                <div id="tab-shape" class="tab-content hidden space-y-4">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold mb-1 text-gray-500 uppercase tracking-wide">Shape Engine</label>
+                            <select id="ctrl-shapeType" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded p-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+                                <option value="pharm-classic">Pharm-Flow Classic</option>
+                                <option value="orbs">Bioluminescent Orbs</option>
+                                <option value="circle">Basic: Circle</option>
+                                <option value="square">Basic: Square</option>
+                                <option value="triangle">Basic: Triangle</option>
+                                <option value="sine">Engine: Sine Waves</option>
+                                <option value="starfield">Engine: Starfield</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold mb-1 text-gray-500 uppercase tracking-wide">Color Palette</label>
+                            <select id="ctrl-palette" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded p-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+                                <option value="ssp">SSP Corporate</option>
+                                <option value="oceanic">Oceanic</option>
+                                <option value="monochrome">Monochrome</option>
+                                <option value="neon">Neon Grid</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="pt-2">
+                        <label class="block text-xs font-semibold mb-1 flex justify-between">
+                            Global Scale <span id="val-scale" class="text-gray-500 font-normal">1.5x</span>
+                        </label>
+                        <input type="range" id="ctrl-scale" min="0.5" max="5.0" step="0.1" value="1.5" class="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
+                    </div>
+                </div>
+
+                <div id="tab-svg" class="tab-content hidden space-y-4">
+                    <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">Override the standard visual engine by providing a custom SVG coordinate path. Ideal for projecting specific corporate icons or molecular structures.</p>
+                    
+                    <div>
+                        <div class="flex justify-between items-end mb-1">
+                            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide">Path Data (d="...")</label>
+                        </div>
+                        <textarea id="ctrl-svgPath" rows="4" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded p-2 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="e.g., M 0 0 L 10 10..."></textarea>
+                    </div>
+
+                    <button id="btn-applySvg" class="w-full bg-sterling-green hover:bg-green-700 text-white rounded py-2 text-sm font-medium transition-colors shadow-sm">Render Custom Path</button>
+                    
+                    <button id="btn-clearSvg" class="w-full py-1 text-xs text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">Revert to Default Engine</button>
+                </div>
+
+            </div>
+        </main>
+        
+        <p class="mt-4 text-xs text-gray-500 dark:text-gray-400 italic bg-gray-50/80 dark:bg-gray-900/80 px-3 py-1 rounded-full backdrop-blur-sm shadow-sm border border-gray-200 dark:border-gray-700 ui-layer">Leave mouse still for 3 seconds to enter Zen Mode.</p>
+    </div>
+
+    <footer class="mt-auto mb-6 text-gray-400 text-xs text-center z-20 w-full relative ui-layer drop-shadow-md">
+        <p>&copy; <span id="currentYear"></span> Sterling Specialty Pharmacy. Internal Use Only.</p>
+    </footer>
+
+    <script>
+        // --- SSP Dashboard Required Init ---
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+        const htmlElement = document.documentElement;
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        
+        if (localStorage.getItem('ssp-theme') === 'dark' || (!('ssp-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            htmlElement.classList.add('dark');
+            darkModeToggle.checked = true;
+        }
+
+        darkModeToggle.addEventListener('change', () => {
+            if (darkModeToggle.checked) {
+                htmlElement.classList.add('dark');
+                localStorage.setItem('ssp-theme', 'dark');
+            } else {
+                htmlElement.classList.remove('dark');
+                localStorage.setItem('ssp-theme', 'light');
+            }
+        });
+
+        // --- Zen Mode (Idle UI Fader) & Collapse ---
+        let idleTimer;
+        const uiLayers = document.querySelectorAll('.ui-layer');
+        const controlsContainer = document.getElementById('controlsContainer');
+        
+        function resetIdleTimer() {
+            uiLayers.forEach(el => el.classList.remove('ui-hidden'));
+            clearTimeout(idleTimer);
+            idleTimer = setTimeout(() => {
+                uiLayers.forEach(el => el.classList.add('ui-hidden'));
+            }, 3000);
+        }
+        window.addEventListener('mousemove', resetIdleTimer);
+        window.addEventListener('click', resetIdleTimer);
+        resetIdleTimer();
+
+        document.getElementById('toggleMenuBtn').addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent triggering idle reset immediately
+            controlsContainer.classList.toggle('controls-collapsed');
+        });
+
+        // --- Core State & Variables ---
+        const canvas = document.getElementById('visualizerCanvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let particles = [];
+        let timeTick = 0;
+        
+        let lastTime = performance.now();
+        let frameCount = 0;
+
+        const palettes = {
+            ssp: ['#16a34a', '#22c55e', '#475569', '#94a3b8'],
+            oceanic: ['#0ea5e9', '#38bdf8', '#0284c7', '#e0f2fe', '#0c4a6e'],
+            monochrome: ['#1f2937', '#4b5563', '#9ca3af', '#e5e7eb'],
+            neon: ['#f43f5e', '#a855f7', '#10b981', '#f59e0b', '#3b82f6']
+        };
+
+        const state = {
+            physics: { direction: 'float', velocity: 1.0, density: 150, collisions: false },
+            audio: { enabled: false, linkBass: false, linkTreble: false },
+            shape: { type: 'pharm-classic', scale: 1.5, customPath: null },
+            palette: palettes.ssp
+        };
+
+        // --- Audio Pipeline (Screen Share) ---
+        let audioCtx, analyser, mediaStream;
+        let rawAudio = new Uint8Array(256).fill(0);
+        let audioData = { bass: 0, treble: 0 };
+
+        document.getElementById('ctrl-audio').addEventListener('change', async (e) => {
+            if(e.target.checked) {
+                try {
+                    mediaStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+                    // Immediately drop video track
+                    mediaStream.getVideoTracks().forEach(t => t.stop()); 
+                    
+                    if (mediaStream.getAudioTracks().length === 0) {
+                        alert("No audio track found. Ensure 'Share system audio' is checked.");
+                        throw new Error("No audio");
+                    }
+
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    analyser = audioCtx.createAnalyser();
+                    audioCtx.createMediaStreamSource(mediaStream).connect(analyser);
+                    analyser.fftSize = 256;
+                    state.audio.enabled = true;
+                    
+                    mediaStream.getAudioTracks()[0].onended = () => { e.target.checked = false; disableAudio(); };
+                } catch (err) {
+                    e.target.checked = false;
+                    disableAudio();
+                }
+            } else {
+                disableAudio();
+            }
+        });
+
+        function disableAudio() {
+            if(audioCtx) audioCtx.suspend();
+            if(mediaStream) mediaStream.getTracks().forEach(t => t.stop());
+            state.audio.enabled = false;
+            audioData = { bass: 0, treble: 0 };
+        }
+
+        // --- Physics & Engine ---
+        class Particle {
+            constructor() { this.reset(true); }
+            
+            reset(randomY = false) {
+                this.baseSize = Math.random() * 6 + 4;
+                this.x = Math.random() * width;
+                
+                if (randomY) {
+                    this.y = Math.random() * height;
+                } else {
+                    if (state.physics.direction === 'rising') this.y = height + 50;
+                    else if (state.physics.direction === 'falling') this.y = -50;
+                    else this.y = Math.random() * height;
+                }
+
+                this.vx = (Math.random() - 0.5);
+                this.vy = (Math.random() - 0.5);
+                this.colorIdx = Math.floor(Math.random() * state.palette.length);
+                this.colorIdx2 = Math.floor(Math.random() * state.palette.length); // For dual colors
+                this.angle = Math.random() * Math.PI * 2;
+                this.spin = (Math.random() - 0.5) * 0.05;
+                this.opacity = Math.random() * 0.5 + 0.2;
+                this.pulseOff = Math.random() * Math.PI * 2;
+            }
+
+            update(aData) {
+                let vMult = state.physics.velocity;
+                if (state.audio.linkTreble) vMult += aData.treble * 5;
+
+                // Base Directions
+                if (state.physics.direction === 'float') {
+                    // gentle drift
+                    this.x += this.vx * 0.5 * vMult;
+                    this.y += this.vy * 0.5 * vMult;
+                } else if (state.physics.direction === 'rising') {
+                    this.y -= (1 + Math.abs(this.vy)) * vMult;
+                    this.x += this.vx * 0.2 * vMult;
+                } else if (state.physics.direction === 'falling') {
+                    this.y += (1 + Math.abs(this.vy)) * vMult;
+                    this.x += this.vx * 0.2 * vMult;
+                } else if (state.physics.direction === 'through') {
+                    let dx = this.x - width/2;
+                    let dy = this.y - height/2;
+                    this.x += dx * 0.015 * vMult;
+                    this.y += dy * 0.015 * vMult;
+                }
+
+                // Bounds Wrap
+                if (state.physics.direction === 'through') {
+                    if (this.x < -100 || this.x > width+100 || this.y < -100 || this.y > height+100) {
+                        this.x = width/2 + (Math.random()-0.5)*10;
+                        this.y = height/2 + (Math.random()-0.5)*10;
+                    }
+                } else {
+                    if (this.x < -50) this.x = width + 50;
+                    if (this.x > width + 50) this.x = -50;
+                    if (this.y < -50 && state.physics.direction !== 'falling') this.y = height + 50;
+                    if (this.y > height + 50 && state.physics.direction !== 'rising') this.y = -50;
+                }
+
+                this.angle += this.spin * vMult;
+            }
+
+            draw(aData, renderPath) {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.angle);
+
+                let sc = state.shape.scale;
+                if (state.audio.linkBass) sc += aData.bass * 2;
+                
+                // Z-depth simulation for 'Through'
+                if (state.physics.direction === 'through') {
+                    let dist = Math.sqrt(Math.pow(this.x - width/2, 2) + Math.pow(this.y - height/2, 2));
+                    sc *= (dist / (Math.max(width, height)/2)) * 3;
+                }
+                ctx.scale(sc, sc);
+                ctx.globalAlpha = this.opacity;
+
+                let c1 = state.palette[this.colorIdx % state.palette.length];
+                let c2 = state.palette[this.colorIdx2 % state.palette.length];
+
+                if (renderPath) {
+                    ctx.fillStyle = c1; ctx.fill(renderPath);
+                } else {
+                    // Built-in Shapes
+                    let s = this.baseSize;
+                    if (state.shape.type === 'pharm-classic') {
+                        // Left Half
+                        ctx.fillStyle = c1;
+                        ctx.beginPath(); ctx.arc(-s/2, 0, s, Math.PI/2, Math.PI*1.5); ctx.fill();
+                        ctx.fillRect(-s/2, -s, s/2, s*2);
+                        // Right Half
+                        ctx.fillStyle = c2;
+                        ctx.beginPath(); ctx.arc(s/2, 0, s, -Math.PI/2, Math.PI/2); ctx.fill();
+                        ctx.fillRect(0, -s, s/2, s*2);
+                    } else if (state.shape.type === 'orbs') {
+                        let pulse = Math.sin(timeTick*0.05 + this.pulseOff)*0.3 + 0.7;
+                        let grad = ctx.createRadialGradient(0,0,0, 0,0, s*pulse);
+                        grad.addColorStop(0, c1); grad.addColorStop(1, 'transparent');
+                        ctx.fillStyle = grad;
+                        ctx.beginPath(); ctx.arc(0,0, s*pulse, 0, Math.PI*2); ctx.fill();
+                    } else if (state.shape.type === 'circle') {
+                        ctx.fillStyle = c1; ctx.beginPath(); ctx.arc(0,0, s, 0, Math.PI*2); ctx.fill();
+                    } else if (state.shape.type === 'square') {
+                        ctx.fillStyle = c1; ctx.fillRect(-s, -s, s*2, s*2);
+                    } else if (state.shape.type === 'triangle') {
+                        ctx.fillStyle = c1; ctx.beginPath(); ctx.moveTo(0, -s); ctx.lineTo(s, s); ctx.lineTo(-s, s); ctx.fill();
+                    } else if (state.shape.type === 'starfield') {
+                        ctx.fillStyle = document.documentElement.classList.contains('dark') ? '#fff' : '#000';
+                        ctx.globalAlpha = this.opacity * 0.8;
+                        ctx.fillRect(0,0, 1.5, 1.5);
+                    }
+                }
+                ctx.restore();
+            }
+        }
+
+        function syncDensity() {
+            let target = state.physics.density;
+            if (state.shape.type === 'starfield') target *= 3; // Boost for starfield
+            
+            while(particles.length < target) particles.push(new Particle());
+            while(particles.length > target) particles.pop();
+            
+            // Safety disable for collisions
+            if (particles.length > 200 && state.physics.collisions) {
+                state.physics.collisions = false;
+                document.getElementById('ctrl-collisions').checked = false;
+                document.getElementById('col-warn').classList.remove('hidden');
+            } else {
+                document.getElementById('col-warn').classList.add('hidden');
+            }
+            document.getElementById('pCount').textContent = particles.length;
+        }
+
+        // --- Event Listeners ---
+        function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resize);
+
+        // UI Tabs
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+                e.target.classList.add('active');
+                document.getElementById(e.target.dataset.target).classList.remove('hidden');
+            });
+        });
+
+        // Controls
+        document.querySelectorAll('.dir-btn').forEach(btn => {
+            btn.addEventListener('click', e => {
+                document.querySelectorAll('.dir-btn').forEach(b => b.classList.remove('ring-2', 'ring-green-500', 'text-green-700', 'dark:text-green-400'));
+                e.target.classList.add('ring-2', 'ring-green-500', 'text-green-700', 'dark:text-green-400');
+                state.physics.direction = e.target.dataset.val;
+            });
+        });
+
+        document.getElementById('ctrl-vel').addEventListener('input', e => { state.physics.velocity = parseFloat(e.target.value); document.getElementById('val-vel').textContent = state.physics.velocity.toFixed(1) + 'x'; });
+        document.getElementById('ctrl-density').addEventListener('change', e => { state.physics.density = parseInt(e.target.value); document.getElementById('val-density').textContent = state.physics.density; syncDensity(); });
+        document.getElementById('ctrl-collisions').addEventListener('change', e => { state.physics.collisions = e.target.checked; syncDensity(); });
+        
+        document.getElementById('ctrl-linkBass').addEventListener('change', e => state.audio.linkBass = e.target.checked);
+        document.getElementById('ctrl-linkTreble').addEventListener('change', e => state.audio.linkTreble = e.target.checked);
+
+        document.getElementById('ctrl-shapeType').addEventListener('change', e => { state.shape.type = e.target.value; state.shape.customPath = null; syncDensity(); });
+        document.getElementById('ctrl-palette').addEventListener('change', e => { state.palette = palettes[e.target.value]; });
+        document.getElementById('ctrl-scale').addEventListener('input', e => { state.shape.scale = parseFloat(e.target.value); document.getElementById('val-scale').textContent = state.shape.scale.toFixed(1) + 'x'; });
+
+        document.getElementById('btn-applySvg').addEventListener('click', () => {
+            state.shape.type = 'custom';
+            state.shape.customPath = document.getElementById('ctrl-svgPath').value;
+        });
+        document.getElementById('btn-clearSvg').addEventListener('click', () => {
+            document.getElementById('ctrl-svgPath').value = '';
+            state.shape.customPath = null;
+            document.getElementById('ctrl-shapeType').value = 'pharm-classic';
+            state.shape.type = 'pharm-classic';
+        });
+
+        // Debug hotkey
+        document.addEventListener('keydown', e => { if(e.ctrlKey && e.key === 'd') { e.preventDefault(); document.getElementById('debugger').classList.toggle('hidden'); }});
+
+        // --- Main Render Loop ---
+        function animate() {
+            // Audio Data
+            if (state.audio.enabled && analyser) {
+                analyser.getByteFrequencyData(rawAudio);
+                let bass = 0, treble = 0;
+                for(let i=0; i<256; i++) {
+                    if(i < 10) bass += rawAudio[i]/255;
+                    if(i > 100 && i < 200) treble += rawAudio[i]/255;
+                }
+                audioData.bass = bass/10; audioData.treble = treble/100;
+            } else {
+                audioData.bass = audioData.treble = 0;
+            }
+
+            ctx.clearRect(0, 0, width, height);
+            
+            // Sine Wave Engine Override
+            if (state.shape.type === 'sine' && !state.shape.customPath) {
+                ctx.lineWidth = 2 * state.shape.scale;
+                let layers = 5;
+                for(let j=0; j<layers; j++) {
+                    ctx.beginPath();
+                    ctx.strokeStyle = state.palette[j % state.palette.length];
+                    ctx.globalAlpha = 0.4;
+                    for(let x=0; x<width; x+=20) {
+                        let y = height/2 + Math.sin(x*0.01 + timeTick*0.02*state.physics.velocity + j)*100*state.shape.scale;
+                        if(state.audio.linkBass) y += Math.sin(x*0.05)*audioData.bass*50;
+                        if(state.physics.direction === 'rising') y -= (timeTick * 2 * state.physics.velocity) % height;
+                        if(state.physics.direction === 'falling') y += (timeTick * 2 * state.physics.velocity) % height;
+                        if(x===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+                    }
+                    ctx.stroke();
+                }
+            } else {
+                // Parse custom path if active
+                let customP2D = null;
+                if (state.shape.type === 'custom' && state.shape.customPath) {
+                    try { customP2D = new Path2D(state.shape.customPath); } catch(e) { }
+                }
+
+                // Object Collisions (O(n^2) minimal check)
+                if (state.physics.collisions && particles.length <= 200) {
+                    for(let i=0; i<particles.length; i++) {
+                        for(let j=i+1; j<particles.length; j++) {
+                            let p1 = particles[i]; let p2 = particles[j];
+                            let dx = p2.x - p1.x; let dy = p2.y - p1.y;
+                            let dist = Math.sqrt(dx*dx + dy*dy);
+                            let minD = (p1.baseSize + p2.baseSize) * state.shape.scale * 1.5;
+                            if (dist < minD && dist > 0) {
+                                let tx = p1.vx; let ty = p1.vy;
+                                p1.vx = p2.vx; p1.vy = p2.vy;
+                                p2.vx = tx; p2.vy = ty;
+                                p1.x -= dx*0.05; p1.y -= dy*0.05;
+                                p2.x += dx*0.05; p2.y += dy*0.05;
+                            }
+                        }
+                    }
+                }
+
+                ctx.globalCompositeOperation = state.shape.type === 'orbs' ? 'screen' : 'source-over';
+                particles.forEach(p => {
+                    p.update(audioData);
+                    p.draw(audioData, customP2D);
+                });
+            }
+
+            // FPS
+            timeTick++; frameCount++;
+            let now = performance.now();
+            if (now - lastTime >= 1000) { document.getElementById('fpsCount').textContent = frameCount; frameCount = 0; lastTime = now; }
+
+            requestAnimationFrame(animate);
+        }
+
+        resize();
+        syncDensity();
+        animate();
+    </script>
+</body>
+</html>
