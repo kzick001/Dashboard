@@ -429,13 +429,17 @@
     }
 
     // --- PIPELINE & WEBAUDIO ---
-    async function attachSource(newSourceNode, streamOrElement = null) {
+    async function initAudioContext() {
         if (!audioCtx) {
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             analyserL = audioCtx.createAnalyser();
             analyserR = audioCtx.createAnalyser();
         }
         if (audioCtx.state === 'suspended') await audioCtx.resume();
+    }
+
+    async function attachSource(newSourceNode, streamOrElement = null) {
+        await initAudioContext();
         
         if (currentSource) {
             currentSource.disconnect();
@@ -609,7 +613,10 @@
             stream.getVideoTracks().forEach(t => { t.stop(); stream.removeTrack(t); });
             const tracks = stream.getAudioTracks();
             if (tracks.length === 0) throw new Error("No audio track.");
-            await attachSource(new (window.AudioContext || window.webkitAudioContext)().createMediaStreamSource(new MediaStream(tracks)), stream);
+            
+            await initAudioContext();
+            const sourceNode = audioCtx.createMediaStreamSource(new MediaStream(tracks));
+            await attachSource(sourceNode, stream);
             sysLog("System Audio Hijacked.");
         } catch(e) { sysLog("Hijack Failed: " + e.message, true); }
     });
