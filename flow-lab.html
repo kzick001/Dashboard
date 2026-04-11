@@ -1,65 +1,66 @@
-<div class="relative bg-slate-900/80 backdrop-blur-sm rounded-xl shadow-lg border border-cyan-500/20 p-6 hover-scale overflow-hidden group">
-  <div class="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent via-cyan-500/5 to-transparent h-20 w-full animate-scanline opacity-20"></div>
+<div class="relative bg-slate-900/80 backdrop-blur-sm rounded-xl shadow-lg border border-fuchsia-500/20 p-6 hover-scale overflow-hidden group font-sans">
+  <div class="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent via-fuchsia-500/5 to-transparent h-20 w-full animate-scanline opacity-20"></div>
 
-  <a href="https://kzick001.github.io/dashboard/" class="absolute top-4 left-4 text-[10px] font-black text-cyan-800 hover:text-cyan-400 transition-colors tracking-tighter z-20">&larr; DASHBOARD</a>
+  <a href="https://kzick001.github.io/dashboard/" class="absolute top-4 left-4 text-[10px] font-black text-fuchsia-800 hover:text-fuchsia-400 transition-colors tracking-tighter z-20">&larr; DASHBOARD</a>
 
-  <header class="flex items-center gap-4 mb-6 mt-4">
-    <div class="p-3 bg-cyan-950/60 border border-cyan-500/30 rounded-lg group-hover:animate-electric-pulse transition-all">
-      <svg class="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+  <header class="flex items-center gap-4 mb-6 mt-4 relative z-10">
+    <div class="p-3 bg-fuchsia-950/60 border border-fuchsia-500/30 rounded-lg group-hover:animate-electric-pulse transition-all">
+      <svg class="w-6 h-6 text-fuchsia-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
       </svg>
     </div>
-    <h2 class="text-xl font-bold truncate text-slate-100 tracking-tight">SONIC_FORGE_V1.0</h2>
+    <h2 class="text-xl font-bold truncate text-slate-100 tracking-tight uppercase">Sonic_Forge_V2.0_Beta</h2>
   </header>
 
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+  <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 relative z-10">
     
-    <div class="lg:col-span-2 relative aspect-video bg-black/40 rounded-lg border border-slate-800 overflow-hidden">
-      <canvas id="visualizerCanvas" class="w-full h-full"></canvas>
-      <div id="terminal-overlay" class="absolute bottom-4 left-4 font-mono text-[10px] text-cyan-500 space-y-1 pointer-events-none">
-        <div class="animate-pulse">> Awaiting audio signal...</div>
+    <div class="lg:col-span-3 relative aspect-video bg-slate-950 rounded-lg border border-slate-800/80 shadow-inner overflow-hidden flex flex-col justify-end">
+      <canvas id="forgeCanvas" class="w-full h-full absolute inset-0"></canvas>
+      
+      <div id="terminal" class="absolute top-4 left-4 font-mono text-[11px] text-fuchsia-500/80 space-y-1 pointer-events-none z-10 bg-slate-950/50 p-2 rounded backdrop-blur-md border border-fuchsia-500/10 w-64 h-32 overflow-hidden flex flex-col justify-end">
+        <div class="animate-pulse">> System standing by...</div>
       </div>
     </div>
 
-    <div class="space-y-4 font-mono text-xs text-slate-400">
-      <div class="p-4 bg-slate-950/50 rounded border border-slate-800/50">
-        <label class="block mb-2 text-cyan-500 uppercase font-black">Input Source</label>
-        <button id="micBtn" class="w-full py-2 bg-cyan-900/20 border border-cyan-500/40 text-cyan-400 hover:bg-cyan-500/20 transition-all uppercase mb-2">Initialize Mic</button>
-        <input type="file" id="audioFile" accept="audio/*" class="hidden">
-        <button onclick="document.getElementById('audioFile').click()" class="w-full py-2 bg-slate-800/40 border border-slate-700 text-slate-300 hover:bg-slate-700 transition-all uppercase">Upload Local Track</button>
+    <div class="space-y-6 flex flex-col justify-between">
+      
+      <div class="space-y-4">
+        <div class="p-4 bg-slate-950/40 rounded border border-slate-800/50 backdrop-blur-sm">
+          <label class="block mb-3 text-[10px] text-fuchsia-500 font-mono tracking-widest uppercase font-black">Data Pipeline</label>
+          <button id="hijackBtn" class="w-full py-3 bg-fuchsia-900/20 border border-fuchsia-500/50 text-fuchsia-400 hover:bg-fuchsia-500/20 hover:text-fuchsia-300 transition-all font-mono text-xs uppercase tracking-wider font-bold mb-2 group/btn relative overflow-hidden">
+            <span class="relative z-10">Hijack System Audio</span>
+            <div class="absolute inset-0 bg-fuchsia-500/10 translate-y-full group-hover/btn:translate-y-0 transition-transform"></div>
+          </button>
+          <p class="font-mono text-[9px] text-slate-500 leading-tight">Requires "Share System Audio" to be checked in the browser prompt.</p>
+        </div>
+
+        <div class="p-4 bg-slate-950/40 rounded border border-slate-800/50 backdrop-blur-sm space-y-5">
+          <label class="block mb-1 text-[10px] text-fuchsia-500 font-mono tracking-widest uppercase font-black">Modulators</label>
+          
+          <div class="font-mono text-[10px]">
+            <div class="flex justify-between mb-2">
+              <span class="text-slate-400">RESOLUTION</span>
+              <span id="resOut" class="text-fuchsia-400 font-bold">128</span>
+            </div>
+            <input type="range" id="resCtrl" min="32" max="256" step="32" value="128" class="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-fuchsia-500">
+          </div>
+          
+          <div class="font-mono text-[10px]">
+            <div class="flex justify-between mb-2">
+              <span class="text-slate-400">DAMPENING</span>
+              <span id="dampOut" class="text-fuchsia-400 font-bold">0.85</span>
+            </div>
+            <input type="range" id="dampCtrl" min="0.1" max="0.99" step="0.01" value="0.85" class="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-fuchsia-500">
+          </div>
+        </div>
       </div>
 
-      <div class="p-4 bg-slate-950/50 rounded border border-slate-800/50 space-y-4">
-        <div>
-          <div class="flex justify-between mb-1">
-            <span>SENSITIVITY</span>
-            <span id="sensVal" class="text-cyan-400">32</span>
-          </div>
-          <input type="range" id="sensitivity" min="32" max="256" step="32" value="32" class="w-full accent-cyan-500">
-        </div>
-        
-        <div>
-          <div class="flex justify-between mb-1">
-            <span>SMOOTHING</span>
-            <span id="smoothVal" class="text-cyan-400">0.8</span>
-          </div>
-          <input type="range" id="smoothing" min="0" max="0.99" step="0.01" value="0.8" class="w-full accent-cyan-500">
-        </div>
+      <button id="dumpBtn" class="w-full py-3 bg-slate-900 border border-slate-700 hover:border-slate-500 text-slate-400 hover:text-slate-200 transition-all font-mono text-[10px] uppercase tracking-widest">
+        Dump Variables
+      </button>
 
-        <div>
-          <div class="flex justify-between mb-1">
-            <span>HUE_SHIFT</span>
-            <span id="hueVal" class="text-cyan-400">180</span>
-          </div>
-          <input type="range" id="hue" min="0" max="360" step="1" value="180" class="w-full accent-cyan-500">
-        </div>
-      </div>
-
-      <button id="exportBtn" class="w-full py-3 bg-emerald-900/20 border border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/20 transition-all font-black uppercase">Export Config JSON</button>
     </div>
   </div>
-
-  <audio id="internalAudio"></audio>
 
   <style>
     @keyframes scanline {
@@ -70,124 +71,167 @@
     .hover-scale { transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
     .hover-scale:hover { transform: scale(1.01); }
     @keyframes electric-pulse {
-      0%, 100% { box-shadow: 0 0 5px rgba(6, 182, 212, 0.2); border-color: rgba(6, 182, 212, 0.3); }
-      50% { box-shadow: 0 0 15px rgba(6, 182, 212, 0.5); border-color: rgba(6, 182, 212, 0.8); }
+      0%, 100% { box-shadow: 0 0 5px rgba(217, 70, 239, 0.2); border-color: rgba(217, 70, 239, 0.3); }
+      50% { box-shadow: 0 0 15px rgba(217, 70, 239, 0.5); border-color: rgba(217, 70, 239, 0.8); }
     }
     .group-hover\:animate-electric-pulse:hover { animation: electric-pulse 1.5s infinite; }
   </style>
 
   <script>
-    (function() {
-      let audioCtx, analyser, source, animationId;
-      const canvas = document.getElementById('visualizerCanvas');
-      const ctx = canvas.getContext('2d');
-      const terminal = document.getElementById('terminal-overlay');
-      const controls = {
-        sensitivity: document.getElementById('sensitivity'),
-        smoothing: document.getElementById('smoothing'),
-        hue: document.getElementById('hue')
+    (() => {
+      const state = {
+        ctx: null,
+        analyser: null,
+        source: null,
+        animFrame: null,
+        isPlaying: false
       };
 
-      const log = (msg, error = false) => {
-        const div = document.createElement('div');
-        div.className = error ? 'text-red-500' : 'text-cyan-500';
-        div.textContent = `> ${msg}`;
-        terminal.appendChild(div);
-        if (terminal.childNodes.length > 5) terminal.removeChild(terminal.firstChild);
+      const dom = {
+        canvas: document.getElementById('forgeCanvas'),
+        ctx2d: document.getElementById('forgeCanvas').getContext('2d'),
+        term: document.getElementById('terminal'),
+        btnHijack: document.getElementById('hijackBtn'),
+        btnDump: document.getElementById('dumpBtn'),
+        ctrls: {
+          res: document.getElementById('resCtrl'),
+          damp: document.getElementById('dampCtrl')
+        },
+        outs: {
+          res: document.getElementById('resOut'),
+          damp: document.getElementById('dampOut')
+        }
       };
 
-      async function initAudio(streamSource) {
-        if (audioCtx) audioCtx.close();
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        analyser = audioCtx.createAnalyser();
+      const sysLog = (msg, isError = false, isPulse = false) => {
+        const line = document.createElement('div');
+        line.className = `${isError ? 'text-red-500 font-bold' : 'text-fuchsia-400'} ${isPulse ? 'animate-pulse' : ''} whitespace-nowrap`;
         
-        if (streamSource instanceof MediaStream) {
-          source = audioCtx.createMediaStreamSource(streamSource);
-        } else {
-          source = audioCtx.createMediaElementSource(streamSource);
-        }
-
-        source.connect(analyser);
-        if (!(streamSource instanceof MediaStream)) {
-          analyser.connect(audioCtx.destination);
-        }
-
-        updateParams();
-        log('Pipeline established.');
-        render();
-      }
-
-      function updateParams() {
-        if (!analyser) return;
-        analyser.fftSize = parseInt(controls.sensitivity.value) * 2;
-        analyser.smoothingTimeConstant = parseFloat(controls.smoothing.value);
-        document.getElementById('sensVal').textContent = controls.sensitivity.value;
-        document.getElementById('smoothVal').textContent = controls.smoothing.value;
-        document.getElementById('hueVal').textContent = controls.hue.value;
-      }
-
-      function render() {
-        const bufferLength = analyser.frequencyBinCount;
-        const dataArray = new Uint8Array(bufferLength);
+        const timestamp = new Date().toISOString().split('T')[1].substring(0, 8);
+        line.textContent = `[${timestamp}] ${msg}`;
         
-        const draw = () => {
-          animationId = requestAnimationFrame(draw);
-          analyser.getByteFrequencyData(dataArray);
+        dom.term.appendChild(line);
+        while (dom.term.children.length > 6) {
+          dom.term.removeChild(dom.term.firstChild);
+        }
+      };
 
-          canvas.width = canvas.clientWidth;
-          canvas.height = canvas.clientHeight;
+      const syncParams = () => {
+        if (!state.analyser) return;
+        state.analyser.fftSize = parseInt(dom.ctrls.res.value) * 2;
+        state.analyser.smoothingTimeConstant = parseFloat(dom.ctrls.damp.value);
+        dom.outs.res.textContent = dom.ctrls.res.value;
+        dom.outs.damp.textContent = dom.ctrls.damp.value;
+      };
 
-          ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
+      const bootVisualizer = () => {
+        const bufferLength = state.analyser.frequencyBinCount;
+        const data = new Uint8Array(bufferLength);
+        
+        const paint = () => {
+          state.animFrame = requestAnimationFrame(paint);
+          state.analyser.getByteFrequencyData(data);
 
-          const barWidth = (canvas.width / bufferLength) * 2.5;
-          let x = 0;
+          const w = dom.canvas.clientWidth;
+          const h = dom.canvas.clientHeight;
+          dom.canvas.width = w;
+          dom.canvas.height = h;
+
+          // Clear frame
+          dom.ctx2d.clearRect(0, 0, w, h);
+
+          // Mirrored Center-Out Render Logic
+          const barWidth = (w / bufferLength) * 0.8;
+          const center = w / 2;
 
           for (let i = 0; i < bufferLength; i++) {
-            const barHeight = (dataArray[i] / 255) * canvas.height;
-            const h = controls.hue.value;
-            ctx.fillStyle = `hsla(${h}, 70%, 50%, ${dataArray[i] / 255})`;
-            ctx.fillRect(x, canvas.height - barHeight, barWidth - 1, barHeight);
-            x += barWidth;
+            const intensity = data[i] / 255;
+            const barHeight = intensity * (h * 0.8);
+            
+            // Generate a fuchsia/purple gradient based on intensity
+            const r = 217; 
+            const g = 70 + (intensity * 50);
+            const b = 239;
+            dom.ctx2d.fillStyle = `rgba(${r}, ${g}, ${b}, ${0.4 + (intensity * 0.6)})`;
+
+            // Draw Right Side
+            dom.ctx2d.fillRect(center + (i * barWidth), h - barHeight, barWidth - 1, barHeight);
+            
+            // Draw Left Side (Mirrored)
+            if (i > 0) {
+              dom.ctx2d.fillRect(center - (i * barWidth), h - barHeight, barWidth - 1, barHeight);
+            }
           }
         };
-        draw();
-      }
+        
+        if (state.animFrame) cancelAnimationFrame(state.animFrame);
+        paint();
+      };
 
-      // Listeners
-      document.getElementById('micBtn').addEventListener('click', async () => {
+      // Event: Screen/Audio Hijack
+      dom.btnHijack.addEventListener('click', async () => {
         try {
-          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-          log('Microphone access granted.');
-          initAudio(stream);
+          sysLog('> Requesting display media stream...', false, true);
+          
+          const stream = await navigator.mediaDevices.getDisplayMedia({
+            video: true, // Required to prompt, we kill it next.
+            audio: true
+          });
+
+          // The trick: Sever the video track immediately
+          stream.getVideoTracks().forEach(track => {
+            track.stop();
+            stream.removeTrack(track);
+          });
+          sysLog('> Video track terminated.');
+
+          const audioTracks = stream.getAudioTracks();
+          if (audioTracks.length === 0) {
+            throw new Error("No audio payload detected.");
+          }
+
+          sysLog('> Audio stream secured. Initializing pipeline...');
+
+          if (!state.ctx) {
+            state.ctx = new (window.AudioContext || window.webkitAudioContext)();
+          }
+          if (state.ctx.state === 'suspended') {
+            await state.ctx.resume();
+          }
+
+          state.analyser = state.ctx.createAnalyser();
+          state.source = state.ctx.createMediaStreamSource(new MediaStream(audioTracks));
+          state.source.connect(state.analyser);
+          // Do not connect to destination to avoid infinite feedback loop
+
+          syncParams();
+          bootVisualizer();
+          
+          dom.btnHijack.textContent = 'PIPELINE ACTIVE';
+          dom.btnHijack.classList.replace('text-fuchsia-400', 'text-slate-100');
+          dom.btnHijack.classList.add('animate-pulse');
+
         } catch (err) {
-          log('ERROR: Mic access denied.', true);
+          sysLog(`> FATAL: ${err.message}`, true);
         }
       });
 
-      document.getElementById('audioFile').addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (file) {
-          const audio = document.getElementById('internalAudio');
-          audio.src = URL.createObjectURL(file);
-          log(`Loading: ${file.name.substring(0, 15)}...`);
-          audio.play();
-          initAudio(audio);
-        }
-      });
+      // Event: Listeners
+      Object.values(dom.ctrls).forEach(el => el.addEventListener('input', syncParams));
 
-      document.getElementById('exportBtn').addEventListener('click', () => {
-        const config = {
-          fftSize: analyser?.fftSize || 'null',
-          smoothing: controls.smoothing.value,
-          hue: controls.hue.value,
-          timestamp: new Date().toISOString()
+      dom.btnDump.addEventListener('click', () => {
+        const payload = {
+          fftSize: state.analyser ? state.analyser.fftSize : null,
+          dampening: dom.ctrls.damp.value,
+          resolution: dom.ctrls.res.value,
+          status: state.source ? 'ACTIVE' : 'OFFLINE'
         };
-        console.log('EXPORT_CONFIG:', config);
-        alert('Config dumped to console. Check the dev tools.');
+        console.table(payload);
+        sysLog('> Variables dumped to console dev tools.');
       });
 
-      Object.values(controls).forEach(c => c.addEventListener('input', updateParams));
+      // Init
+      sysLog('> Awaiting commands...');
     })();
   </script>
 </div>
