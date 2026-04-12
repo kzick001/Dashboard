@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sonic Forge V1.1.2</title>
+    <title>Sonic Forge V1.1.6</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
     <script>
@@ -60,319 +60,325 @@
     <div class="scanline-overlay"></div>
 </div>
 
-<!-- LEFT DOCK: Terminal, I/O, Pipeline -->
-<div class="fixed bottom-6 left-6 z-20 w-80 flex flex-col gap-3 pointer-events-none">
+<!-- CINEMATIC UI MASTER LAYER -->
+<div id="uiLayer" class="fixed inset-0 z-20 pointer-events-none transition-opacity duration-500 opacity-100">
     
-    <!-- Navigation / Header -->
-    <div class="glass-panel rounded-lg p-3 pointer-events-auto flex items-center gap-3">
+    <!-- TOP-LEFT: Header / Branding -->
+    <div class="absolute top-6 left-6 pointer-events-auto glass-panel rounded-lg p-3 flex items-center gap-3">
         <div class="p-2 bg-fuchsia-950/60 border border-fuchsia-500/30 rounded anim-pulse-border">
             <svg class="w-5 h-5 text-fuchsia-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
         </div>
         <div>
             <h1 class="text-sm font-black uppercase tracking-widest text-slate-100">Sonic Forge</h1>
-            <p class="font-mono text-[9px] text-fuchsia-500">v1.1.2 // Production Engine</p>
+            <p class="font-mono text-[9px] text-fuchsia-500">v1.1.6 // High-Performance Core</p>
         </div>
     </div>
 
-    <!-- Terminal -->
-    <div id="terminal" class="glass-panel rounded-lg p-3 font-mono text-[10px] text-fuchsia-400/80 space-y-1 h-28 flex flex-col justify-end overflow-hidden pointer-events-auto transition-opacity hover:opacity-100 opacity-60">
-        <div class="animate-pulse">> System initialized. Waiting for pipeline...</div>
+    <!-- BOTTOM-LEFT DOCK: Terminal, I/O, Pipeline -->
+    <div class="absolute bottom-6 left-6 w-80 flex flex-col gap-3 pointer-events-auto">
+        <!-- Terminal -->
+        <div id="terminal" class="glass-panel rounded-lg p-3 font-mono text-[10px] text-fuchsia-400/80 space-y-1 h-28 flex flex-col justify-end overflow-hidden transition-opacity hover:opacity-100 opacity-60">
+            <div class="animate-pulse">> System initialized. Waiting for pipeline...</div>
+        </div>
+
+        <!-- Input Pipeline -->
+        <div class="glass-panel rounded-lg p-3 flex flex-col gap-2">
+            <span class="font-mono text-[9px] text-slate-500 uppercase tracking-widest">Audio Pipeline</span>
+            <button id="btnHijack" class="w-full py-1.5 bg-fuchsia-900/40 hover:bg-fuchsia-500/40 border border-fuchsia-500/30 rounded text-[10px] font-mono text-fuchsia-300 uppercase tracking-wider transition-all">Hijack System Audio</button>
+            <div class="grid grid-cols-2 gap-2">
+                <input type="file" id="audioFile" accept="audio/*" class="hidden">
+                <button onclick="document.getElementById('audioFile').click()" class="py-1.5 bg-slate-800/60 hover:bg-slate-700 border border-slate-600 rounded text-[10px] font-mono text-slate-300 uppercase tracking-wider transition-all">Upload MP3</button>
+                <button id="btnOsc" class="py-1.5 bg-slate-800/60 hover:bg-slate-700 border border-slate-600 rounded text-[10px] font-mono text-slate-300 uppercase tracking-wider transition-all">Test Tone</button>
+            </div>
+        </div>
+
+        <!-- Memory Core -->
+        <div class="glass-panel rounded-lg p-3 flex flex-col gap-2">
+            <div class="flex justify-between items-end">
+                <span class="font-mono text-[9px] text-slate-500 uppercase tracking-widest">Memory Core</span>
+                <button id="btnExport" class="text-fuchsia-400 hover:text-fuchsia-300 font-mono text-[9px] uppercase transition-all">Copy JSON</button>
+            </div>
+            <div class="grid grid-cols-3 gap-2">
+                <div class="flex flex-col gap-1">
+                    <button onclick="saveSlot(1)" class="py-1 bg-slate-800 hover:bg-fuchsia-900/50 border border-slate-700 hover:border-fuchsia-500/50 text-slate-300 font-mono text-[9px] transition-all rounded">Save 1</button>
+                    <button onclick="loadSlot(1)" class="py-1 bg-slate-900 hover:bg-slate-700 border border-slate-800 text-slate-400 font-mono text-[9px] transition-all rounded">Load 1</button>
+                </div>
+                <div class="flex flex-col gap-1">
+                    <button onclick="saveSlot(2)" class="py-1 bg-slate-800 hover:bg-fuchsia-900/50 border border-slate-700 hover:border-fuchsia-500/50 text-slate-300 font-mono text-[9px] transition-all rounded">Save 2</button>
+                    <button onclick="loadSlot(2)" class="py-1 bg-slate-900 hover:bg-slate-700 border border-slate-800 text-slate-400 font-mono text-[9px] transition-all rounded">Load 2</button>
+                </div>
+                <div class="flex flex-col gap-1">
+                    <button onclick="saveSlot(3)" class="py-1 bg-slate-800 hover:bg-fuchsia-900/50 border border-slate-700 hover:border-fuchsia-500/50 text-slate-300 font-mono text-[9px] transition-all rounded">Save 3</button>
+                    <button onclick="loadSlot(3)" class="py-1 bg-slate-900 hover:bg-slate-700 border border-slate-800 text-slate-400 font-mono text-[9px] transition-all rounded">Load 3</button>
+                </div>
+            </div>
+            <textarea id="importJsonStr" rows="3" class="w-full bg-black/40 border border-slate-700 rounded p-1.5 font-mono text-[9px] text-fuchsia-300 placeholder-slate-600 focus:outline-none focus:border-fuchsia-500 cyber-scroll resize-none" placeholder="Paste JSON payload..."></textarea>
+            <div class="flex gap-2">
+                <button id="btnImport" class="flex-1 py-1.5 bg-slate-800 text-slate-300 hover:text-white border border-slate-700 hover:border-slate-500 font-mono text-[9px] uppercase transition-all rounded">Inject Payload</button>
+                <button id="btnClearImport" class="px-3 py-1.5 bg-slate-900 text-slate-500 hover:text-slate-300 border border-slate-800 font-mono text-[9px] uppercase transition-all rounded">Clear</button>
+            </div>
+        </div>
     </div>
 
-    <!-- Input Pipeline -->
-    <div class="glass-panel rounded-lg p-3 pointer-events-auto flex flex-col gap-2">
-        <span class="font-mono text-[9px] text-slate-500 uppercase tracking-widest">Audio Pipeline</span>
-        <button id="btnHijack" class="w-full py-1.5 bg-fuchsia-900/40 hover:bg-fuchsia-500/40 border border-fuchsia-500/30 rounded text-[10px] font-mono text-fuchsia-300 uppercase tracking-wider transition-all">Hijack System Audio</button>
-        <div class="grid grid-cols-2 gap-2">
-            <input type="file" id="audioFile" accept="audio/*" class="hidden">
-            <button onclick="document.getElementById('audioFile').click()" class="py-1.5 bg-slate-800/60 hover:bg-slate-700 border border-slate-600 rounded text-[10px] font-mono text-slate-300 uppercase tracking-wider transition-all">Upload MP3</button>
-            <button id="btnOsc" class="py-1.5 bg-slate-800/60 hover:bg-slate-700 border border-slate-600 rounded text-[10px] font-mono text-slate-300 uppercase tracking-wider transition-all">Test Tone</button>
-        </div>
-    </div>
+    <!-- RIGHT SIDEBAR: Modulator Suite -->
+    <aside id="controls" class="absolute top-0 right-0 h-screen w-80 glass-panel border-l border-fuchsia-500/20 overflow-y-auto cyber-scroll p-5 flex flex-col gap-6 pointer-events-auto">
+        
+        <!-- 1. AESTHETICS -->
+        <section class="space-y-3">
+            <div class="flex justify-between items-end border-b border-slate-800 pb-1">
+                <h3 class="font-mono text-[10px] text-fuchsia-500 font-black tracking-widest uppercase">1. Render Target</h3>
+                <span class="font-mono text-[7px] text-slate-500 uppercase font-bold">Press 'H' to Hide</span>
+            </div>
+            
+            <div class="space-y-1">
+                <label class="font-mono text-[9px] text-slate-400">VISUALIZER MODE</label>
+                <select id="mode" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs py-1.5 px-2 rounded font-mono focus:border-fuchsia-500 focus:outline-none">
+                    <option value="bars">Classic Bars</option>
+                    <option value="mirrored-bars">Mirrored Bars</option>
+                    <option value="radial">Radial Array</option>
+                    <option value="oscilloscope">Oscilloscope</option>
+                    <option value="saturn-multiplexer">Saturn Multiplexer</option>
+                    <option value="floating-objects">Floating Objects</option>
+                    <option value="neural-net" selected>Neural Net (Plexus)</option>
+                </select>
+            </div>
 
-    <!-- Memory Core -->
-    <div class="glass-panel rounded-lg p-3 pointer-events-auto flex flex-col gap-2">
-        <div class="flex justify-between items-end">
-            <span class="font-mono text-[9px] text-slate-500 uppercase tracking-widest">Memory Core</span>
-            <button id="btnExport" class="text-fuchsia-400 hover:text-fuchsia-300 font-mono text-[9px] uppercase transition-all">Copy JSON</button>
-        </div>
-        <div class="grid grid-cols-3 gap-2">
-            <div class="flex flex-col gap-1">
-                <button onclick="saveSlot(1)" class="py-1 bg-slate-800 hover:bg-fuchsia-900/50 border border-slate-700 hover:border-fuchsia-500/50 text-slate-300 font-mono text-[9px] transition-all rounded">Save 1</button>
-                <button onclick="loadSlot(1)" class="py-1 bg-slate-900 hover:bg-slate-700 border border-slate-800 text-slate-400 font-mono text-[9px] transition-all rounded">Load 1</button>
+            <div class="space-y-1">
+                <label class="font-mono text-[9px] text-slate-400">COLOR THEME</label>
+                <select id="theme" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs py-1.5 px-2 rounded font-mono focus:border-fuchsia-500 focus:outline-none">
+                    <option value="cyber-fuchsia">Cyber-Fuchsia</option>
+                    <option value="toxic-sludge">Toxic Sludge</option>
+                    <option value="neon-blood">Neon Blood</option>
+                    <option value="void-glacier">Void Glacier</option>
+                    <option value="golden-era">Golden Era</option>
+                    <option value="custom">Custom (3-Point)</option>
+                </select>
             </div>
-            <div class="flex flex-col gap-1">
-                <button onclick="saveSlot(2)" class="py-1 bg-slate-800 hover:bg-fuchsia-900/50 border border-slate-700 hover:border-fuchsia-500/50 text-slate-300 font-mono text-[9px] transition-all rounded">Save 2</button>
-                <button onclick="loadSlot(2)" class="py-1 bg-slate-900 hover:bg-slate-700 border border-slate-800 text-slate-400 font-mono text-[9px] transition-all rounded">Load 2</button>
+
+            <div id="panelCustomColors" class="grid grid-cols-3 gap-2 hidden bg-slate-900/50 p-2 rounded border border-slate-800">
+                <div><label class="block font-mono text-[8px] text-slate-500 mb-1 text-center">BG</label><input type="color" id="colorBg" value="#020617"></div>
+                <div><label class="block font-mono text-[8px] text-slate-500 mb-1 text-center">PRIMARY</label><input type="color" id="colorPrimary" value="#d946ef"></div>
+                <div><label class="block font-mono text-[8px] text-slate-500 mb-1 text-center">SECONDARY</label><input type="color" id="colorSecondary" value="#0ea5e9"></div>
             </div>
-            <div class="flex flex-col gap-1">
-                <button onclick="saveSlot(3)" class="py-1 bg-slate-800 hover:bg-fuchsia-900/50 border border-slate-700 hover:border-fuchsia-500/50 text-slate-300 font-mono text-[9px] transition-all rounded">Save 3</button>
-                <button onclick="loadSlot(3)" class="py-1 bg-slate-900 hover:bg-slate-700 border border-slate-800 text-slate-400 font-mono text-[9px] transition-all rounded">Load 3</button>
+
+            <div>
+                <div class="flex justify-between font-mono text-[9px] mb-1"><span class="text-slate-400">BASE GLOW</span><span id="glowVal" class="text-fuchsia-400">20</span></div>
+                <input type="range" id="glow" min="0" max="100" value="20">
             </div>
+        </section>
+
+        <!-- 2. ENGINE MATH -->
+        <section class="space-y-3">
+            <h3 class="font-mono text-[10px] text-fuchsia-500 font-black tracking-widest uppercase border-b border-slate-800 pb-1">2. Audio Engine</h3>
+            <div class="space-y-1">
+                <label class="font-mono text-[9px] text-slate-400">FFT RESOLUTION</label>
+                <select id="fftSize" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs py-1 px-2 rounded font-mono focus:border-fuchsia-500 focus:outline-none">
+                    <option value="32">32</option><option value="64">64</option><option value="128">128</option>
+                    <option value="256" selected>256</option><option value="512">512</option><option value="1024">1024</option><option value="2048">2048</option>
+                </select>
+            </div>
+            <div>
+                <div class="flex justify-between font-mono text-[9px] mb-1"><span class="text-slate-400">SMOOTHING</span><span id="smoothingVal" class="text-fuchsia-400">0.88</span></div>
+                <input type="range" id="smoothing" min="0" max="0.99" step="0.01" value="0.88">
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <div class="flex justify-between font-mono text-[8px] mb-1"><span class="text-slate-400">MIN DB</span><span id="minDecibelsVal" class="text-fuchsia-400">-90</span></div>
+                    <input type="range" id="minDecibels" min="-120" max="-40" step="1" value="-90">
+                </div>
+                <div>
+                    <div class="flex justify-between font-mono text-[8px] mb-1"><span class="text-slate-400">MAX DB</span><span id="maxDecibelsVal" class="text-fuchsia-400">-10</span></div>
+                    <input type="range" id="maxDecibels" min="-30" max="0" step="1" value="-10">
+                </div>
+            </div>
+        </section>
+
+        <!-- SPECIFIC PANELS (Toggled via JS) -->
+        <div id="dynamicPanels" class="space-y-3">
+            
+            <!-- Radial Options -->
+            <section id="panelRadial" class="hidden bg-slate-900/40 p-3 rounded border border-slate-700/50 space-y-2">
+                <h3 class="font-mono text-[9px] text-slate-300 tracking-widest uppercase">Radial Config</h3>
+                <div>
+                    <div class="flex justify-between font-mono text-[9px] mb-1"><span class="text-slate-400">FREQ CAP (CLOSE GAP)</span><span id="frequencyCapVal" class="text-fuchsia-400">0.75</span></div>
+                    <input type="range" id="frequencyCap" min="0.1" max="1.0" step="0.01" value="0.75">
+                </div>
+            </section>
+
+            <!-- Oscilloscope Options -->
+            <section id="panelOsci" class="hidden bg-slate-900/40 p-3 rounded border border-slate-700/50 space-y-2">
+                <h3 class="font-mono text-[9px] text-slate-300 tracking-widest uppercase">Oscilloscope Config</h3>
+                <div>
+                    <div class="flex justify-between font-mono text-[9px] mb-1"><span class="text-slate-400">TIME SCALE</span><span id="timeScaleVal" class="text-fuchsia-400">1.0</span></div>
+                    <input type="range" id="timeScale" min="0.1" max="5.0" step="0.1" value="1.0">
+                </div>
+                <label class="flex items-center gap-2 cursor-pointer font-mono text-[9px] text-slate-300 hover:text-white mt-2">
+                    <input type="checkbox" id="phaseLock" class="accent-fuchsia-500 rounded" checked><span>PHASE LOCK (ZERO-CROSSING)</span>
+                </label>
+            </section>
+
+            <!-- Saturn Options -->
+            <section id="panelSaturn" class="hidden bg-cyan-950/20 p-3 rounded border border-cyan-900/40 space-y-2">
+                <h3 class="font-mono text-[9px] text-cyan-400 tracking-widest uppercase">Saturn Multiplexer</h3>
+                <div>
+                    <div class="flex justify-between font-mono text-[9px] mb-1"><span class="text-slate-400">RING COUNT</span><span id="ringCountVal" class="text-cyan-400">4</span></div>
+                    <input type="range" id="ringCount" min="2" max="8" value="4">
+                </div>
+                <div>
+                    <div class="flex justify-between font-mono text-[9px] mb-1"><span class="text-slate-400">ORBITAL TILT</span><span id="orbitalTiltVal" class="text-cyan-400">0.35</span></div>
+                    <input type="range" id="orbitalTilt" min="0.1" max="1.0" step="0.05" value="0.35">
+                </div>
+                <div>
+                    <div class="flex justify-between font-mono text-[9px] mb-1"><span class="text-slate-400">CORE PLANET SIZE</span><span id="coreSizeVal" class="text-cyan-400">40</span></div>
+                    <input type="range" id="coreSize" min="0" max="150" step="1" value="40">
+                </div>
+                <div class="space-y-1 pt-1">
+                    <label class="flex items-center gap-2 cursor-pointer font-mono text-[9px] text-slate-300 hover:text-white"><input type="checkbox" id="showCorePlanet" class="accent-cyan-500 rounded" checked><span>SHOW PLANET</span></label>
+                    <label class="flex items-center gap-2 cursor-pointer font-mono text-[9px] text-slate-300 hover:text-white"><input type="checkbox" id="planetReactive" class="accent-cyan-500 rounded" checked><span>REACTIVE PLANET</span></label>
+                    <label class="flex items-center gap-2 cursor-pointer font-mono text-[9px] text-slate-300 hover:text-white"><input type="checkbox" id="driveInversion" class="accent-cyan-500 rounded"><span>INVERT BASS RINGS</span></label>
+                </div>
+            </section>
+
+            <!-- Neural Net Options -->
+            <section id="panelNeural" class="bg-fuchsia-950/20 p-3 rounded border border-fuchsia-900/40 space-y-2">
+                <h3 class="font-mono text-[9px] text-fuchsia-400 tracking-widest uppercase">Neural Net (Plexus)</h3>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <div class="flex justify-between font-mono text-[8px] mb-1"><span class="text-slate-400">NODES</span><span id="nnNodeCountVal" class="text-fuchsia-400">150</span></div>
+                        <input type="range" id="nnNodeCount" min="20" max="250" value="150">
+                    </div>
+                    <div>
+                        <div class="flex justify-between font-mono text-[8px] mb-1"><span class="text-slate-400">SIZE</span><span id="nnNodeSizeVal" class="text-fuchsia-400">2</span></div>
+                        <input type="range" id="nnNodeSize" min="1" max="10" step="0.5" value="2">
+                    </div>
+                </div>
+                <div>
+                    <div class="flex justify-between font-mono text-[9px] mb-1"><span class="text-slate-400">CONNECTION RADIUS</span><span id="nnConnectionRadiusVal" class="text-fuchsia-400">80</span></div>
+                    <input type="range" id="nnConnectionRadius" min="20" max="250" value="80">
+                </div>
+                <div>
+                    <div class="flex justify-between font-mono text-[9px] mb-1"><span class="text-slate-400">SYNAPTIC MULTIPLIER</span><span id="nnSynapticMultiplierVal" class="text-fuchsia-400">2.5</span></div>
+                    <input type="range" id="nnSynapticMultiplier" min="0" max="5" step="0.1" value="2.5">
+                </div>
+                <div>
+                    <div class="flex justify-between font-mono text-[9px] mb-1"><span class="text-slate-400">VELOCITY</span><span id="nnVelocityVal" class="text-fuchsia-400">1.5</span></div>
+                    <input type="range" id="nnVelocity" min="0" max="10" step="0.1" value="1.5">
+                </div>
+                <div class="flex gap-2 items-end pt-1">
+                    <select id="nnDirection" class="flex-1 bg-slate-900 border border-slate-700 text-slate-200 text-[10px] py-1 px-1 rounded font-mono">
+                        <option value="float">Float</option><option value="rise">Rise</option><option value="sink">Sink</option><option value="through" selected>Through</option>
+                    </select>
+                    <label class="flex items-center gap-2 cursor-pointer font-mono text-[9px] text-slate-300 hover:text-white pb-1"><input type="checkbox" id="nnCollisions" class="accent-fuchsia-500 rounded" checked><span>COLLISIONS</span></label>
+                </div>
+            </section>
+
+            <!-- Floating Objects Options -->
+            <section id="panelFloating" class="hidden bg-emerald-950/20 p-3 rounded border border-emerald-900/40 space-y-2">
+                <h3 class="font-mono text-[9px] text-emerald-400 tracking-widest uppercase">Floating Objects</h3>
+                <div class="grid grid-cols-2 gap-2 mb-2">
+                    <div class="space-y-1">
+                        <label class="font-mono text-[8px] text-slate-400">SHAPE</label>
+                        <select id="foShape" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-[10px] py-1 px-1 rounded font-mono">
+                            <option value="circle">Circle</option><option value="square">Square</option><option value="cross" selected>Cross</option><option value="star">Star</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="font-mono text-[8px] text-slate-400">AUDIO TARGET</label>
+                        <select id="foReactiveTarget" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-[10px] py-1 px-1 rounded font-mono">
+                            <option value="size" selected>Size Scale</option><option value="velocity">Velocity Kick</option><option value="glow">Flash Glow</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex justify-between font-mono text-[9px] mb-1"><span class="text-slate-400">DENSITY</span><span id="foDensityVal" class="text-emerald-400">100</span></div>
+                    <input type="range" id="foDensity" min="10" max="300" value="100">
+                </div>
+                <div>
+                    <div class="flex justify-between font-mono text-[9px] mb-1"><span class="text-slate-400">BASE SIZE</span><span id="foSizeVal" class="text-emerald-400">5</span></div>
+                    <input type="range" id="foSize" min="1" max="50" value="5">
+                </div>
+                <div class="flex gap-2 items-end pt-1">
+                    <select id="foDirection" class="flex-1 bg-slate-900 border border-slate-700 text-slate-200 text-[10px] py-1 px-1 rounded font-mono">
+                        <option value="float">Float</option><option value="rise" selected>Rise</option><option value="sink">Sink</option><option value="through">Through</option>
+                    </select>
+                    <label class="flex items-center gap-2 cursor-pointer font-mono text-[9px] text-slate-300 hover:text-white pb-1"><input type="checkbox" id="foCollisions" class="accent-emerald-500 rounded" checked><span>COLLISIONS</span></label>
+                </div>
+            </section>
         </div>
-        <textarea id="importJsonStr" rows="3" class="w-full bg-black/40 border border-slate-700 rounded p-1.5 font-mono text-[9px] text-fuchsia-300 placeholder-slate-600 focus:outline-none focus:border-fuchsia-500 cyber-scroll resize-none" placeholder="Paste JSON payload..."></textarea>
-        <div class="flex gap-2">
-            <button id="btnImport" class="flex-1 py-1.5 bg-slate-800 text-slate-300 hover:text-white border border-slate-700 hover:border-slate-500 font-mono text-[9px] uppercase transition-all rounded">Inject Payload</button>
-            <button id="btnClearImport" class="px-3 py-1.5 bg-slate-900 text-slate-500 hover:text-slate-300 border border-slate-800 font-mono text-[9px] uppercase transition-all rounded">Clear</button>
-        </div>
-    </div>
+
+        <!-- 3. BACKGROUND LAYER -->
+        <section class="space-y-3">
+            <h3 class="font-mono text-[10px] text-slate-400 font-black tracking-widest uppercase border-b border-slate-800 pb-1">3. Background Layer</h3>
+            <div class="bg-slate-900/50 p-2 rounded border border-slate-800/50">
+                <label class="flex items-center gap-2 cursor-pointer font-mono text-[10px] text-slate-200 hover:text-white mb-2">
+                    <input type="checkbox" id="bgEnabled" class="accent-slate-400 rounded" checked>
+                    <span class="font-black">ENABLE PARTICLES</span>
+                </label>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <div class="flex justify-between font-mono text-[8px] mb-1"><span class="text-slate-500">DENSITY</span><span id="bgDensityVal" class="text-slate-400">200</span></div>
+                        <input type="range" id="bgDensity" min="50" max="500" value="200">
+                    </div>
+                    <div>
+                        <div class="flex justify-between font-mono text-[8px] mb-1"><span class="text-slate-500">SPEED</span><span id="bgSpeedVal" class="text-slate-400">0.5</span></div>
+                        <input type="range" id="bgSpeed" min="0" max="5" step="0.1" value="0.5">
+                    </div>
+                </div>
+                <select id="bgDirection" class="w-full mt-2 bg-slate-900 border border-slate-700 text-slate-400 text-[10px] py-1 px-1 rounded font-mono">
+                    <option value="float" selected>Float</option><option value="rise">Rise</option><option value="sink">Sink</option><option value="through">Through</option>
+                </select>
+            </div>
+        </section>
+
+        <!-- 4. PRO MODIFIERS -->
+        <section class="space-y-3 pb-6">
+            <h3 class="font-mono text-[10px] text-fuchsia-500 font-black tracking-widest uppercase border-b border-slate-800 pb-1">4. Pro Modifiers</h3>
+            
+            <!-- Ghost / Bloom / Shake -->
+            <div class="bg-slate-900/50 p-2 rounded border border-slate-800/50 space-y-3">
+                <div>
+                    <label class="flex items-center gap-2 cursor-pointer font-mono text-[10px] text-slate-200 hover:text-white mb-1"><input type="checkbox" id="ghostTrails" class="accent-fuchsia-500 rounded" checked><span class="font-bold">PEAK GHOST TRAILS</span></label>
+                    <div class="flex justify-between font-mono text-[8px] mb-1"><span class="text-slate-500">DECAY RATE</span><span id="trailDecayVal" class="text-slate-400">0.92</span></div>
+                    <input type="range" id="trailDecay" min="0.80" max="0.99" step="0.01" value="0.92">
+                </div>
+                <div>
+                    <label class="flex items-center gap-2 cursor-pointer font-mono text-[10px] text-slate-200 hover:text-white mb-1"><input type="checkbox" id="bassBloom" class="accent-fuchsia-500 rounded" checked><span class="font-bold">BASS BLOOM</span></label>
+                    <div class="flex justify-between font-mono text-[8px] mb-1"><span class="text-slate-500">INTENSITY</span><span id="bloomIntensityVal" class="text-slate-400">2.5</span></div>
+                    <input type="range" id="bloomIntensity" min="1.0" max="5.0" step="0.1" value="2.5">
+                </div>
+                <div>
+                    <label class="flex items-center gap-2 cursor-pointer font-mono text-[10px] text-slate-200 hover:text-white mb-1"><input type="checkbox" id="screenShake" class="accent-fuchsia-500 rounded"><span class="font-bold">SUB-HARMONIC SHAKE</span></label>
+                    <div class="flex justify-between font-mono text-[8px] mb-1"><span class="text-slate-500">FORCE</span><span id="shakeIntensityVal" class="text-slate-400">12</span></div>
+                    <input type="range" id="shakeIntensity" min="2" max="25" step="1" value="12">
+                </div>
+                <label class="flex items-center gap-2 cursor-pointer font-mono text-[10px] text-slate-200 hover:text-white pt-1 border-t border-slate-800"><input type="checkbox" id="stereoSplit" class="accent-fuchsia-500 rounded"><span class="font-bold uppercase">Stereo Routing (L/R)</span></label>
+            </div>
+
+            <!-- Camera & Fractal -->
+            <div class="bg-indigo-950/20 p-2 rounded border border-indigo-900/40 space-y-3">
+                <div>
+                    <label class="flex items-center gap-2 cursor-pointer font-mono text-[10px] text-slate-200 hover:text-white mb-1"><input type="checkbox" id="autoCamera" class="accent-indigo-500 rounded"><span class="font-bold text-indigo-400">AUTO-CAMERA DRIFT</span></label>
+                    <div class="flex justify-between font-mono text-[8px] mb-1"><span class="text-slate-500">PAN SPEED</span><span id="cameraSpeedVal" class="text-slate-400">1.0</span></div>
+                    <input type="range" id="cameraSpeed" min="0.1" max="5.0" step="0.1" value="1.0">
+                </div>
+                <div class="pt-1 border-t border-indigo-900/40">
+                    <div class="flex justify-between font-mono text-[9px] mb-1"><span class="text-indigo-400 font-bold">KALEIDOSCOPE (SLICES)</span><span id="fractalMultiplierVal" class="text-indigo-400">0</span></div>
+                    <input type="range" id="fractalMultiplier" min="0" max="12" step="2" value="0">
+                    <p class="text-[8px] text-slate-500 font-mono mt-1 leading-tight">Zero disables fractal buffer. High slice counts create complex mandalas.</p>
+                </div>
+            </div>
+        </section>
+    </aside>
 </div>
-
-<!-- RIGHT SIDEBAR: Modulator Suite -->
-<aside id="controls" class="fixed top-0 right-0 h-screen w-80 glass-panel border-l border-fuchsia-500/20 overflow-y-auto cyber-scroll z-20 p-5 flex flex-col gap-6 pointer-events-auto">
-    
-    <!-- 1. AESTHETICS -->
-    <section class="space-y-3">
-        <h3 class="font-mono text-[10px] text-fuchsia-500 font-black tracking-widest uppercase border-b border-slate-800 pb-1">1. Render Target</h3>
-        
-        <div class="space-y-1">
-            <label class="font-mono text-[9px] text-slate-400">VISUALIZER MODE</label>
-            <select id="mode" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs py-1.5 px-2 rounded font-mono focus:border-fuchsia-500 focus:outline-none">
-                <option value="bars">Classic Bars</option>
-                <option value="mirrored-bars">Mirrored Bars</option>
-                <option value="radial">Radial Array</option>
-                <option value="oscilloscope">Oscilloscope</option>
-                <option value="saturn-multiplexer">Saturn Multiplexer</option>
-                <option value="floating-objects">Floating Objects</option>
-                <option value="neural-net" selected>Neural Net (Plexus)</option>
-            </select>
-        </div>
-
-        <div class="space-y-1">
-            <label class="font-mono text-[9px] text-slate-400">COLOR THEME</label>
-            <select id="theme" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs py-1.5 px-2 rounded font-mono focus:border-fuchsia-500 focus:outline-none">
-                <option value="cyber-fuchsia">Cyber-Fuchsia</option>
-                <option value="toxic-sludge">Toxic Sludge</option>
-                <option value="neon-blood">Neon Blood</option>
-                <option value="void-glacier">Void Glacier</option>
-                <option value="golden-era">Golden Era</option>
-                <option value="custom">Custom (3-Point)</option>
-            </select>
-        </div>
-
-        <div id="panelCustomColors" class="grid grid-cols-3 gap-2 hidden bg-slate-900/50 p-2 rounded border border-slate-800">
-            <div><label class="block font-mono text-[8px] text-slate-500 mb-1 text-center">BG</label><input type="color" id="colorBg" value="#020617"></div>
-            <div><label class="block font-mono text-[8px] text-slate-500 mb-1 text-center">PRIMARY</label><input type="color" id="colorPrimary" value="#d946ef"></div>
-            <div><label class="block font-mono text-[8px] text-slate-500 mb-1 text-center">SECONDARY</label><input type="color" id="colorSecondary" value="#0ea5e9"></div>
-        </div>
-
-        <div>
-            <div class="flex justify-between font-mono text-[9px] mb-1"><span class="text-slate-400">BASE GLOW</span><span id="glowVal" class="text-fuchsia-400">20</span></div>
-            <input type="range" id="glow" min="0" max="100" value="20">
-        </div>
-    </section>
-
-    <!-- 2. ENGINE MATH -->
-    <section class="space-y-3">
-        <h3 class="font-mono text-[10px] text-fuchsia-500 font-black tracking-widest uppercase border-b border-slate-800 pb-1">2. Audio Engine</h3>
-        <div class="space-y-1">
-            <label class="font-mono text-[9px] text-slate-400">FFT RESOLUTION</label>
-            <select id="fftSize" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs py-1 px-2 rounded font-mono focus:border-fuchsia-500 focus:outline-none">
-                <option value="32">32</option><option value="64">64</option><option value="128">128</option>
-                <option value="256" selected>256</option><option value="512">512</option><option value="1024">1024</option><option value="2048">2048</option>
-            </select>
-        </div>
-        <div>
-            <div class="flex justify-between font-mono text-[9px] mb-1"><span class="text-slate-400">SMOOTHING</span><span id="smoothingVal" class="text-fuchsia-400">0.88</span></div>
-            <input type="range" id="smoothing" min="0" max="0.99" step="0.01" value="0.88">
-        </div>
-        <div class="grid grid-cols-2 gap-3">
-            <div>
-                <div class="flex justify-between font-mono text-[8px] mb-1"><span class="text-slate-400">MIN DB</span><span id="minDecibelsVal" class="text-fuchsia-400">-90</span></div>
-                <input type="range" id="minDecibels" min="-120" max="-40" step="1" value="-90">
-            </div>
-            <div>
-                <div class="flex justify-between font-mono text-[8px] mb-1"><span class="text-slate-400">MAX DB</span><span id="maxDecibelsVal" class="text-fuchsia-400">-10</span></div>
-                <input type="range" id="maxDecibels" min="-30" max="0" step="1" value="-10">
-            </div>
-        </div>
-    </section>
-
-    <!-- SPECIFIC PANELS (Toggled via JS) -->
-    <div id="dynamicPanels" class="space-y-3">
-        
-        <!-- Radial Options -->
-        <section id="panelRadial" class="hidden bg-slate-900/40 p-3 rounded border border-slate-700/50 space-y-2">
-            <h3 class="font-mono text-[9px] text-slate-300 tracking-widest uppercase">Radial Config</h3>
-            <div>
-                <div class="flex justify-between font-mono text-[9px] mb-1"><span class="text-slate-400">FREQ CAP (CLOSE GAP)</span><span id="frequencyCapVal" class="text-fuchsia-400">0.75</span></div>
-                <input type="range" id="frequencyCap" min="0.1" max="1.0" step="0.01" value="0.75">
-            </div>
-        </section>
-
-        <!-- Oscilloscope Options -->
-        <section id="panelOsci" class="hidden bg-slate-900/40 p-3 rounded border border-slate-700/50 space-y-2">
-            <h3 class="font-mono text-[9px] text-slate-300 tracking-widest uppercase">Oscilloscope Config</h3>
-            <div>
-                <div class="flex justify-between font-mono text-[9px] mb-1"><span class="text-slate-400">TIME SCALE</span><span id="timeScaleVal" class="text-fuchsia-400">1.0</span></div>
-                <input type="range" id="timeScale" min="0.1" max="5.0" step="0.1" value="1.0">
-            </div>
-            <label class="flex items-center gap-2 cursor-pointer font-mono text-[9px] text-slate-300 hover:text-white mt-2">
-                <input type="checkbox" id="phaseLock" class="accent-fuchsia-500 rounded" checked><span>PHASE LOCK (ZERO-CROSSING)</span>
-            </label>
-        </section>
-
-        <!-- Saturn Options -->
-        <section id="panelSaturn" class="hidden bg-cyan-950/20 p-3 rounded border border-cyan-900/40 space-y-2">
-            <h3 class="font-mono text-[9px] text-cyan-400 tracking-widest uppercase">Saturn Multiplexer</h3>
-            <div>
-                <div class="flex justify-between font-mono text-[9px] mb-1"><span class="text-slate-400">RING COUNT</span><span id="ringCountVal" class="text-cyan-400">4</span></div>
-                <input type="range" id="ringCount" min="2" max="8" value="4">
-            </div>
-            <div>
-                <div class="flex justify-between font-mono text-[9px] mb-1"><span class="text-slate-400">ORBITAL TILT</span><span id="orbitalTiltVal" class="text-cyan-400">0.35</span></div>
-                <input type="range" id="orbitalTilt" min="0.1" max="1.0" step="0.05" value="0.35">
-            </div>
-            <div>
-                <div class="flex justify-between font-mono text-[9px] mb-1"><span class="text-slate-400">CORE PLANET SIZE</span><span id="coreSizeVal" class="text-cyan-400">40</span></div>
-                <input type="range" id="coreSize" min="0" max="150" step="1" value="40">
-            </div>
-            <div class="space-y-1 pt-1">
-                <label class="flex items-center gap-2 cursor-pointer font-mono text-[9px] text-slate-300 hover:text-white"><input type="checkbox" id="showCorePlanet" class="accent-cyan-500 rounded" checked><span>SHOW PLANET</span></label>
-                <label class="flex items-center gap-2 cursor-pointer font-mono text-[9px] text-slate-300 hover:text-white"><input type="checkbox" id="planetReactive" class="accent-cyan-500 rounded" checked><span>REACTIVE PLANET</span></label>
-                <label class="flex items-center gap-2 cursor-pointer font-mono text-[9px] text-slate-300 hover:text-white"><input type="checkbox" id="driveInversion" class="accent-cyan-500 rounded"><span>INVERT BASS RINGS</span></label>
-            </div>
-        </section>
-
-        <!-- Neural Net Options -->
-        <section id="panelNeural" class="bg-fuchsia-950/20 p-3 rounded border border-fuchsia-900/40 space-y-2">
-            <h3 class="font-mono text-[9px] text-fuchsia-400 tracking-widest uppercase">Neural Net (Plexus)</h3>
-            <div class="grid grid-cols-2 gap-2">
-                <div>
-                    <div class="flex justify-between font-mono text-[8px] mb-1"><span class="text-slate-400">NODES</span><span id="nnNodeCountVal" class="text-fuchsia-400">150</span></div>
-                    <input type="range" id="nnNodeCount" min="20" max="250" value="150">
-                </div>
-                <div>
-                    <div class="flex justify-between font-mono text-[8px] mb-1"><span class="text-slate-400">SIZE</span><span id="nnNodeSizeVal" class="text-fuchsia-400">2</span></div>
-                    <input type="range" id="nnNodeSize" min="1" max="10" step="0.5" value="2">
-                </div>
-            </div>
-            <div>
-                <div class="flex justify-between font-mono text-[9px] mb-1"><span class="text-slate-400">CONNECTION RADIUS</span><span id="nnConnectionRadiusVal" class="text-fuchsia-400">80</span></div>
-                <input type="range" id="nnConnectionRadius" min="20" max="250" value="80">
-            </div>
-            <div>
-                <div class="flex justify-between font-mono text-[9px] mb-1"><span class="text-slate-400">SYNAPTIC MULTIPLIER</span><span id="nnSynapticMultiplierVal" class="text-fuchsia-400">2.5</span></div>
-                <input type="range" id="nnSynapticMultiplier" min="0" max="5" step="0.1" value="2.5">
-            </div>
-            <div>
-                <div class="flex justify-between font-mono text-[9px] mb-1"><span class="text-slate-400">VELOCITY</span><span id="nnVelocityVal" class="text-fuchsia-400">1.5</span></div>
-                <input type="range" id="nnVelocity" min="0" max="10" step="0.1" value="1.5">
-            </div>
-            <div class="flex gap-2 items-end pt-1">
-                <select id="nnDirection" class="flex-1 bg-slate-900 border border-slate-700 text-slate-200 text-[10px] py-1 px-1 rounded font-mono">
-                    <option value="float">Float</option><option value="rise">Rise</option><option value="sink">Sink</option><option value="through" selected>Through</option>
-                </select>
-                <label class="flex items-center gap-2 cursor-pointer font-mono text-[9px] text-slate-300 hover:text-white pb-1"><input type="checkbox" id="nnCollisions" class="accent-fuchsia-500 rounded" checked><span>COLLISIONS</span></label>
-            </div>
-        </section>
-
-        <!-- Floating Objects Options -->
-        <section id="panelFloating" class="hidden bg-emerald-950/20 p-3 rounded border border-emerald-900/40 space-y-2">
-            <h3 class="font-mono text-[9px] text-emerald-400 tracking-widest uppercase">Floating Objects</h3>
-            <div class="grid grid-cols-2 gap-2 mb-2">
-                <div class="space-y-1">
-                    <label class="font-mono text-[8px] text-slate-400">SHAPE</label>
-                    <select id="foShape" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-[10px] py-1 px-1 rounded font-mono">
-                        <option value="circle">Circle</option><option value="square">Square</option><option value="cross" selected>Cross</option><option value="star">Star</option>
-                    </select>
-                </div>
-                <div class="space-y-1">
-                    <label class="font-mono text-[8px] text-slate-400">AUDIO TARGET</label>
-                    <select id="foReactiveTarget" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-[10px] py-1 px-1 rounded font-mono">
-                        <option value="size" selected>Size Scale</option><option value="velocity">Velocity Kick</option><option value="glow">Flash Glow</option>
-                    </select>
-                </div>
-            </div>
-            <div>
-                <div class="flex justify-between font-mono text-[9px] mb-1"><span class="text-slate-400">DENSITY</span><span id="foDensityVal" class="text-emerald-400">100</span></div>
-                <input type="range" id="foDensity" min="10" max="300" value="100">
-            </div>
-            <div>
-                <div class="flex justify-between font-mono text-[9px] mb-1"><span class="text-slate-400">BASE SIZE</span><span id="foSizeVal" class="text-emerald-400">5</span></div>
-                <input type="range" id="foSize" min="1" max="50" value="5">
-            </div>
-            <div class="flex gap-2 items-end pt-1">
-                <select id="foDirection" class="flex-1 bg-slate-900 border border-slate-700 text-slate-200 text-[10px] py-1 px-1 rounded font-mono">
-                    <option value="float">Float</option><option value="rise" selected>Rise</option><option value="sink">Sink</option><option value="through">Through</option>
-                </select>
-                <label class="flex items-center gap-2 cursor-pointer font-mono text-[9px] text-slate-300 hover:text-white pb-1"><input type="checkbox" id="foCollisions" class="accent-emerald-500 rounded" checked><span>COLLISIONS</span></label>
-            </div>
-        </section>
-    </div>
-
-    <!-- 3. BACKGROUND LAYER -->
-    <section class="space-y-3">
-        <h3 class="font-mono text-[10px] text-slate-400 font-black tracking-widest uppercase border-b border-slate-800 pb-1">3. Background Layer</h3>
-        <div class="bg-slate-900/50 p-2 rounded border border-slate-800/50">
-            <label class="flex items-center gap-2 cursor-pointer font-mono text-[10px] text-slate-200 hover:text-white mb-2">
-                <input type="checkbox" id="bgEnabled" class="accent-slate-400 rounded" checked>
-                <span class="font-black">ENABLE PARTICLES</span>
-            </label>
-            <div class="grid grid-cols-2 gap-2">
-                <div>
-                    <div class="flex justify-between font-mono text-[8px] mb-1"><span class="text-slate-500">DENSITY</span><span id="bgDensityVal" class="text-slate-400">200</span></div>
-                    <input type="range" id="bgDensity" min="50" max="500" value="200">
-                </div>
-                <div>
-                    <div class="flex justify-between font-mono text-[8px] mb-1"><span class="text-slate-500">SPEED</span><span id="bgSpeedVal" class="text-slate-400">0.5</span></div>
-                    <input type="range" id="bgSpeed" min="0" max="5" step="0.1" value="0.5">
-                </div>
-            </div>
-            <select id="bgDirection" class="w-full mt-2 bg-slate-900 border border-slate-700 text-slate-400 text-[10px] py-1 px-1 rounded font-mono">
-                <option value="float" selected>Float</option><option value="rise">Rise</option><option value="sink">Sink</option><option value="through">Through</option>
-            </select>
-        </div>
-    </section>
-
-    <!-- 4. PRO MODIFIERS -->
-    <section class="space-y-3 pb-6">
-        <h3 class="font-mono text-[10px] text-fuchsia-500 font-black tracking-widest uppercase border-b border-slate-800 pb-1">4. Pro Modifiers</h3>
-        
-        <!-- Ghost / Bloom / Shake -->
-        <div class="bg-slate-900/50 p-2 rounded border border-slate-800/50 space-y-3">
-            <div>
-                <label class="flex items-center gap-2 cursor-pointer font-mono text-[10px] text-slate-200 hover:text-white mb-1"><input type="checkbox" id="ghostTrails" class="accent-fuchsia-500 rounded" checked><span class="font-bold">PEAK GHOST TRAILS</span></label>
-                <div class="flex justify-between font-mono text-[8px] mb-1"><span class="text-slate-500">DECAY RATE</span><span id="trailDecayVal" class="text-slate-400">0.92</span></div>
-                <input type="range" id="trailDecay" min="0.80" max="0.99" step="0.01" value="0.92">
-            </div>
-            <div>
-                <label class="flex items-center gap-2 cursor-pointer font-mono text-[10px] text-slate-200 hover:text-white mb-1"><input type="checkbox" id="bassBloom" class="accent-fuchsia-500 rounded" checked><span class="font-bold">BASS BLOOM</span></label>
-                <div class="flex justify-between font-mono text-[8px] mb-1"><span class="text-slate-500">INTENSITY</span><span id="bloomIntensityVal" class="text-slate-400">2.5</span></div>
-                <input type="range" id="bloomIntensity" min="1.0" max="5.0" step="0.1" value="2.5">
-            </div>
-            <div>
-                <label class="flex items-center gap-2 cursor-pointer font-mono text-[10px] text-slate-200 hover:text-white mb-1"><input type="checkbox" id="screenShake" class="accent-fuchsia-500 rounded"><span class="font-bold">SUB-HARMONIC SHAKE</span></label>
-                <div class="flex justify-between font-mono text-[8px] mb-1"><span class="text-slate-500">FORCE</span><span id="shakeIntensityVal" class="text-slate-400">12</span></div>
-                <input type="range" id="shakeIntensity" min="2" max="25" step="1" value="12">
-            </div>
-            <label class="flex items-center gap-2 cursor-pointer font-mono text-[10px] text-slate-200 hover:text-white pt-1 border-t border-slate-800"><input type="checkbox" id="stereoSplit" class="accent-fuchsia-500 rounded"><span class="font-bold uppercase">Stereo Routing (L/R)</span></label>
-        </div>
-
-        <!-- Camera & Fractal -->
-        <div class="bg-indigo-950/20 p-2 rounded border border-indigo-900/40 space-y-3">
-            <div>
-                <label class="flex items-center gap-2 cursor-pointer font-mono text-[10px] text-slate-200 hover:text-white mb-1"><input type="checkbox" id="autoCamera" class="accent-indigo-500 rounded"><span class="font-bold text-indigo-400">AUTO-CAMERA DRIFT</span></label>
-                <div class="flex justify-between font-mono text-[8px] mb-1"><span class="text-slate-500">PAN SPEED</span><span id="cameraSpeedVal" class="text-slate-400">1.0</span></div>
-                <input type="range" id="cameraSpeed" min="0.1" max="5.0" step="0.1" value="1.0">
-            </div>
-            <div class="pt-1 border-t border-indigo-900/40">
-                <div class="flex justify-between font-mono text-[9px] mb-1"><span class="text-indigo-400 font-bold">KALEIDOSCOPE (SLICES)</span><span id="fractalMultiplierVal" class="text-indigo-400">0</span></div>
-                <input type="range" id="fractalMultiplier" min="0" max="12" step="2" value="0">
-                <p class="text-[8px] text-slate-500 font-mono mt-1 leading-tight">Zero disables fractal buffer. High slice counts create complex mandalas.</p>
-            </div>
-        </div>
-    </section>
-</aside>
 
 <!-- Hidden elements -->
 <audio id="internalAudio" class="hidden" crossorigin="anonymous"></audio>
 
 <script>
     /**
-     * SONIC FORGE V1.1.2
+     * SONIC FORGE V1.1.6
      * Architecture Spec Implementation
-     * DOM is Truth. Zero Dependencies.
+     * DOM is Truth. Zero Dependencies. Hyper-Optimized State.
      */
     
     const DOM = {
@@ -380,11 +386,61 @@
         ctx: document.getElementById('visualizerCanvas').getContext('2d'),
         term: document.getElementById('terminal'),
         container: document.getElementById('forgeContainer'),
-        audio: document.getElementById('internalAudio')
+        audio: document.getElementById('internalAudio'),
+        uiLayer: document.getElementById('uiLayer')
     };
 
     const offCanvas = document.createElement('canvas');
     const offCtx = offCanvas.getContext('2d');
+
+    // UI IDLE TIMER, HOVER LOCK & HOTKEY (AUDIT FIX 2)
+    let idleTimer;
+    let uiLockedHidden = false;
+    let isHoveringUI = false;
+
+    // Lock UI visible when mouse is over controls
+    document.getElementById('controls').addEventListener('mouseenter', () => { isHoveringUI = true; wakeUI(); });
+    document.getElementById('controls').addEventListener('mouseleave', () => { isHoveringUI = false; wakeUI(); });
+    document.querySelector('.left-6.w-80').addEventListener('mouseenter', () => { isHoveringUI = true; wakeUI(); });
+    document.querySelector('.left-6.w-80').addEventListener('mouseleave', () => { isHoveringUI = false; wakeUI(); });
+
+    function wakeUI() {
+        if (uiLockedHidden) return; 
+        if (DOM.uiLayer.classList.contains('opacity-0')) {
+            DOM.uiLayer.classList.remove('opacity-0', 'pointer-events-none');
+            DOM.uiLayer.classList.add('opacity-100');
+        }
+        clearTimeout(idleTimer);
+        
+        if (!isHoveringUI) {
+            idleTimer = setTimeout(() => {
+                DOM.uiLayer.classList.remove('opacity-100');
+                DOM.uiLayer.classList.add('opacity-0', 'pointer-events-none');
+            }, 3000);
+        }
+    }
+
+    window.addEventListener('keydown', (e) => {
+        // Prevent hotkey triggering when typing in the JSON input
+        if(e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') return;
+        
+        if (e.key.toLowerCase() === 'h') {
+            uiLockedHidden = !uiLockedHidden;
+            if (uiLockedHidden) {
+                clearTimeout(idleTimer);
+                DOM.uiLayer.classList.remove('opacity-100');
+                DOM.uiLayer.classList.add('opacity-0', 'pointer-events-none');
+            } else {
+                wakeUI();
+            }
+        } else {
+            wakeUI();
+        }
+    });
+
+    window.addEventListener('mousemove', wakeUI);
+    window.addEventListener('touchstart', wakeUI);
+    wakeUI(); // Init idle timer
 
     // State Mapping Arrays
     const mapEngine = ['fftSize', 'smoothing', 'minDecibels', 'maxDecibels'];
@@ -400,8 +456,8 @@
     let audioCtx = null;
     let analyserL = null, analyserR = null;
     let currentSource = null;
-    let currentSplitter = null; // AUDIT FIX: Prevent Audio Graph Leak
-    let currentBlobUrl = null;  // AUDIT FIX: Prevent RAM Sieve from file uploads
+    let currentSplitter = null; 
+    let currentBlobUrl = null; 
     let animId = null;
     let peakMap = new Float32Array(0);
     let isShaking = false;
@@ -410,6 +466,9 @@
     let nodesNN = [];
     let nodesFO = [];
     let nodesBG = [];
+
+    // GLOBAL VOLATILE CACHE (AUDIT FIX 1)
+    let EngineState = {};
 
     const themes = {
         'cyber-fuchsia': { bg: '#020617', primary: '#d946ef', secondary: '#0ea5e9' },
@@ -434,6 +493,7 @@
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             analyserL = audioCtx.createAnalyser();
             analyserR = audioCtx.createAnalyser();
+            syncEngineParams(); // Apply default values immediately
         }
         if (audioCtx.state === 'suspended') await audioCtx.resume();
     }
@@ -458,7 +518,6 @@
         if (streamOrElement instanceof HTMLMediaElement) currentSource._mediaElement = streamOrElement;
 
         routeSignal();
-        syncEngineParams();
         if (!animId) renderLoop();
     }
 
@@ -524,19 +583,7 @@
         });
     }
 
-    document.getElementById('controls').addEventListener('input', (e) => {
-        syncUI();
-        if (mapEngine.includes(e.target.id) || e.target.id === 'stereoSplit') {
-            if (e.target.id === 'stereoSplit') routeSignal();
-            syncEngineParams();
-        }
-        const w = DOM.canvas.width; const h = DOM.canvas.height;
-        if (e.target.id === 'nnNodeCount') reconcileNodes(nodesNN, getVal('nnNodeCount'), w, h);
-        if (e.target.id === 'foDensity') reconcileNodes(nodesFO, getVal('foDensity'), w, h);
-        if (e.target.id === 'bgDensity') reconcileNodes(nodesBG, getVal('bgDensity'), w, h);
-    });
-
-    // --- MEMORY CORE (Save/Load/Hydrate) ---
+    // MEMORY CORE (State Construction)
     function buildStateObject() {
         return {
             theme: getVal('theme'),
@@ -552,6 +599,25 @@
             modifiers: constructObj(mapMods)
         };
     }
+
+    function updateStateCache() {
+        EngineState = buildStateObject();
+    }
+
+    document.getElementById('uiLayer').addEventListener('input', (e) => {
+        syncUI();
+        if (mapEngine.includes(e.target.id) || e.target.id === 'stereoSplit') {
+            if (e.target.id === 'stereoSplit') routeSignal();
+            syncEngineParams();
+        }
+        const w = DOM.canvas.width; const h = DOM.canvas.height;
+        if (e.target.id === 'nnNodeCount') reconcileNodes(nodesNN, getVal('nnNodeCount'), w, h);
+        if (e.target.id === 'foDensity') reconcileNodes(nodesFO, getVal('foDensity'), w, h);
+        if (e.target.id === 'bgDensity') reconcileNodes(nodesBG, getVal('bgDensity'), w, h);
+        
+        // Cache new state!
+        updateStateCache();
+    });
 
     function hydrateState(jsonString) {
         try {
@@ -573,14 +639,19 @@
                 if (!el || flatMap[id] === undefined || flatMap[id] === null) return;
                 if (el.type === 'checkbox') el.checked = flatMap[id];
                 else el.value = flatMap[id];
-                el.dispatchEvent(new Event('input', { bubbles: true }));
+                // Do not fire synthetic events yet to save DOM thrashing
             });
             
-            const w = DOM.canvas.width || window.innerWidth; const h = DOM.canvas.height || window.innerHeight;
-            reconcileNodes(nodesNN, getVal('nnNodeCount'), w, h);
-            reconcileNodes(nodesFO, getVal('foDensity'), w, h);
-            reconcileNodes(nodesBG, getVal('bgDensity'), w, h);
+            syncUI();
+            syncEngineParams();
+            routeSignal();
             
+            const w = DOM.canvas.width || window.innerWidth; const h = DOM.canvas.height || window.innerHeight;
+            reconcileNodes(nodesNN, getVal('nnNodeCount') ?? 150, w, h);
+            reconcileNodes(nodesFO, getVal('foDensity') ?? 100, w, h);
+            reconcileNodes(nodesBG, getVal('bgDensity') ?? 200, w, h);
+            
+            updateStateCache();
             sysLog("HYDRATION SUCCESS. Matrix realigned.");
         } catch (e) { sysLog("FATAL: Invalid JSON Payload", true); }
     }
@@ -588,7 +659,7 @@
     window.saveSlot = (num) => {
         const slotKey = `sonic_forge_v1.1_slot_${num}`;
         if (localStorage.getItem(slotKey) && !window.confirm(`Overwrite existing config in Slot ${num}?`)) return;
-        localStorage.setItem(slotKey, JSON.stringify(buildStateObject()));
+        localStorage.setItem(slotKey, JSON.stringify(EngineState));
         sysLog(`Slot ${num} written to persistent memory.`);
     };
     window.loadSlot = (num) => {
@@ -597,7 +668,7 @@
     };
 
     document.getElementById('btnExport').addEventListener('click', () => {
-        navigator.clipboard.writeText(JSON.stringify(buildStateObject(), null, 2)).then(() => sysLog("JSON copied to clipboard."));
+        navigator.clipboard.writeText(JSON.stringify(EngineState, null, 2)).then(() => sysLog("JSON copied to clipboard."));
     });
     document.getElementById('btnImport').addEventListener('click', () => {
         const val = document.getElementById('importJsonStr').value;
@@ -625,7 +696,6 @@
         const file = e.target.files[0];
         if (!file) return;
         
-        // AUDIT FIX: Purge old blob URLs to prevent RAM hemorrhage
         if (currentBlobUrl) URL.revokeObjectURL(currentBlobUrl);
         currentBlobUrl = URL.createObjectURL(file);
         
@@ -690,17 +760,18 @@
         }
     }
 
-    function checkBounds(n, dir, w, h, cx, cy) {
+    // AUDIT FIX 3: Dynamic Padding based on Shape Size
+    function checkBounds(n, dir, w, h, cx, cy, pad) {
         if (dir === 'float') {
-            if (n.x < 0 || n.x > w) n.vx *= -1;
-            if (n.y < 0 || n.y > h) n.vy *= -1;
+            if (n.x < -pad || n.x > w+pad) n.vx *= -1;
+            if (n.y < -pad || n.y > h+pad) n.vy *= -1;
         } else {
-            if (n.x < -20 || n.x > w + 20 || n.y < -20 || n.y > h + 20) {
+            if (n.x < -pad || n.x > w + pad || n.y < -pad || n.y > h + pad) {
                 if (dir === 'through') {
                     n.x = cx + (Math.random()*4-2); n.y = cy + (Math.random()*4-2);
                 } else {
-                    if (dir === 'rise') n.y = h + 10;
-                    if (dir === 'sink') n.y = -10;
+                    if (dir === 'rise') n.y = h + pad;
+                    if (dir === 'sink') n.y = -pad;
                     n.x = Math.random() * w;
                 }
             }
@@ -709,16 +780,24 @@
 
     function renderParticleLayer(ctx, arr, isBG, bassAvg, w, h, prm, colorStr, activeGlow) {
         const cx = w/2, cy = h/2;
-        const collisionSq = (prm.size * 2) ** 2;
+        
+        const baseSize = prm?.size ?? (isBG ? 2 : 5);
+        const baseVelocity = prm?.velocity ?? 1.5;
+        const dir = prm?.direction ?? 'float';
+        const rTarget = prm?.reactiveTarget ?? 'size';
+        const collisionsEnabled = prm?.collisions ?? false;
+        
+        const speedMult = isBG ? (prm?.speed ?? 0.5) : (baseVelocity * (rTarget === 'velocity' ? 1 + (bassAvg/255)*5 : 1));
+        const sizeMult = isBG ? baseSize : (rTarget === 'size' ? baseSize * (1 + (bassAvg/255)*2) : baseSize);
+        const collisionSq = (sizeMult * 2) ** 2;
+        const padding = sizeMult * 2;
 
         for (let i = 0; i < arr.length; i++) {
             const n1 = arr[i];
-            const speedMult = isBG ? prm.speed : (prm.reactiveTarget === 'velocity' ? 1 + (bassAvg/255)*5 : 1);
-            const sizeMult = isBG ? prm.size : (prm.reactiveTarget === 'size' ? prm.size * (1 + (bassAvg/255)*2) : prm.size);
+            
+            updateVectors(n1, dir, speedMult, w, h, cx, cy);
 
-            updateVectors(n1, prm.direction, isBG ? speedMult : prm.velocity * speedMult, w, h, cx, cy);
-
-            if (!isBG && prm.collisions) {
+            if (!isBG && collisionsEnabled) {
                 for (let j = i + 1; j < arr.length; j++) {
                     const n2 = arr[j];
                     let dx = n1.x - n2.x; let dy = n1.y - n2.y;
@@ -738,21 +817,21 @@
             }
 
             n1.x += n1.vx; n1.y += n1.vy;
-            checkBounds(n1, prm.direction, w, h, cx, cy);
+            checkBounds(n1, dir, w, h, cx, cy, padding);
 
             ctx.fillStyle = colorStr; ctx.strokeStyle = colorStr; ctx.lineWidth = 2;
             
-            // AUDIT FIX: Restore active glow specifically for shape rendering without polluting global state
-            if (!isBG && prm.reactiveTarget === 'glow') {
+            if (!isBG && rTarget === 'glow') {
                 ctx.shadowBlur = (bassAvg/255) * 30; ctx.shadowColor = colorStr;
             } else if (!isBG) {
                 ctx.shadowBlur = activeGlow; ctx.shadowColor = colorStr;
             } else {
-                ctx.shadowBlur = 0; // BG layers have no glow to save CPU
+                ctx.shadowBlur = 0; 
             }
             
-            drawShape(ctx, isBG ? 'circle' : prm.shape, n1.x, n1.y, sizeMult);
-            ctx.shadowBlur = 0; // Reset for next loop iteration
+            const shapeType = isBG ? 'circle' : (prm?.shape ?? 'circle');
+            drawShape(ctx, shapeType, n1.x, n1.y, sizeMult);
+            ctx.shadowBlur = 0; 
         }
     }
 
@@ -764,8 +843,6 @@
         offCtx.drawImage(mainCanvas, 0, 0);
         
         mainCtx.setTransform(1, 0, 0, 1, 0, 0); 
-        
-        // AUDIT FIX: Prevent Transparent Void corners by repainting background
         mainCtx.fillStyle = bgColor;
         mainCtx.fillRect(0, 0, w, h);
         
@@ -805,6 +882,9 @@
         return bands;
     }
 
+    // Initialize State Once
+    updateStateCache();
+
     // --- MAIN RENDER LOOP ---
     function renderLoop() {
         animId = requestAnimationFrame(renderLoop);
@@ -817,9 +897,9 @@
         if(DOM.canvas.width !== w || DOM.canvas.height !== h) {
             DOM.canvas.width = w; DOM.canvas.height = h;
             offCanvas.width = w; offCanvas.height = h;
-            reconcileNodes(nodesNN, getVal('nnNodeCount'), w, h);
-            reconcileNodes(nodesFO, getVal('foDensity'), w, h);
-            reconcileNodes(nodesBG, getVal('bgDensity'), w, h);
+            reconcileNodes(nodesNN, EngineState.neuralNet?.nodeCount ?? 150, w, h);
+            reconcileNodes(nodesFO, EngineState.floatingObjects?.density ?? 100, w, h);
+            reconcileNodes(nodesBG, EngineState.bgParticles?.density ?? 200, w, h);
         }
         
         const bufferLength = analyserL.frequencyBinCount;
@@ -833,7 +913,8 @@
         for (let i = 0; i < bassBounds; i++) bassSum += dataL[i];
         const bassAvg = bassSum / bassBounds;
 
-        const s = buildStateObject();
+        // READ EXCLUSIVELY FROM FAST MEMORY CACHE
+        const s = EngineState; 
         
         // 1. Matrix Reset & Frame Clear
         ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -842,7 +923,6 @@
             cBg = themes[s.theme].bg; cPri = themes[s.theme].primary; cSec = themes[s.theme].secondary;
         }
         
-        // AUDIT FIX: Sync the DOM body to the canvas background to mask Quake Bleed
         document.body.style.backgroundColor = cBg;
         
         ctx.fillStyle = cBg;
@@ -860,7 +940,7 @@
         const dynamicGlow = s.render.glow + ((bassAvg / 255) * s.render.glow * s.modifiers.bloomIntensity);
         const activeGlow = s.modifiers.bassBloom ? dynamicGlow : s.render.glow;
 
-        // 3. Background Layer (No glow for performance)
+        // 3. Background Layer
         ctx.shadowBlur = 0;
         if (s.bgParticles.enabled) {
             renderParticleLayer(ctx, nodesBG, true, bassAvg, w, h, s.bgParticles, cSec, 0);
@@ -900,9 +980,9 @@
                     if (s.modifiers.ghostTrails) ctx.fillRect(x, h - pkH - 2, barW, 2);
                 } else {
                     const cx = w/2;
-                    ctx.fillRect(cx + (i * totalW), h - bhR, barW, bhR); // Right
+                    ctx.fillRect(cx + (i * totalW), h - bhR, barW, bhR); 
                     if (s.modifiers.ghostTrails) ctx.fillRect(cx + (i * totalW), h - pkH - 2, barW, 2);
-                    if (i > 0) { // Left
+                    if (i > 0) { 
                         ctx.fillRect(cx - (i * totalW), h - bhL, barW, bhL);
                         if (s.modifiers.ghostTrails) ctx.fillRect(cx - (i * totalW), h - pkH - 2, barW, 2);
                     }
@@ -977,8 +1057,34 @@
             const ringSpacing = maxRadius / m.ringCount;
 
             if (m.showCorePlanet) {
-                const dynSize = m.planetReactive ? m.coreSize + ((dataL[0]/255) * m.coreSize*0.5) : m.coreSize;
-                ctx.beginPath(); ctx.fillStyle = cPri; ctx.arc(0, 0, dynSize, 0, Math.PI * 2); ctx.fill();
+                const baseCoreSize = m.coreSize ?? 40;
+                const dynSize = m.planetReactive ? baseCoreSize + ((dataL[0]/255) * baseCoreSize*0.5) : baseCoreSize;
+                
+                const planetGrad = ctx.createRadialGradient(
+                    -dynSize * 0.3, -dynSize * 0.3, 0,
+                    0, 0, dynSize
+                );
+                
+                let pr = 68, pg = 68, pb = 68;
+                if (cPri.length === 7) {
+                    const prgb = parseInt(cPri.slice(1), 16);
+                    pr = Math.floor(((prgb >> 16) & 255) * 0.4);
+                    pg = Math.floor(((prgb >> 8) & 255) * 0.4);
+                    pb = Math.floor((prgb & 255) * 0.4);
+                }
+                
+                planetGrad.addColorStop(0, `rgb(${pr}, ${pg}, ${pb})`);
+                planetGrad.addColorStop(0.5, '#000000');
+                planetGrad.addColorStop(1, '#000000');
+                
+                ctx.beginPath(); 
+                ctx.fillStyle = planetGrad; 
+                ctx.arc(0, 0, dynSize, 0, Math.PI * 2); 
+                ctx.fill();
+
+                ctx.lineWidth = 1.5;
+                ctx.strokeStyle = cPri;
+                ctx.stroke();
             }
 
             for(let i=0; i<m.ringCount; i++) {
@@ -989,7 +1095,6 @@
                 ctx.beginPath();
                 ctx.lineWidth = 1 + (intensity * 4);
                 
-                let rgbBase = cSec;
                 if(cSec.length === 7) {
                     const rgb = parseInt(cSec.slice(1), 16);
                     ctx.strokeStyle = `rgba(${(rgb>>16)&255}, ${(rgb>>8)&255}, ${rgb&255}, ${0.2 + intensity*0.8})`;
@@ -1006,10 +1111,19 @@
         }
         else if (mode === 'neural-net') {
             const nn = s.neuralNet;
-            const dynRadius = nn.connectionRadius * (1 + ((bassAvg/255) * nn.synapticMultiplier));
+            
+            const nDir = nn?.direction ?? 'through';
+            const nVel = nn?.velocity ?? 1.5;
+            const nSize = nn?.nodeSize ?? 2;
+            const cRad = nn?.connectionRadius ?? 80;
+            const sMult = nn?.synapticMultiplier ?? 2.5;
+            const nCol = nn?.collisions ?? true;
+
+            const dynRadius = cRad * (1 + ((bassAvg/255) * sMult));
             const radiusSq = dynRadius * dynRadius;
-            const collisionSq = (nn.nodeSize * 2) ** 2;
+            const collisionSq = (nSize * 2) ** 2;
             const cx = w / 2, cy = h / 2;
+            
             let hr = 217, hg = 70, hb = 239;
             if(cPri.length === 7) {
                 const prgb = parseInt(cPri.slice(1), 16);
@@ -1018,7 +1132,7 @@
 
             for (let i = 0; i < nodesNN.length; i++) {
                 const n1 = nodesNN[i];
-                updateVectors(n1, nn.direction, nn.velocity, w, h, cx, cy);
+                updateVectors(n1, nDir, nVel, w, h, cx, cy);
 
                 for (let j = i + 1; j < nodesNN.length; j++) {
                     const n2 = nodesNN[j];
@@ -1034,26 +1148,26 @@
                         ctx.stroke();
                     }
 
-                    if (nn.collisions && distSq < collisionSq) {
+                    if (nCol && distSq < collisionSq) {
                         const dist = Math.sqrt(distSq);
                         const nx = dx/dist, ny = dy/dist;
                         const p = (n1.vx*nx + n1.vy*ny - n2.vx*nx - n2.vy*ny);
                         n1.vx -= p*nx; n1.vy -= p*ny; n2.vx += p*nx; n2.vy += p*ny;
-                        const overlap = (nn.nodeSize*2) - dist;
+                        const overlap = (nSize*2) - dist;
                         n1.x += nx*(overlap/2.1); n1.y += ny*(overlap/2.1);
                         n2.x -= nx*(overlap/2.1); n2.y -= ny*(overlap/2.1);
                     }
                 }
                 
                 n1.x += n1.vx; n1.y += n1.vy;
-                checkBounds(n1, nn.direction, w, h, cx, cy);
+                checkBounds(n1, nDir, w, h, cx, cy, nSize * 2);
                 
-                ctx.beginPath(); ctx.fillStyle = cSec; ctx.arc(n1.x, n1.y, nn.nodeSize, 0, Math.PI * 2); ctx.fill();
+                ctx.beginPath(); ctx.fillStyle = cSec; ctx.arc(n1.x, n1.y, nSize, 0, Math.PI * 2); ctx.fill();
             }
         }
 
         // 6. Fractal Multiplier (Matrix-Safe)
-        ctx.shadowBlur = 0; // Disable shadow before copying to buffer
+        ctx.shadowBlur = 0; 
         applyKaleidoscope(ctx, DOM.canvas, s.modifiers.fractalMultiplier, cBg);
 
         // 7. Screen Shake (DOM Translation applied to wrapper)
@@ -1067,12 +1181,6 @@
             isShaking = false;
         }
     }
-
-    // Init 
-    syncUI();
-    reconcileNodes(nodesNN, getVal('nnNodeCount'), window.innerWidth, window.innerHeight);
-    reconcileNodes(nodesFO, getVal('foDensity'), window.innerWidth, window.innerHeight);
-    reconcileNodes(nodesBG, getVal('bgDensity'), window.innerWidth, window.innerHeight);
 
 </script>
 </body>
