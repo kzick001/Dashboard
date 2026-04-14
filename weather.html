@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kzick Weather Hub v1.0.2</title>
+    <title>Kzick Weather Hub v1.1.0</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23020617'/><path d='M50 15 L20 50 L45 50 L40 85 L80 40 L55 40 Z' fill='%2306b6d4'/></svg>">
     
     <script src="https://cdn.tailwindcss.com"></script>
@@ -13,22 +13,14 @@
             darkMode: 'class',
             theme: {
                 extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'monospace'],
-                    },
-                    colors: {
-                        cyan: { 400: '#22d3ee', 500: '#06b6d4', 800: '#155e75', 950: '#083344' }
-                    },
+                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'], },
+                    colors: { cyan: { 400: '#22d3ee', 500: '#06b6d4', 800: '#155e75', 950: '#083344' } },
                     animation: {
                         'scanline': 'scanline 4s linear infinite',
                         'electric-pulse': 'electricPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                     },
                     keyframes: {
-                        scanline: {
-                            '0%': { transform: 'translateY(-100%)' },
-                            '100%': { transform: 'translateY(1000%)' },
-                        },
+                        scanline: { '0%': { transform: 'translateY(-100%)' }, '100%': { transform: 'translateY(1000%)' }, },
                         electricPulse: {
                             '0%, 100%': { opacity: 1, borderColor: 'rgba(220, 38, 38, 0.5)', boxShadow: '0 0 10px rgba(220, 38, 38, 0.3)' },
                             '50%': { opacity: .8, borderColor: 'rgba(220, 38, 38, 1)', boxShadow: '0 0 20px rgba(220, 38, 38, 0.8)' },
@@ -44,8 +36,7 @@
             background-image: radial-gradient(at 0% 0%, hsla(192, 100%, 11%, 1) 0, transparent 50%), 
                               radial-gradient(at 50% 0%, hsla(217, 100%, 6%, 1) 0, transparent 50%), 
                               radial-gradient(at 100% 0%, hsla(192, 100%, 11%, 1) 0, transparent 50%);
-            background-attachment: fixed;
-            color: #f1f5f9;
+            background-attachment: fixed; color: #f1f5f9;
         }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #0f172a; border-radius: 3px; }
@@ -53,37 +44,16 @@
         
         .hover-scale { transition: transform 0.2s ease-out; }
         .hover-scale:hover { transform: translateY(-2px); }
-
         .radar-layer { transition: opacity 0.1s ease-in-out; }
         
-        .doom-circle {
-            transition: stroke-dashoffset 1s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.5s ease;
-            transform: rotate(-90deg);
-            transform-origin: 50% 50%;
-        }
+        .doom-circle { transition: stroke-dashoffset 1s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.5s ease; transform: rotate(-90deg); transform-origin: 50% 50%; }
 
-        input[type=range] {
-            -webkit-appearance: none;
-            background: transparent;
-        }
+        input[type=range] { -webkit-appearance: none; background: transparent; }
         input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            height: 16px; width: 16px;
-            border-radius: 50%;
-            background: #06b6d4;
-            cursor: pointer;
-            margin-top: -6px;
-            transition: transform 0.1s;
+            -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%; background: #06b6d4; cursor: pointer; margin-top: -6px; transition: transform 0.1s;
         }
-        input[type=range]::-webkit-slider-thumb:hover {
-            transform: scale(1.2);
-        }
-        input[type=range]::-webkit-slider-runnable-track {
-            width: 100%; height: 4px;
-            cursor: pointer;
-            background: rgba(6, 182, 212, 0.3);
-            border-radius: 2px;
-        }
+        input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: rgba(6, 182, 212, 0.3); border-radius: 2px; }
         
         #radar-clip-window { touch-action: none; } 
         #radar-drag-layer { cursor: grab; transform-origin: 50% 50%; will-change: transform; transition: transform 0.05s linear; }
@@ -91,8 +61,10 @@
 
         details > summary { list-style: none; }
         details > summary::-webkit-details-marker { display: none; }
-        
         .live-text-shadow { text-shadow: 0 0 10px rgba(34, 211, 238, 0.3); }
+
+        /* Strike Zone Bars */
+        .strike-bar { transition: height 0.5s ease, background-color 0.5s ease; }
     </style>
 </head>
 <body class="min-h-screen p-4 md:p-8 font-sans relative">
@@ -101,30 +73,23 @@
         <a href="https://kzick001.github.io/dashboard/" class="text-xs font-black text-cyan-700 hover:text-cyan-400 transition-colors tracking-widest uppercase flex items-center gap-2">
             <span>&larr;</span> Return to Dashboard
         </a>
-        <span class="mt-1 font-mono text-[10px] px-2 py-0.5 bg-cyan-950/80 text-cyan-400 border border-cyan-500/30 rounded tracking-widest">SYS V1.0.2</span>
+        <span class="mt-1 font-mono text-[10px] px-2 py-0.5 bg-cyan-950/80 text-cyan-400 border border-cyan-500/30 rounded tracking-widest">SYS V1.1.0 SECURE</span>
     </div>
 
     <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 relative mt-16 md:mt-20">
 
-        <!-- MODULE 1: TOP COMMAND BAR -->
         <div class="relative bg-slate-900/80 backdrop-blur-sm rounded-xl shadow-lg border border-cyan-500/20 p-6 hover-scale overflow-hidden group lg:col-span-3">
             <div class="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent via-cyan-500/5 to-transparent h-20 w-full animate-scanline opacity-20"></div>
-            
             <div class="mt-2 flex flex-col md:flex-row justify-between items-center gap-6">
-                
                 <div class="flex-1 w-full text-center md:text-left">
                     <h1 class="text-3xl font-bold tracking-tight text-slate-100" id="ui-location-name">St. Louis Park, MN</h1>
                     <p class="font-mono text-cyan-400 text-sm mt-1" id="ui-coords">LAT: 44.9483 | LON: -93.3666</p>
                     <div class="flex mt-4 w-full max-w-sm relative z-10 mx-auto md:mx-0">
                         <input type="text" id="location-input" placeholder="Zip code or City..." class="bg-slate-950/50 border border-cyan-500/30 text-slate-200 font-mono text-sm px-4 py-2 rounded-l outline-none focus:border-cyan-400 w-full">
-                        <button id="location-btn" class="bg-cyan-950/80 border border-cyan-500/30 text-cyan-400 font-mono text-sm px-4 py-2 rounded-r hover:bg-cyan-900 hover:text-cyan-300 transition-colors">
-                            OVERRIDE
-                        </button>
+                        <button id="location-btn" class="bg-cyan-950/80 border border-cyan-500/30 text-cyan-400 font-mono text-sm px-4 py-2 rounded-r hover:bg-cyan-900 hover:text-cyan-300 transition-colors">OVERRIDE</button>
                     </div>
                 </div>
-                
                 <div class="flex items-center space-x-6 md:space-x-8 bg-slate-950/40 p-4 rounded border border-slate-700/50 relative z-10 w-full md:w-auto justify-center">
-                    
                     <div class="flex flex-col items-center">
                         <span class="text-[10px] font-mono text-slate-400 tracking-widest mb-2">US AQI</span>
                         <div id="ui-aqi-ring" class="w-16 h-16 rounded-full border-4 border-cyan-500 flex items-center justify-center transition-colors duration-500">
@@ -132,9 +97,7 @@
                         </div>
                         <span id="ui-aqi-desc-top" class="text-[10px] font-mono mt-2 uppercase tracking-wider text-cyan-400 transition-colors duration-500 text-center w-24">SCANNING</span>
                     </div>
-
                     <div class="w-px h-16 bg-slate-700/50"></div>
-
                     <div class="relative flex flex-col items-center">
                         <span class="text-[10px] font-mono text-slate-400 tracking-widest mb-2">DOOM INDEX</span>
                         <div class="relative w-16 h-16">
@@ -149,15 +112,12 @@
                         </div>
                         <span id="ui-doom-desc" class="text-[10px] font-mono mt-2 uppercase tracking-wider text-cyan-400 text-center w-24">AWAITING</span>
                     </div>
-
                 </div>
             </div>
         </div>
 
-        <!-- MODULE 2: CURRENTLY -->
         <div class="relative bg-slate-900/80 backdrop-blur-sm rounded-xl shadow-lg border border-cyan-500/20 p-6 hover-scale overflow-hidden group lg:col-span-1">
             <div class="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent via-cyan-500/5 to-transparent h-20 w-full animate-scanline opacity-20"></div>
-            
             <div class="mt-2 relative z-10">
                 <div class="flex items-center space-x-3 mb-4">
                     <div class="w-10 h-10 flex items-center justify-center rounded bg-cyan-950/60 border border-cyan-500/30 group-hover:border-cyan-400 transition-colors relative">
@@ -169,10 +129,8 @@
                         <span class="text-[8px] font-mono text-cyan-500 tracking-widest">LIVE INTERPOLATION</span>
                     </div>
                 </div>
-                
                 <div class="font-mono text-5xl text-white mt-2 live-text-shadow" id="ui-current-temp">--</div>
                 <div class="font-mono text-sm text-cyan-400 mt-2 mb-6" id="ui-current-desc">> Fetching arrays...</div>
-                
                 <div class="pt-4 border-t border-slate-700/50 space-y-3 font-mono text-sm text-slate-300">
                     <div class="flex justify-between"><span>HUMIDITY</span> <span id="ui-hum" class="text-cyan-400">--%</span></div>
                     <div class="flex justify-between"><span>WIND</span> <span id="ui-wind" class="text-cyan-400 live-text-shadow">--</span></div>
@@ -182,17 +140,14 @@
             </div>
         </div>
 
-        <!-- MODULE 3: 10-DAY FORECAST -->
         <div class="relative bg-slate-900/80 backdrop-blur-sm rounded-xl shadow-lg border border-cyan-500/20 p-6 hover-scale overflow-hidden group lg:col-span-2 flex flex-col">
             <div class="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent via-cyan-500/5 to-transparent h-20 w-full animate-scanline opacity-20"></div>
-            
             <div class="mt-2 flex items-center space-x-3 mb-6 relative z-10">
                 <div class="w-10 h-10 flex items-center justify-center rounded bg-cyan-950/60 border border-cyan-500/30 group-hover:border-cyan-400 transition-colors">
                     <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                 </div>
                 <h2 class="text-xl font-bold truncate text-slate-100">10-Day Forecast</h2>
             </div>
-
             <div class="overflow-x-auto relative z-10 pb-4 flex-1 flex items-start custom-scrollbar">
                 <div class="flex space-x-4 min-w-max w-full" id="forecast-container">
                     <div class="font-mono text-sm text-cyan-400 animate-pulse">> Compiling meteorological payload...</div>
@@ -200,24 +155,20 @@
             </div>
         </div>
 
-        <!-- MODULE 4: NWS ALERTS -->
         <div class="relative bg-slate-900/80 backdrop-blur-sm rounded-xl shadow-lg border border-cyan-500/20 p-6 hover-scale overflow-hidden group lg:col-span-3">
             <div class="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent via-cyan-500/5 to-transparent h-20 w-full animate-scanline opacity-20"></div>
-            
             <div class="mt-2 flex items-center space-x-3 mb-4 relative z-10">
                 <div class="w-10 h-10 flex items-center justify-center rounded bg-cyan-950/60 border border-cyan-500/30 group-hover:border-cyan-400 transition-colors">
                     <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                 </div>
                 <h2 class="text-xl font-bold truncate text-slate-100">National Weather Service Alerts</h2>
             </div>
-            
             <div class="relative z-10 bg-slate-950/50 border border-red-500/20 p-3 rounded max-h-32 overflow-y-auto" id="alerts-container">
                 <div class="font-mono text-xs text-cyan-400 animate-pulse">> Connecting to NWS point node...</div>
             </div>
         </div>
 
-        <!-- MODULE 5: LIVE RADAR (Temporal Loading Engine) -->
-        <div class="relative bg-slate-900/80 backdrop-blur-sm rounded-xl shadow-lg border border-cyan-500/20 p-6 overflow-hidden group lg:col-span-3 flex flex-col h-[700px]">
+        <div class="relative bg-slate-900/80 backdrop-blur-sm rounded-xl shadow-lg border border-cyan-500/20 p-6 overflow-hidden group lg:col-span-3 flex flex-col h-[750px]">
             <div class="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent via-cyan-500/5 to-transparent h-20 w-full animate-scanline opacity-20 z-0"></div>
             
             <div class="mt-2 flex justify-between items-center mb-4 relative z-10">
@@ -226,7 +177,7 @@
                         <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
                     </div>
                     <div class="flex flex-col">
-                        <h2 class="text-xl font-bold truncate text-slate-100">Live Radar</h2>
+                        <h2 class="text-xl font-bold truncate text-slate-100">Live Radar & Strike-Zone</h2>
                     </div>
                 </div>
                 <div class="flex items-center space-x-3">
@@ -234,8 +185,20 @@
                 </div>
             </div>
 
+            <div class="relative z-10 w-full bg-slate-950/60 border border-slate-700/50 rounded p-4 mb-4">
+                <div class="flex justify-between items-center mb-3">
+                    <span class="text-[10px] font-mono text-slate-400 tracking-widest uppercase">60-Min Precipitation Vector</span>
+                    <span class="text-[10px] font-mono text-cyan-500" id="strike-zone-status">SECURE PROXY LINKED</span>
+                </div>
+                <div class="w-full h-16 flex items-end justify-between border-b border-slate-700/50 pb-1 gap-[1px]" id="ui-strike-zone">
+                    <div class="w-full h-full flex items-center justify-center font-mono text-xs text-cyan-400 animate-pulse">> Booting proxy tunnel...</div>
+                </div>
+                <div class="flex justify-between mt-1 text-[8px] font-mono text-slate-500">
+                    <span>NOW</span><span>+15m</span><span>+30m</span><span>+45m</span><span>+60m</span>
+                </div>
+            </div>
+
             <div class="relative flex-1 bg-[#1e1e1e] rounded border border-cyan-500/30 overflow-hidden z-10" id="radar-clip-window">
-                
                 <button id="radar-reset" class="absolute top-4 left-4 bg-slate-900/90 backdrop-blur border border-slate-700 hover:border-cyan-500 text-slate-300 hover:text-cyan-400 font-mono px-3 py-2 rounded transition-colors shadow-lg z-30" title="Recenter Map">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                 </button>
@@ -261,12 +224,10 @@
                 <div class="absolute bottom-4 left-4 right-4 bg-slate-950/80 backdrop-blur rounded p-3 border border-slate-700/50 z-30 flex flex-wrap md:flex-nowrap items-center gap-4 shadow-xl">
                     <button id="radar-play" class="bg-cyan-950 border border-cyan-500 text-cyan-400 font-mono text-xs px-4 py-2 rounded hover:bg-cyan-900 hover:text-white transition-colors w-24">PAUSE</button>
                     <button id="radar-speed-btn" class="bg-slate-800 border border-slate-600 text-slate-300 font-mono text-xs px-3 py-2 rounded hover:bg-slate-700 transition-colors w-16">1x</button>
-                    
                     <div class="flex-1 flex items-center space-x-3 px-2 border-l border-slate-700 min-w-[150px]">
                         <span class="text-[10px] font-mono text-slate-400 hidden sm:inline">TIME</span>
                         <input type="range" id="radar-scrubber" min="0" max="10" step="1" value="0" class="flex-1">
                     </div>
-                    
                     <div class="flex items-center space-x-3 px-2 border-l border-slate-700 w-32 md:max-w-[200px]">
                         <span class="text-[10px] font-mono text-slate-400 hidden sm:inline">OPACITY</span>
                         <input type="range" id="radar-opacity-slider" min="0" max="1" step="0.01" value="1" class="flex-1">
@@ -280,9 +241,13 @@
 
     <script>
         /**
-         * THE ENGINE ROOM. V1.0.2.
-         * Execution strictly Vanilla JS. 
+         * THE ENGINE ROOM. V1.1.0.
+         * Secured via Cloudflare Worker Proxy
          */
+
+        // CRITICAL: Pointing directly to the Cloudflare Worker URL
+        const PROXY_URL = "https://kzick-weather.askozicki.workers.dev";
+
         const AppState = {
             lat: 44.9483,
             lon: -93.3666,
@@ -293,7 +258,7 @@
             radarSpeedIndex: 1, 
             radarSpeeds: [2000, 1000, 500, 250], 
             radarMaxFrames: 0,
-            radarZoom: 8, // V1.0.2 - Default High Res Zoom
+            radarZoom: 8, 
             radarCachedJson: null
         };
 
@@ -304,17 +269,12 @@
                     if (cached) {
                         const parsed = JSON.parse(cached);
                         const age = Date.now() - parsed.timestamp;
-                        if (age < ttlMs) {
-                            return parsed.data; 
-                        }
+                        if (age < ttlMs) return parsed.data; 
                     }
-
                     const res = await fetch(url);
                     const data = await res.json();
-                    
                     sessionStorage.setItem(`kzick_weather_${endpointKey}`, JSON.stringify({
-                        timestamp: Date.now(),
-                        data: data
+                        timestamp: Date.now(), data: data
                     }));
                     return data;
                 }
@@ -342,7 +302,6 @@
                     nodes.temp.nodeValue = cTemp.toFixed(1) + '°F';
                     nodes.wind.nodeValue = cWind.toFixed(1) + ' mph';
                     nodes.pres.nodeValue = cPres.toFixed(1) + ' hPa';
-                    
                     lastTick = timestamp;
                 }
                 rafId = requestAnimationFrame(tick);
@@ -360,9 +319,7 @@
                     
                     rafId = requestAnimationFrame(tick);
                 },
-                updateBase: (t, w, p) => {
-                    bTemp = t; bWind = w; bPres = p;
-                }
+                updateBase: (t, w, p) => { bTemp = t; bWind = w; bPres = p; }
             }
         })();
 
@@ -372,16 +329,14 @@
             locInput: document.getElementById('location-input'),
             locBtn: document.getElementById('location-btn'),
             
-            curDesc: document.getElementById('ui-current-desc'),
-            curHum: document.getElementById('ui-hum'),
-            curUv: document.getElementById('ui-uv'),
-            
             aqiRing: document.getElementById('ui-aqi-ring'),
             aqiTop: document.getElementById('ui-aqi-top'),
             aqiDescTop: document.getElementById('ui-aqi-desc-top'),
             
             alerts: document.getElementById('alerts-container'),
             forecast: document.getElementById('forecast-container'),
+            strikeZone: document.getElementById('ui-strike-zone'),
+            strikeStatus: document.getElementById('strike-zone-status'),
             
             radarClip: document.getElementById('radar-clip-window'),
             radarDrag: document.getElementById('radar-drag-layer'),
@@ -419,7 +374,7 @@
         const Pipeline = (function() {
             
             async function geocodeAndSync(query) {
-                DOM.locInput.value = "Syncing pipeline...";
+                DOM.locInput.value = "Syncing...";
                 DOM.locInput.disabled = true;
                 try {
                     const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=1&language=en&format=json`);
@@ -441,28 +396,22 @@
                     } else {
                         alert("Geocoding failed. Location unrecognized.");
                     }
-                } catch(e) {
-                    console.error("Geocoding Error", e);
-                } finally {
-                    DOM.locInput.value = "";
-                    DOM.locInput.disabled = false;
-                }
+                } catch(e) { console.error(e); } finally { DOM.locInput.value = ""; DOM.locInput.disabled = false; }
             }
 
             async function fetchWeatherData(isMicroSync = false) {
                 const url = `https://api.open-meteo.com/v1/forecast?latitude=${AppState.lat}&longitude=${AppState.lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,surface_pressure,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,uv_index_max,precipitation_probability_max,wind_speed_10m_max,relative_humidity_2m_max&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&timezone=auto&forecast_days=10`;
                 const data = await CacheEngine.fetchWithCache(isMicroSync ? 'weather_micro' : 'weather', url, 60000); 
-                
                 const cur = data.current;
-                DOM.curDesc.textContent = `> ${getWeatherDesc(cur.weather_code).toUpperCase()}`;
-                DOM.curHum.textContent = `${cur.relative_humidity_2m}%`;
+                
+                document.getElementById('ui-current-desc').textContent = `> ${getWeatherDesc(cur.weather_code).toUpperCase()}`;
+                document.getElementById('ui-hum').textContent = `${cur.relative_humidity_2m}%`;
                 
                 TelemetrySim.updateBase(cur.temperature_2m, cur.wind_speed_10m, cur.surface_pressure);
                 
                 if(!isMicroSync) {
                     const daily = data.daily;
-                    DOM.curUv.textContent = daily.uv_index_max[0] || '--';
-                    
+                    document.getElementById('ui-uv').textContent = daily.uv_index_max[0] || '--';
                     let forecastHTML = '';
                     for (let i = 0; i < 10; i++) {
                         const date = new Date(daily.time[i]);
@@ -473,39 +422,33 @@
                         const uv = daily.uv_index_max[i] || 0;
                         
                         forecastHTML += `
-                            <details open class="group/day bg-slate-950/60 border border-slate-700/50 rounded p-4 min-w-[200px] hover:border-cyan-500/50 transition-colors cursor-pointer shadow-md">
+                            <details class="group/day bg-slate-950/60 border border-slate-700/50 rounded p-4 min-w-[200px] hover:border-cyan-500/50 transition-colors cursor-pointer shadow-md">
                                 <summary class="list-none marker:hidden outline-none flex flex-col items-center border-b border-transparent group-open/day:border-slate-700/50 pb-2 mb-2 transition-colors">
                                     <span class="font-mono text-xs text-slate-400 mb-2">${dayName}</span>
                                     <div class="flex items-end space-x-2">
                                         <span class="font-mono text-3xl text-white font-bold">${Math.round(daily.temperature_2m_max[i])}°</span>
                                         <span class="font-mono text-sm text-slate-500 pb-1">${Math.round(daily.temperature_2m_min[i])}°</span>
                                     </div>
-                                    <span class="font-mono text-[11px] text-cyan-400 text-center whitespace-normal leading-tight w-full mt-2 min-h-[28px]" title="${getWeatherDesc(daily.weather_code[i])}">
-                                        ${getWeatherDesc(daily.weather_code[i])}
-                                    </span>
+                                    <span class="font-mono text-[11px] text-cyan-400 text-center whitespace-normal leading-tight w-full mt-2 min-h-[28px]">${getWeatherDesc(daily.weather_code[i])}</span>
                                     <span class="text-[10px] font-mono text-slate-500 mt-2 group-open/day:hidden group-hover/day:text-cyan-500 transition-colors">▼ EXPAND DETAILS</span>
                                     <span class="text-[10px] font-mono text-cyan-500 mt-2 hidden group-open/day:block">▲ COLLAPSE</span>
                                 </summary>
-                                
                                 <div class="space-y-2 text-[10px] font-mono text-slate-300">
                                     <div class="flex justify-between items-center"><span>PRECIPITATION</span> <span class="${precip > 40 ? 'text-cyan-400 font-bold' : 'text-slate-400'}">${precip}%</span></div>
                                     <div class="flex justify-between items-center"><span>WIND MAX</span> <span class="${maxWind > 15 ? 'text-yellow-400' : 'text-slate-400'}">${maxWind} mph</span></div>
                                     <div class="flex justify-between items-center"><span>HUMIDITY</span> <span class="text-slate-400">${hum}%</span></div>
                                     <div class="flex justify-between items-center"><span>UV INDEX</span> <span class="${uv > 6 ? 'text-red-400' : 'text-slate-400'}">${uv}</span></div>
                                 </div>
-                            </details>
-                        `;
+                            </details>`;
                     }
                     DOM.forecast.innerHTML = forecastHTML;
                 }
-
                 return { temp: cur.temperature_2m, windSpeed: cur.wind_speed_10m };
             }
 
             async function fetchAQIData() {
                 const url = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${AppState.lat}&longitude=${AppState.lon}&current=us_aqi&timezone=auto`;
                 const data = await CacheEngine.fetchWithCache('aqi', url, 60000); 
-                
                 const aqiVal = data.current.us_aqi;
                 let t = 'HAZARDOUS', tColor = 'text-red-600', bColor = 'border-red-600';
                 
@@ -519,7 +462,6 @@
                 DOM.aqiDescTop.textContent = t;
                 DOM.aqiDescTop.className = `text-[10px] font-mono mt-2 uppercase tracking-wider text-center w-24 transition-colors duration-500 ${tColor}`;
                 DOM.aqiRing.className = `w-16 h-16 rounded-full border-4 flex items-center justify-center transition-colors duration-500 ${bColor} ${aqiVal > 200 ? 'animate-pulse' : ''}`;
-                
                 return aqiVal;
             }
 
@@ -527,7 +469,6 @@
                 try {
                     const url = `https://api.weather.gov/alerts/active?point=${AppState.lat},${AppState.lon}`;
                     const data = await CacheEngine.fetchWithCache('alerts', url, 300000);
-
                     if (data.features && data.features.length > 0) {
                         let html = '';
                         data.features.forEach(f => {
@@ -538,12 +479,11 @@
                                 <div class="border-l-4 ${bColor} pl-3 mb-3 bg-slate-900/80 p-3 rounded-r">
                                     <div class="font-bold text-sm ${tColor} uppercase">${f.properties.event}</div>
                                     <div class="text-xs text-slate-300 font-mono mt-1 leading-relaxed">${f.properties.headline}</div>
-                                </div>
-                            `;
+                                </div>`;
                         });
                         DOM.alerts.innerHTML = html;
                     } else {
-                        DOM.alerts.innerHTML = `<div class="flex items-center h-full opacity-50"><span class="font-mono text-xs text-green-500">> ALL CLEAR. NO HAZARDS DETECTED IN THIS VECTOR.</span></div>`;
+                        DOM.alerts.innerHTML = `<div class="flex items-center h-full opacity-50"><span class="font-mono text-xs text-green-500">> ALL CLEAR. NO HAZARDS DETECTED.</span></div>`;
                     }
                     return data.features || [];
                 } catch(e) {
@@ -552,9 +492,61 @@
                 }
             }
 
+            // THE V1.1 PROXY INTEGRATION: 60-Minute Strike Zone
+            async function fetchStrikeZone() {
+                try {
+                    if (!PROXY_URL || PROXY_URL.trim() === "") {
+                        DOM.strikeZone.innerHTML = `<div class="w-full flex items-center justify-center text-xs text-yellow-500 font-mono">> PROXY_URL NOT CONFIGURED.</div>`;
+                        DOM.strikeStatus.textContent = 'OFFLINE';
+                        DOM.strikeStatus.classList.replace('text-cyan-500', 'text-yellow-500');
+                        return;
+                    }
+
+                    // Secure routing to Cloudflare Worker (5 MIN TTL enforces strict 25/hr rate limit)
+                    const secureUrl = `${PROXY_URL}?lat=${AppState.lat}&lon=${AppState.lon}`;
+                    const data = await CacheEngine.fetchWithCache('tomorrow_strike', secureUrl, 300000); 
+                    
+                    if (data.error) throw new Error(data.error);
+
+                    const minutely = data.timelines?.minutely || [];
+                    if (minutely.length === 0) {
+                        DOM.strikeZone.innerHTML = `<div class="w-full flex items-center justify-center text-xs text-slate-500 font-mono">> NO PRECIPITATION DATA DETECTED.</div>`;
+                        return;
+                    }
+
+                    let html = '';
+                    const ticks = minutely.slice(0, 60); 
+                    
+                    ticks.forEach(m => {
+                        const intensity = m.values.precipitationIntensity || 0; 
+                        let height = 5; 
+                        let colorClass = 'bg-slate-800'; 
+                        
+                        if (intensity > 0) {
+                            height = Math.min(10 + (intensity * 180), 100); 
+                            colorClass = 'bg-cyan-400 shadow-[0_0_6px_rgba(34,211,238,0.6)]';
+                            if (intensity > 0.5) { 
+                                colorClass = 'bg-yellow-400 shadow-[0_0_8px_rgba(250,204,21,0.8)]';
+                            }
+                        }
+                        
+                        html += `<div class="flex-1 rounded-t-sm strike-bar ${colorClass}" style="height: ${height}%; margin: 0 1px;" title="${intensity.toFixed(2)} in/hr"></div>`;
+                    });
+
+                    DOM.strikeZone.innerHTML = html;
+                    DOM.strikeStatus.textContent = 'LINKED & ACTIVE';
+                    DOM.strikeStatus.classList.replace('text-yellow-500', 'text-cyan-500');
+                    DOM.strikeStatus.classList.replace('text-red-500', 'text-cyan-500');
+
+                } catch(e) {
+                    DOM.strikeZone.innerHTML = `<div class="w-full flex items-center justify-center text-xs text-red-500 font-mono">> SECURE PROXY FAILURE.</div>`;
+                    DOM.strikeStatus.textContent = 'ERROR';
+                    DOM.strikeStatus.classList.replace('text-cyan-500', 'text-red-500');
+                }
+            }
+
             function updateDoomIndex(weather, aqi, alerts) {
                 let score = 0;
-                
                 if (aqi > 50) score += Math.min(((aqi - 50) / 150) * 30, 30);
                 if (weather.windSpeed > 15) score += Math.min(((weather.windSpeed - 15) / 25) * 20, 20);
                 
@@ -568,263 +560,123 @@
                 }
 
                 score = Math.floor(score);
-                
                 if (score === 0) {
-                    DOM.doomScore.classList.add('hidden');
-                    DOM.doomGood.classList.remove('hidden');
-                    DOM.doomDesc.textContent = "OPTIMAL";
+                    DOM.doomScore.classList.add('hidden'); DOM.doomGood.classList.remove('hidden'); DOM.doomDesc.textContent = "OPTIMAL";
                 } else {
-                    DOM.doomScore.classList.remove('hidden');
-                    DOM.doomGood.classList.add('hidden');
-                    DOM.doomScore.textContent = score;
-                    DOM.doomDesc.textContent = "THREAT LVL";
+                    DOM.doomScore.classList.remove('hidden'); DOM.doomGood.classList.add('hidden'); DOM.doomScore.textContent = score; DOM.doomDesc.textContent = "THREAT LVL";
                 }
 
-                const circumference = 251.2;
-                const offset = circumference - (score / 100) * circumference;
+                const offset = 251.2 - (score / 100) * 251.2;
                 DOM.doomRing.style.strokeDashoffset = offset;
-
                 DOM.doomRing.classList.remove('text-cyan-400', 'text-yellow-400', 'text-orange-500', 'text-red-600', 'animate-pulse');
                 
-                if (score <= 30) {
-                    DOM.doomRing.classList.add('text-cyan-400');
-                } else if (score <= 60) {
-                    DOM.doomRing.classList.add('text-yellow-400');
-                } else if (score <= 80) {
-                    DOM.doomRing.classList.add('text-orange-500', 'animate-pulse');
-                } else {
-                    DOM.doomRing.classList.add('text-red-600', 'animate-pulse');
-                }
+                if (score <= 30) DOM.doomRing.classList.add('text-cyan-400');
+                else if (score <= 60) DOM.doomRing.classList.add('text-yellow-400');
+                else if (score <= 80) DOM.doomRing.classList.add('text-orange-500', 'animate-pulse');
+                else DOM.doomRing.classList.add('text-red-600', 'animate-pulse');
             }
 
-            // --- V1.0.2 TEMPORAL LAZY LOADING ENGINE ---
-            let currentRadarFrame = 0;
-            let isRadarPlaying = true;
-            let radarPanX = 0, radarPanY = 0;
-            let zoomDebounceTimer = null;
-            let visualScale = 1;
+            let currentRadarFrame = 0, isRadarPlaying = true, radarPanX = 0, radarPanY = 0, zoomDebounceTimer = null, visualScale = 1;
 
-            // Helper function to turn data-src into src for a specific layer
             function triggerLazyLoadForLayer(layerIdx) {
                 const layer = document.getElementById(`radar-layer-${layerIdx}`);
                 if (!layer) return;
-                const lazyImages = layer.querySelectorAll('img[data-src]');
-                lazyImages.forEach(img => {
-                    img.src = img.getAttribute('data-src');
-                    img.removeAttribute('data-src');
-                });
+                layer.querySelectorAll('img[data-src]').forEach(img => { img.src = img.getAttribute('data-src'); img.removeAttribute('data-src'); });
             }
 
             async function buildRadarEngine(forceRefresh = false) {
                 DOM.radarLoader.style.opacity = '1';
-                
                 if (AppState.radarInterval) clearInterval(AppState.radarInterval);
 
                 try {
                     const data = await CacheEngine.fetchWithCache('radar_timestamps', 'https://api.rainviewer.com/public/weather-maps.json', 300000);
-                    AppState.radarCachedJson = data;
-                    AppState.radarMaxFrames = data.radar.past.length;
-                    DOM.radarScrubber.max = AppState.radarMaxFrames - 1;
+                    AppState.radarCachedJson = data; AppState.radarMaxFrames = data.radar.past.length; DOM.radarScrubber.max = AppState.radarMaxFrames - 1;
                     
-                    const host = data.host;
-                    const past = data.radar.past;
+                    const host = data.host, past = data.radar.past, zoom = AppState.radarZoom;
+                    const latRad = AppState.lat * Math.PI / 180, n = Math.pow(2, zoom);
+                    const center_x = parseInt((AppState.lon + 180.0) / 360.0 * n), center_y = parseInt((1.0 - Math.log(Math.tan(latRad) + (1 / Math.cos(latRad))) / Math.PI) / 2.0 * n);
 
-                    const zoom = AppState.radarZoom;
-                    const latRad = AppState.lat * Math.PI / 180;
-                    const n = Math.pow(2, zoom);
-                    const center_x = parseInt((AppState.lon + 180.0) / 360.0 * n);
-                    const center_y = parseInt((1.0 - Math.log(Math.tan(latRad) + (1 / Math.cos(latRad))) / Math.PI) / 2.0 * n);
-
-                    let baseHTML = '';
-                    let framesHTMLArray = past.map(() => ''); 
-                    
-                    const tileSize = 256;
-                    // Dialed to 5x5 Grid
-                    const gridOffset = 2; 
+                    let baseHTML = '', framesHTMLArray = past.map(() => ''); 
+                    const tileSize = 256, gridOffset = 2; 
                     
                     for(let y = center_y - gridOffset, row = 0; y <= center_y + gridOffset; y++, row++) {
                         for(let x = center_x - gridOffset, col = 0; x <= center_x + gridOffset; x++, col++) {
-                            const left = col * tileSize;
-                            const top = row * tileSize;
-                            
-                            // Base map loads instantly
+                            const left = col * tileSize, top = row * tileSize;
                             baseHTML += `<img src="https://a.basemaps.cartocdn.com/dark_all/${zoom}/${x}/${y}.png" class="absolute w-[256px] h-[256px] radar-tile" style="left:${left}px; top:${top}px;" draggable="false">`;
-                            
                             past.forEach((frame, fIndex) => {
                                 const url = `${host}${frame.path}/256/${zoom}/${x}/${y}/2/1_1.png`;
-                                // V1.0.2 - Set to data-src to prevent 429 requests
                                 framesHTMLArray[fIndex] += `<img data-src="${url}" class="absolute w-[256px] h-[256px] radar-tile" style="left:${left}px; top:${top}px;" draggable="false" onerror="this.onerror=null; this.src='data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs='">`;
                             });
                         }
                     }
 
                     const vpRect = DOM.radarClip.getBoundingClientRect();
-                    const gridPixelSize = (gridOffset * 2 + 1) * tileSize; // 5 * 256 = 1280px
+                    const gridPixelSize = (gridOffset * 2 + 1) * tileSize; 
                     
-                    radarPanX = (vpRect.width / 2) - (gridPixelSize / 2);
-                    radarPanY = (vpRect.height / 2) - (gridPixelSize / 2);
-                    visualScale = 1; 
+                    radarPanX = (vpRect.width / 2) - (gridPixelSize / 2); radarPanY = (vpRect.height / 2) - (gridPixelSize / 2); visualScale = 1; 
 
                     DOM.radarDrag.style.transform = `translate(${radarPanX}px, ${radarPanY}px) scale(${visualScale})`;
-
                     DOM.radarBase.innerHTML = baseHTML;
                     
                     let compiledFrames = '';
-                    past.forEach((frame, index) => {
-                        compiledFrames += `
-                            <div id="radar-layer-${index}" class="absolute inset-0 radar-layer" style="opacity: ${index === 0 ? 1 : 0};" data-time="${frame.time}">
-                                ${framesHTMLArray[index]}
-                            </div>
-                        `;
-                    });
+                    past.forEach((frame, index) => { compiledFrames += `<div id="radar-layer-${index}" class="absolute inset-0 radar-layer" style="opacity: ${index === 0 ? 1 : 0};" data-time="${frame.time}">${framesHTMLArray[index]}</div>`; });
                     DOM.radarFrames.innerHTML = compiledFrames;
 
                     const setFrame = (idx) => {
                         const oldEl = document.getElementById(`radar-layer-${currentRadarFrame}`);
                         if (oldEl) oldEl.style.opacity = '0';
-                        
                         currentRadarFrame = idx;
                         const newEl = document.getElementById(`radar-layer-${currentRadarFrame}`);
-                        
                         if (newEl) {
-                            // Temporal Lazy Load: Fetch current frame images ONLY when needed
-                            triggerLazyLoadForLayer(currentRadarFrame);
-                            
-                            // Pre-fetch the next frame in the sequence to ensure smooth playback
-                            const nextIdx = (currentRadarFrame + 1) % AppState.radarMaxFrames;
-                            triggerLazyLoadForLayer(nextIdx);
-
+                            triggerLazyLoadForLayer(currentRadarFrame); triggerLazyLoadForLayer((currentRadarFrame + 1) % AppState.radarMaxFrames);
                             newEl.style.opacity = '1';
-                            const timeUnix = parseInt(newEl.getAttribute('data-time'));
-                            const date = new Date(timeUnix * 1000);
+                            const date = new Date(parseInt(newEl.getAttribute('data-time')) * 1000);
                             DOM.radarTime.textContent = date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                             DOM.radarScrubber.value = currentRadarFrame;
                         }
                     };
 
                     const tick = () => { setFrame((currentRadarFrame + 1) % AppState.radarMaxFrames); };
-                    
-                    const play = () => { 
-                        isRadarPlaying = true; 
-                        DOM.radarPlay.textContent = 'PAUSE'; 
-                        clearInterval(AppState.radarInterval);
-                        AppState.radarInterval = setInterval(tick, AppState.radarSpeeds[AppState.radarSpeedIndex]); 
-                    };
-                    const pause = () => { 
-                        isRadarPlaying = false; 
-                        DOM.radarPlay.textContent = 'PLAY'; 
-                        clearInterval(AppState.radarInterval); 
-                    };
+                    const play = () => { isRadarPlaying = true; DOM.radarPlay.textContent = 'PAUSE'; clearInterval(AppState.radarInterval); AppState.radarInterval = setInterval(tick, AppState.radarSpeeds[AppState.radarSpeedIndex]); };
+                    const pause = () => { isRadarPlaying = false; DOM.radarPlay.textContent = 'PLAY'; clearInterval(AppState.radarInterval); };
 
                     if (!DOM.radarPlay.hasAttribute('data-bound')) {
                         DOM.radarPlay.onclick = () => isRadarPlaying ? pause() : play();
-                        
-                        DOM.radarSpeedBtn.onclick = () => {
-                            AppState.radarSpeedIndex = (AppState.radarSpeedIndex + 1) % AppState.radarSpeeds.length;
-                            const labels = ['0.5x', '1x', '2x', '4x'];
-                            DOM.radarSpeedBtn.textContent = labels[AppState.radarSpeedIndex];
-                            if (isRadarPlaying) play();
-                        };
-
-                        DOM.radarScrubber.addEventListener('input', (e) => {
-                            pause();
-                            setFrame(parseInt(e.target.value));
-                        });
-
-                        DOM.radarOpacity.addEventListener('input', (e) => {
-                            DOM.radarFrames.style.opacity = e.target.value;
-                        });
-
-                        DOM.radarReset.onclick = () => {
-                            AppState.radarZoom = 8; 
-                            buildRadarEngine(false); 
-                        };
+                        DOM.radarSpeedBtn.onclick = () => { AppState.radarSpeedIndex = (AppState.radarSpeedIndex + 1) % 4; DOM.radarSpeedBtn.textContent = ['0.5x', '1x', '2x', '4x'][AppState.radarSpeedIndex]; if (isRadarPlaying) play(); };
+                        DOM.radarScrubber.addEventListener('input', (e) => { pause(); setFrame(parseInt(e.target.value)); });
+                        DOM.radarOpacity.addEventListener('input', (e) => { DOM.radarFrames.style.opacity = e.target.value; });
+                        DOM.radarReset.onclick = () => { AppState.radarZoom = 8; buildRadarEngine(false); };
 
                         const triggerDebouncedZoom = () => {
                             DOM.radarDrag.style.transform = `translate(${radarPanX}px, ${radarPanY}px) scale(${visualScale})`;
-                            clearTimeout(zoomDebounceTimer);
-                            zoomDebounceTimer = setTimeout(() => { buildRadarEngine(false); }, 300);
+                            clearTimeout(zoomDebounceTimer); zoomDebounceTimer = setTimeout(() => { buildRadarEngine(false); }, 300);
                         };
 
-                        DOM.radarZoomIn.onclick = () => {
-                            if(AppState.radarZoom < 10) { 
-                                AppState.radarZoom++; 
-                                visualScale = 1.2; 
-                                triggerDebouncedZoom();
-                            }
-                        };
-
-                        DOM.radarZoomOut.onclick = () => {
-                            if(AppState.radarZoom > 3) { 
-                                AppState.radarZoom--; 
-                                visualScale = 0.8; 
-                                triggerDebouncedZoom();
-                            }
-                        };
+                        DOM.radarZoomIn.onclick = () => { if(AppState.radarZoom < 10) { AppState.radarZoom++; visualScale = 1.2; triggerDebouncedZoom(); } };
+                        DOM.radarZoomOut.onclick = () => { if(AppState.radarZoom > 3) { AppState.radarZoom--; visualScale = 0.8; triggerDebouncedZoom(); } };
 
                         DOM.radarClip.addEventListener('wheel', (e) => {
-                            if (!e.ctrlKey) return; 
-                            e.preventDefault();
-                            
+                            if (!e.ctrlKey) return; e.preventDefault();
                             visualScale *= (e.deltaY < 0) ? 1.05 : 0.95;
                             DOM.radarDrag.style.transform = `translate(${radarPanX}px, ${radarPanY}px) scale(${visualScale})`;
-                            
-                            let newZoom = AppState.radarZoom + (e.deltaY < 0 ? 1 : -1);
-                            newZoom = Math.max(3, Math.min(newZoom, 10));
-                            
-                            if (newZoom !== AppState.radarZoom) {
-                                AppState.radarZoom = newZoom;
-                                clearTimeout(zoomDebounceTimer);
-                                zoomDebounceTimer = setTimeout(() => { buildRadarEngine(false); }, 400);
-                            } else {
-                                clearTimeout(zoomDebounceTimer);
-                                zoomDebounceTimer = setTimeout(() => {
-                                    visualScale = 1;
-                                    DOM.radarDrag.style.transform = `translate(${radarPanX}px, ${radarPanY}px) scale(${visualScale})`;
-                                }, 300);
-                            }
+                            let newZoom = Math.max(3, Math.min(AppState.radarZoom + (e.deltaY < 0 ? 1 : -1), 10));
+                            if (newZoom !== AppState.radarZoom) { AppState.radarZoom = newZoom; clearTimeout(zoomDebounceTimer); zoomDebounceTimer = setTimeout(() => { buildRadarEngine(false); }, 400); } 
+                            else { clearTimeout(zoomDebounceTimer); zoomDebounceTimer = setTimeout(() => { visualScale = 1; DOM.radarDrag.style.transform = `translate(${radarPanX}px, ${radarPanY}px) scale(${visualScale})`; }, 300); }
                         }, {passive: false});
 
                         let isDragging = false, startX, startY;
-                        DOM.radarClip.addEventListener('mousedown', (e) => {
-                            isDragging = true;
-                            startX = e.clientX - radarPanX;
-                            startY = e.clientY - radarPanY;
-                        });
-
-                        window.addEventListener('mousemove', (e) => {
-                            if(!isDragging) return;
-                            radarPanX = e.clientX - startX;
-                            radarPanY = e.clientY - startY;
-                            DOM.radarDrag.style.transform = `translate(${radarPanX}px, ${radarPanY}px) scale(${visualScale})`;
-                        });
+                        DOM.radarClip.addEventListener('mousedown', (e) => { isDragging = true; startX = e.clientX - radarPanX; startY = e.clientY - radarPanY; });
+                        window.addEventListener('mousemove', (e) => { if(!isDragging) return; radarPanX = e.clientX - startX; radarPanY = e.clientY - startY; DOM.radarDrag.style.transform = `translate(${radarPanX}px, ${radarPanY}px) scale(${visualScale})`; });
                         window.addEventListener('mouseup', () => { isDragging = false; });
-
-                        DOM.radarClip.addEventListener('touchstart', (e) => {
-                            isDragging = true;
-                            startX = e.touches[0].clientX - radarPanX;
-                            startY = e.touches[0].clientY - radarPanY;
-                        }, {passive: true});
-                        
-                        window.addEventListener('touchmove', (e) => {
-                            if(!isDragging || e.touches.length > 1) return;
-                            e.preventDefault(); 
-                            radarPanX = e.touches[0].clientX - startX;
-                            radarPanY = e.touches[0].clientY - startY;
-                            DOM.radarDrag.style.transform = `translate(${radarPanX}px, ${radarPanY}px) scale(${visualScale})`;
-                        }, {passive: false});
+                        DOM.radarClip.addEventListener('touchstart', (e) => { isDragging = true; startX = e.touches[0].clientX - radarPanX; startY = e.touches[0].clientY - radarPanY; }, {passive: true});
+                        window.addEventListener('touchmove', (e) => { if(!isDragging || e.touches.length > 1) return; e.preventDefault(); radarPanX = e.touches[0].clientX - startX; radarPanY = e.touches[0].clientY - startY; DOM.radarDrag.style.transform = `translate(${radarPanX}px, ${radarPanY}px) scale(${visualScale})`; }, {passive: false});
                         window.addEventListener('touchend', () => { isDragging = false; });
-
                         DOM.radarPlay.setAttribute('data-bound', 'true');
                     }
 
                     DOM.radarLoader.style.opacity = '0';
-                    setFrame(0);
-                    if (isRadarPlaying) play();
-
-                } catch(e) {
-                    DOM.radarLoader.innerHTML = '<span class="font-mono text-sm text-red-500 bg-slate-900 p-2 rounded">> TACTICAL GRID FAILURE.</span>';
-                }
+                    setFrame(0); if (isRadarPlaying) play();
+                } catch(e) { DOM.radarLoader.innerHTML = '<span class="font-mono text-sm text-red-500 bg-slate-900 p-2 rounded">> TACTICAL GRID FAILURE.</span>'; }
             }
 
             async function bootSystems() {
@@ -834,13 +686,11 @@
                 TelemetrySim.init(); 
 
                 const [weather, aqi, alerts, radar] = await Promise.all([
-                    fetchWeatherData(),
-                    fetchAQIData(),
-                    fetchNWSAlerts(),
-                    buildRadarEngine(false)
+                    fetchWeatherData(), fetchAQIData(), fetchNWSAlerts(), buildRadarEngine(false)
                 ]);
                 
                 updateDoomIndex(weather, aqi, alerts);
+                fetchStrikeZone(); 
 
                 if(AppState.microPollIntervalId) clearInterval(AppState.microPollIntervalId);
                 AppState.microPollIntervalId = setInterval(async () => {
@@ -849,22 +699,13 @@
                 }, 60000);
 
                 if(AppState.radarIntervalId_5min) clearInterval(AppState.radarIntervalId_5min);
-                AppState.radarIntervalId_5min = setInterval(() => {
-                    fetchNWSAlerts(); 
-                    buildRadarEngine(true); 
-                }, 300000);
+                AppState.radarIntervalId_5min = setInterval(() => { fetchNWSAlerts(); fetchStrikeZone(); buildRadarEngine(true); }, 300000);
             }
 
             return {
                 init: () => {
-                    DOM.locBtn.addEventListener('click', () => {
-                        const val = DOM.locInput.value.trim();
-                        if(val) geocodeAndSync(val);
-                    });
-                    DOM.locInput.addEventListener('keypress', (e) => {
-                        if(e.key === 'Enter') DOM.locBtn.click();
-                    });
-                    
+                    DOM.locBtn.addEventListener('click', () => { const val = DOM.locInput.value.trim(); if(val) geocodeAndSync(val); });
+                    DOM.locInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') DOM.locBtn.click(); });
                     bootSystems();
                 }
             }
