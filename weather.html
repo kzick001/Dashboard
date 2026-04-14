@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kzick Weather Hub v0.2</title>
-    <!-- Raw SVG Favicon injected directly into the head -->
+    <title>Kzick Weather Hub v1.0.2</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23020617'/><path d='M50 15 L20 50 L45 50 L40 85 L80 40 L55 40 Z' fill='%2306b6d4'/></svg>">
     
     <script src="https://cdn.tailwindcss.com"></script>
@@ -24,7 +23,6 @@
                     animation: {
                         'scanline': 'scanline 4s linear infinite',
                         'electric-pulse': 'electricPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                        'pulse-fast': 'pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                     },
                     keyframes: {
                         scanline: {
@@ -64,7 +62,6 @@
             transform-origin: 50% 50%;
         }
 
-        /* Native Slider Styling */
         input[type=range] {
             -webkit-appearance: none;
             background: transparent;
@@ -76,6 +73,10 @@
             background: #06b6d4;
             cursor: pointer;
             margin-top: -6px;
+            transition: transform 0.1s;
+        }
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
         }
         input[type=range]::-webkit-slider-runnable-track {
             width: 100%; height: 4px;
@@ -84,24 +85,28 @@
             border-radius: 2px;
         }
         
-        /* Drag Map Cursor State */
-        #radar-drag-layer { cursor: grab; transform-origin: 0 0; }
-        #radar-drag-layer:active { cursor: grabbing; }
+        #radar-clip-window { touch-action: none; } 
+        #radar-drag-layer { cursor: grab; transform-origin: 50% 50%; will-change: transform; transition: transform 0.05s linear; }
+        #radar-drag-layer:active { cursor: grabbing; transition: none; }
+
+        details > summary { list-style: none; }
+        details > summary::-webkit-details-marker { display: none; }
+        
+        .live-text-shadow { text-shadow: 0 0 10px rgba(34, 211, 238, 0.3); }
     </style>
 </head>
 <body class="min-h-screen p-4 md:p-8 font-sans relative">
 
-    <!-- GLOBAL TERMINAL FEEDBACK -->
-    <div id="sys-terminal" class="fixed bottom-4 right-4 z-50 flex flex-col items-end space-y-1 pointer-events-none"></div>
+    <div class="absolute top-4 left-4 md:top-8 md:left-8 flex flex-col items-start z-50">
+        <a href="https://kzick001.github.io/dashboard/" class="text-xs font-black text-cyan-700 hover:text-cyan-400 transition-colors tracking-widest uppercase flex items-center gap-2">
+            <span>&larr;</span> Return to Dashboard
+        </a>
+        <span class="mt-1 font-mono text-[10px] px-2 py-0.5 bg-cyan-950/80 text-cyan-400 border border-cyan-500/30 rounded tracking-widest">SYS V1.0.2</span>
+    </div>
 
-    <!-- ABSOLUTE DASHBOARD LINK -->
-    <a href="https://kzick001.github.io/dashboard/" class="absolute top-4 left-4 md:top-8 md:left-8 text-xs font-black text-cyan-700 hover:text-cyan-400 transition-colors tracking-widest z-50 uppercase flex items-center gap-2">
-        <span>&larr;</span> Return to Dashboard
-    </a>
+    <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 relative mt-16 md:mt-20">
 
-    <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 relative mt-12 md:mt-16">
-
-        <!-- MODULE 1: TOP COMMAND BAR (Span 3) -->
+        <!-- MODULE 1: TOP COMMAND BAR -->
         <div class="relative bg-slate-900/80 backdrop-blur-sm rounded-xl shadow-lg border border-cyan-500/20 p-6 hover-scale overflow-hidden group lg:col-span-3">
             <div class="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent via-cyan-500/5 to-transparent h-20 w-full animate-scanline opacity-20"></div>
             
@@ -120,7 +125,6 @@
                 
                 <div class="flex items-center space-x-6 md:space-x-8 bg-slate-950/40 p-4 rounded border border-slate-700/50 relative z-10 w-full md:w-auto justify-center">
                     
-                    <!-- THE AQI METRIC -->
                     <div class="flex flex-col items-center">
                         <span class="text-[10px] font-mono text-slate-400 tracking-widest mb-2">US AQI</span>
                         <div id="ui-aqi-ring" class="w-16 h-16 rounded-full border-4 border-cyan-500 flex items-center justify-center transition-colors duration-500">
@@ -131,7 +135,6 @@
 
                     <div class="w-px h-16 bg-slate-700/50"></div>
 
-                    <!-- THE DOOM INDEX -->
                     <div class="relative flex flex-col items-center">
                         <span class="text-[10px] font-mono text-slate-400 tracking-widest mb-2">DOOM INDEX</span>
                         <div class="relative w-16 h-16">
@@ -140,9 +143,7 @@
                                 <circle id="ui-doom-ring" class="doom-circle text-cyan-400 stroke-current" stroke-width="8" stroke-linecap="round" cx="50" cy="50" r="40" fill="transparent" stroke-dasharray="251.2" stroke-dashoffset="251.2"></circle>
                             </svg>
                             <div class="absolute inset-0 flex items-center justify-center">
-                                <!-- Default Text Score -->
                                 <span id="ui-doom-score" class="font-mono text-xl font-bold text-white">--</span>
-                                <!-- Thumbs Up SVG (Hidden by default) -->
                                 <svg id="ui-doom-good" class="hidden w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"></path></svg>
                             </div>
                         </div>
@@ -153,31 +154,35 @@
             </div>
         </div>
 
-        <!-- MODULE 2: CURRENTLY (Expanded by Default, Span 1) -->
+        <!-- MODULE 2: CURRENTLY -->
         <div class="relative bg-slate-900/80 backdrop-blur-sm rounded-xl shadow-lg border border-cyan-500/20 p-6 hover-scale overflow-hidden group lg:col-span-1">
             <div class="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent via-cyan-500/5 to-transparent h-20 w-full animate-scanline opacity-20"></div>
             
             <div class="mt-2 relative z-10">
                 <div class="flex items-center space-x-3 mb-4">
-                    <div class="w-10 h-10 flex items-center justify-center rounded bg-cyan-950/60 border border-cyan-500/30 group-hover:border-cyan-400 transition-colors">
-                        <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path></svg>
+                    <div class="w-10 h-10 flex items-center justify-center rounded bg-cyan-950/60 border border-cyan-500/30 group-hover:border-cyan-400 transition-colors relative">
+                        <div class="absolute top-1 right-1 w-1.5 h-1.5 bg-cyan-400 rounded-full animate-pulse"></div>
+                        <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                     </div>
-                    <h2 class="text-xl font-bold truncate text-slate-100 flex-1">Currently</h2>
+                    <div class="flex flex-col">
+                        <h2 class="text-xl font-bold truncate text-slate-100 flex-1">Currently</h2>
+                        <span class="text-[8px] font-mono text-cyan-500 tracking-widest">LIVE INTERPOLATION</span>
+                    </div>
                 </div>
                 
-                <div class="font-mono text-5xl text-white mt-2" id="ui-current-temp">--°F</div>
-                <div class="font-mono text-sm text-cyan-400 mt-2 mb-6" id="ui-current-desc">> Fetching array...</div>
+                <div class="font-mono text-5xl text-white mt-2 live-text-shadow" id="ui-current-temp">--</div>
+                <div class="font-mono text-sm text-cyan-400 mt-2 mb-6" id="ui-current-desc">> Fetching arrays...</div>
                 
                 <div class="pt-4 border-t border-slate-700/50 space-y-3 font-mono text-sm text-slate-300">
                     <div class="flex justify-between"><span>HUMIDITY</span> <span id="ui-hum" class="text-cyan-400">--%</span></div>
-                    <div class="flex justify-between"><span>WIND</span> <span id="ui-wind" class="text-cyan-400">-- mph</span></div>
-                    <div class="flex justify-between"><span>PRESSURE</span> <span id="ui-pres" class="text-cyan-400">-- hPa</span></div>
+                    <div class="flex justify-between"><span>WIND</span> <span id="ui-wind" class="text-cyan-400 live-text-shadow">--</span></div>
+                    <div class="flex justify-between"><span>PRESSURE</span> <span id="ui-pres" class="text-cyan-400 live-text-shadow">--</span></div>
                     <div class="flex justify-between"><span>UV MAX</span> <span id="ui-uv" class="text-cyan-400">--</span></div>
                 </div>
             </div>
         </div>
 
-        <!-- MODULE 3: 10-DAY FORECAST (Span 2) -->
+        <!-- MODULE 3: 10-DAY FORECAST -->
         <div class="relative bg-slate-900/80 backdrop-blur-sm rounded-xl shadow-lg border border-cyan-500/20 p-6 hover-scale overflow-hidden group lg:col-span-2 flex flex-col">
             <div class="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent via-cyan-500/5 to-transparent h-20 w-full animate-scanline opacity-20"></div>
             
@@ -188,14 +193,14 @@
                 <h2 class="text-xl font-bold truncate text-slate-100">10-Day Forecast</h2>
             </div>
 
-            <div class="overflow-x-auto relative z-10 pb-2 flex-1 flex items-center">
+            <div class="overflow-x-auto relative z-10 pb-4 flex-1 flex items-start custom-scrollbar">
                 <div class="flex space-x-4 min-w-max w-full" id="forecast-container">
                     <div class="font-mono text-sm text-cyan-400 animate-pulse">> Compiling meteorological payload...</div>
                 </div>
             </div>
         </div>
 
-        <!-- MODULE 4: HAZARDS / NWS ALERTS (Span 3 - Horizontal Banner) -->
+        <!-- MODULE 4: NWS ALERTS -->
         <div class="relative bg-slate-900/80 backdrop-blur-sm rounded-xl shadow-lg border border-cyan-500/20 p-6 hover-scale overflow-hidden group lg:col-span-3">
             <div class="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent via-cyan-500/5 to-transparent h-20 w-full animate-scanline opacity-20"></div>
             
@@ -211,103 +216,99 @@
             </div>
         </div>
 
-        <!-- MODULE 5: LIVE RADAR (Span 3, Double Height, Vanilla Pan/Zoom) -->
-        <div class="relative bg-slate-900/80 backdrop-blur-sm rounded-xl shadow-lg border border-cyan-500/20 p-6 overflow-hidden group lg:col-span-3 flex flex-col h-[600px]">
-            <div class="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent via-cyan-500/5 to-transparent h-20 w-full animate-scanline opacity-20"></div>
+        <!-- MODULE 5: LIVE RADAR (Temporal Loading Engine) -->
+        <div class="relative bg-slate-900/80 backdrop-blur-sm rounded-xl shadow-lg border border-cyan-500/20 p-6 overflow-hidden group lg:col-span-3 flex flex-col h-[700px]">
+            <div class="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent via-cyan-500/5 to-transparent h-20 w-full animate-scanline opacity-20 z-0"></div>
             
             <div class="mt-2 flex justify-between items-center mb-4 relative z-10">
                 <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 flex items-center justify-center rounded bg-cyan-950/60 border border-cyan-500/30 group-hover:border-cyan-400 transition-colors">
+                    <div class="w-10 h-10 flex items-center justify-center rounded bg-cyan-950/60 border border-cyan-500/30 group-hover:border-cyan-400 transition-colors relative">
                         <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
                     </div>
-                    <h2 class="text-xl font-bold truncate text-slate-100">Live Radar</h2>
+                    <div class="flex flex-col">
+                        <h2 class="text-xl font-bold truncate text-slate-100">Live Radar</h2>
+                    </div>
                 </div>
-                <div class="font-mono text-xs text-cyan-400 bg-slate-950/80 px-3 py-1.5 rounded border border-cyan-500/30" id="radar-time">--:--</div>
+                <div class="flex items-center space-x-3">
+                    <div class="font-mono text-xs text-cyan-400 bg-slate-950/80 px-3 py-1.5 rounded border border-cyan-500/30" id="radar-time">--:--</div>
+                </div>
             </div>
 
-            <!-- Custom Interactive 5x5 Map Canvas -->
             <div class="relative flex-1 bg-[#1e1e1e] rounded border border-cyan-500/30 overflow-hidden z-10" id="radar-clip-window">
                 
-                <!-- The transform layer handles Pan and Zoom via Vanilla JS -->
+                <button id="radar-reset" class="absolute top-4 left-4 bg-slate-900/90 backdrop-blur border border-slate-700 hover:border-cyan-500 text-slate-300 hover:text-cyan-400 font-mono px-3 py-2 rounded transition-colors shadow-lg z-30" title="Recenter Map">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                </button>
+
                 <div id="radar-drag-layer" class="absolute inset-0 w-full h-full">
-                    <!-- Grid rendered relative to this origin -->
                     <div id="radar-base-layer" class="absolute inset-0 w-full h-full opacity-80"></div>
                     <div id="radar-frames-layer" class="absolute inset-0 w-full h-full opacity-100 transition-opacity duration-200"></div>
                 </div>
                 
-                <div class="absolute inset-0 flex items-center justify-center bg-slate-900/80 z-20 transition-opacity duration-300 pointer-events-none" id="radar-loader">
-                    <span class="font-mono text-sm text-cyan-400 animate-pulse bg-slate-950/80 px-4 py-2 rounded border border-cyan-500/50">> Booting tactical 5x5 grid...</span>
+                <div class="absolute top-4 left-1/2 -translate-x-1/2 flex items-center justify-center bg-slate-900/90 px-4 py-2 rounded-full border border-cyan-500/50 z-20 transition-opacity duration-300 pointer-events-none shadow-lg" id="radar-loader">
+                    <span class="font-mono text-xs text-cyan-400 animate-pulse">> Hydrating Map Vector...</span>
+                </div>
+
+                <div class="absolute top-4 right-4 flex flex-col space-y-2 z-30">
+                    <button id="radar-zoom-in" class="w-10 h-10 bg-slate-950/90 backdrop-blur rounded border border-slate-700 hover:border-cyan-500 text-slate-300 hover:text-cyan-400 flex items-center justify-center transition-colors shadow-lg">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                    </button>
+                    <button id="radar-zoom-out" class="w-10 h-10 bg-slate-950/90 backdrop-blur rounded border border-slate-700 hover:border-cyan-500 text-slate-300 hover:text-cyan-400 flex items-center justify-center transition-colors shadow-lg">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg>
+                    </button>
                 </div>
                 
-                <!-- On-Map Overlay Controls -->
-                <div class="absolute bottom-4 left-4 right-4 bg-slate-950/80 backdrop-blur rounded p-3 border border-slate-700/50 z-30 flex items-center space-x-4">
+                <div class="absolute bottom-4 left-4 right-4 bg-slate-950/80 backdrop-blur rounded p-3 border border-slate-700/50 z-30 flex flex-wrap md:flex-nowrap items-center gap-4 shadow-xl">
                     <button id="radar-play" class="bg-cyan-950 border border-cyan-500 text-cyan-400 font-mono text-xs px-4 py-2 rounded hover:bg-cyan-900 hover:text-white transition-colors w-24">PAUSE</button>
+                    <button id="radar-speed-btn" class="bg-slate-800 border border-slate-600 text-slate-300 font-mono text-xs px-3 py-2 rounded hover:bg-slate-700 transition-colors w-16">1x</button>
                     
-                    <div class="flex-1 flex items-center space-x-3 px-2 border-l border-slate-700">
-                        <span class="text-[10px] font-mono text-slate-400">TIME</span>
+                    <div class="flex-1 flex items-center space-x-3 px-2 border-l border-slate-700 min-w-[150px]">
+                        <span class="text-[10px] font-mono text-slate-400 hidden sm:inline">TIME</span>
                         <input type="range" id="radar-scrubber" min="0" max="10" step="1" value="0" class="flex-1">
                     </div>
                     
-                    <div class="flex-1 flex items-center space-x-3 px-2 border-l border-slate-700 max-w-[200px]">
-                        <span class="text-[10px] font-mono text-slate-400">RADAR OPA</span>
-                        <input type="range" id="radar-opacity-slider" min="0" max="1" step="0.1" value="1" class="flex-1">
+                    <div class="flex items-center space-x-3 px-2 border-l border-slate-700 w-32 md:max-w-[200px]">
+                        <span class="text-[10px] font-mono text-slate-400 hidden sm:inline">OPACITY</span>
+                        <input type="range" id="radar-opacity-slider" min="0" max="1" step="0.01" value="1" class="flex-1">
                     </div>
-                    
-                    <button id="radar-reset" class="bg-slate-800 border border-slate-600 text-slate-300 font-mono text-xs px-3 py-2 rounded hover:bg-slate-700 transition-colors" title="Reset Map View">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                    </button>
                 </div>
             </div>
-            <p class="text-[10px] text-slate-500 font-mono mt-2 z-10 relative text-right">SCROLL TO ZOOM / CLICK & DRAG TO PAN</p>
+            <p class="text-[10px] text-slate-500 font-mono mt-2 z-10 relative text-right">CTRL+SCROLL TO ZOOM / DRAG TO PAN</p>
         </div>
 
     </div>
 
     <script>
         /**
-         * THE ENGINE ROOM. 
-         * Execution strictly Vanilla JS. No React bloat. No Mapbox bloat.
+         * THE ENGINE ROOM. V1.0.2.
+         * Execution strictly Vanilla JS. 
          */
         const AppState = {
             lat: 44.9483,
             lon: -93.3666,
             name: "St. Louis Park, MN",
             radarInterval: null,
-            radarSpeed: 500, // ms per frame
-            radarMaxFrames: 0
+            radarIntervalId_5min: null,
+            microPollIntervalId: null,
+            radarSpeedIndex: 1, 
+            radarSpeeds: [2000, 1000, 500, 250], 
+            radarMaxFrames: 0,
+            radarZoom: 8, // V1.0.2 - Default High Res Zoom
+            radarCachedJson: null
         };
 
-        // CacheEngine: Aggressive session state hydration (15 min TTL)
         const CacheEngine = (function() {
-            const TTL = 15 * 60 * 1000; 
-            const sysLog = document.getElementById('sys-terminal');
-
-            function logTerminal(msg, isFast = false) {
-                const el = document.createElement('div');
-                el.className = `font-mono text-[10px] px-2 py-1 bg-slate-900 border ${isFast ? 'border-green-500/50 text-green-400' : 'border-slate-700/50 text-slate-400'} rounded`;
-                el.textContent = msg;
-                sysLog.appendChild(el);
-                setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity 1s'; setTimeout(()=>el.remove(), 1000); }, 3000);
-            }
-
             return {
-                fetchWithCache: async function(endpointKey, url) {
+                fetchWithCache: async function(endpointKey, url, ttlMs = 900000) { 
                     const cached = sessionStorage.getItem(`kzick_weather_${endpointKey}`);
-                    const start = performance.now();
-                    
                     if (cached) {
                         const parsed = JSON.parse(cached);
                         const age = Date.now() - parsed.timestamp;
-                        
-                        if (age < TTL) {
-                            const time = Math.round(performance.now() - start);
-                            logTerminal(`> System hydrated [${endpointKey}] from local cache [${time}ms]`, true);
+                        if (age < ttlMs) {
                             return parsed.data; 
                         }
-                        logTerminal(`> Cache expired for ${endpointKey}. Re-fetching.`);
                     }
 
-                    // Network Fetch
                     const res = await fetch(url);
                     const data = await res.json();
                     
@@ -315,26 +316,64 @@
                         timestamp: Date.now(),
                         data: data
                     }));
-                    
-                    const time = Math.round(performance.now() - start);
-                    logTerminal(`> Network payload received [${endpointKey}] [${time}ms]`);
                     return data;
                 }
             }
         })();
 
-        // DOM Map
+        const TelemetrySim = (function() {
+            let bTemp = 0, bWind = 0, bPres = 0;
+            let cTemp = 0, cWind = 0, cPres = 0;
+            let rafId = null;
+            let lastTick = 0;
+
+            const nodes = {
+                temp: document.createTextNode('--°F'),
+                wind: document.createTextNode('-- mph'),
+                pres: document.createTextNode('-- hPa')
+            };
+
+            function tick(timestamp) {
+                if (timestamp - lastTick > 300) { 
+                    cTemp = bTemp + (Math.random() * 0.2 - 0.1);
+                    cWind = Math.max(0, bWind + (Math.random() * 0.6 - 0.3));
+                    cPres = bPres + (Math.random() * 0.4 - 0.2);
+
+                    nodes.temp.nodeValue = cTemp.toFixed(1) + '°F';
+                    nodes.wind.nodeValue = cWind.toFixed(1) + ' mph';
+                    nodes.pres.nodeValue = cPres.toFixed(1) + ' hPa';
+                    
+                    lastTick = timestamp;
+                }
+                rafId = requestAnimationFrame(tick);
+            }
+
+            return {
+                init: () => {
+                    const elTemp = document.getElementById('ui-current-temp');
+                    const elWind = document.getElementById('ui-wind');
+                    const elPres = document.getElementById('ui-pres');
+                    
+                    elTemp.innerHTML = ''; elTemp.appendChild(nodes.temp);
+                    elWind.innerHTML = ''; elWind.appendChild(nodes.wind);
+                    elPres.innerHTML = ''; elPres.appendChild(nodes.pres);
+                    
+                    rafId = requestAnimationFrame(tick);
+                },
+                updateBase: (t, w, p) => {
+                    bTemp = t; bWind = w; bPres = p;
+                }
+            }
+        })();
+
         const DOM = {
             locName: document.getElementById('ui-location-name'),
             locCoords: document.getElementById('ui-coords'),
             locInput: document.getElementById('location-input'),
             locBtn: document.getElementById('location-btn'),
             
-            curTemp: document.getElementById('ui-current-temp'),
             curDesc: document.getElementById('ui-current-desc'),
             curHum: document.getElementById('ui-hum'),
-            curWind: document.getElementById('ui-wind'),
-            curPres: document.getElementById('ui-pres'),
             curUv: document.getElementById('ui-uv'),
             
             aqiRing: document.getElementById('ui-aqi-ring'),
@@ -354,6 +393,9 @@
             radarScrubber: document.getElementById('radar-scrubber'),
             radarOpacity: document.getElementById('radar-opacity-slider'),
             radarReset: document.getElementById('radar-reset'),
+            radarZoomIn: document.getElementById('radar-zoom-in'),
+            radarZoomOut: document.getElementById('radar-zoom-out'),
+            radarSpeedBtn: document.getElementById('radar-speed-btn'),
             
             doomRing: document.getElementById('ui-doom-ring'),
             doomScore: document.getElementById('ui-doom-score'),
@@ -361,7 +403,6 @@
             doomDesc: document.getElementById('ui-doom-desc')
         };
 
-        // Utility: WMO Weather Code Mapper
         const getWeatherDesc = (code) => {
             const map = {
                 0: 'Clear sky', 1: 'Mainly clear', 2: 'Partly cloudy', 3: 'Overcast',
@@ -375,7 +416,6 @@
             return map[code] || 'Anomaly detected';
         };
 
-        // --- PIPELINE CONTROLLER ---
         const Pipeline = (function() {
             
             async function geocodeAndSync(query) {
@@ -390,11 +430,13 @@
                         AppState.lat = loc.latitude;
                         AppState.lon = loc.longitude;
                         AppState.name = `${loc.name}${loc.admin1 ? ', ' + loc.admin1 : ''}`;
+                        AppState.radarZoom = 8; 
                         
                         DOM.locName.textContent = AppState.name;
                         DOM.locCoords.textContent = `LAT: ${AppState.lat.toFixed(4)} | LON: ${AppState.lon.toFixed(4)}`;
                         
                         sessionStorage.clear();
+                        AppState.radarCachedJson = null; 
                         bootSystems();
                     } else {
                         alert("Geocoding failed. Location unrecognized.");
@@ -407,45 +449,62 @@
                 }
             }
 
-            async function fetchWeatherData() {
-                const url = `https://api.open-meteo.com/v1/forecast?latitude=${AppState.lat}&longitude=${AppState.lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,surface_pressure,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,uv_index_max&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&timezone=auto&forecast_days=10`;
-                const data = await CacheEngine.fetchWithCache('weather', url);
+            async function fetchWeatherData(isMicroSync = false) {
+                const url = `https://api.open-meteo.com/v1/forecast?latitude=${AppState.lat}&longitude=${AppState.lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,surface_pressure,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,uv_index_max,precipitation_probability_max,wind_speed_10m_max,relative_humidity_2m_max&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&timezone=auto&forecast_days=10`;
+                const data = await CacheEngine.fetchWithCache(isMicroSync ? 'weather_micro' : 'weather', url, 60000); 
                 
                 const cur = data.current;
-                DOM.curTemp.textContent = `${Math.round(cur.temperature_2m)}°F`;
                 DOM.curDesc.textContent = `> ${getWeatherDesc(cur.weather_code).toUpperCase()}`;
                 DOM.curHum.textContent = `${cur.relative_humidity_2m}%`;
-                DOM.curWind.textContent = `${cur.wind_speed_10m} mph`;
-                DOM.curPres.textContent = `${Math.round(cur.surface_pressure)} hPa`;
                 
-                const daily = data.daily;
-                DOM.curUv.textContent = daily.uv_index_max[0];
+                TelemetrySim.updateBase(cur.temperature_2m, cur.wind_speed_10m, cur.surface_pressure);
                 
-                let forecastHTML = '';
-                for (let i = 0; i < 10; i++) {
-                    const date = new Date(daily.time[i]);
-                    const dayName = i === 0 ? 'TODAY' : date.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase();
-                    forecastHTML += `
-                        <div class="flex flex-col items-center justify-between bg-slate-950/60 border border-slate-700/50 rounded p-4 min-w-[120px] hover:border-cyan-500/50 transition-colors h-32">
-                            <span class="font-mono text-xs text-slate-400">${dayName}</span>
-                            <div class="flex items-end space-x-2">
-                                <span class="font-mono text-2xl text-white font-bold">${Math.round(daily.temperature_2m_max[i])}°</span>
-                                <span class="font-mono text-sm text-slate-500 pb-1">${Math.round(daily.temperature_2m_min[i])}°</span>
-                            </div>
-                            <span class="font-mono text-[11px] text-cyan-400 text-center whitespace-normal leading-tight w-full" title="${getWeatherDesc(daily.weather_code[i])}">
-                                ${getWeatherDesc(daily.weather_code[i])}
-                            </span>
-                        </div>
-                    `;
+                if(!isMicroSync) {
+                    const daily = data.daily;
+                    DOM.curUv.textContent = daily.uv_index_max[0] || '--';
+                    
+                    let forecastHTML = '';
+                    for (let i = 0; i < 10; i++) {
+                        const date = new Date(daily.time[i]);
+                        const dayName = i === 0 ? 'TODAY' : date.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase();
+                        const precip = daily.precipitation_probability_max[i] || 0;
+                        const maxWind = daily.wind_speed_10m_max[i] || 0;
+                        const hum = daily.relative_humidity_2m_max[i] || 0;
+                        const uv = daily.uv_index_max[i] || 0;
+                        
+                        forecastHTML += `
+                            <details open class="group/day bg-slate-950/60 border border-slate-700/50 rounded p-4 min-w-[200px] hover:border-cyan-500/50 transition-colors cursor-pointer shadow-md">
+                                <summary class="list-none marker:hidden outline-none flex flex-col items-center border-b border-transparent group-open/day:border-slate-700/50 pb-2 mb-2 transition-colors">
+                                    <span class="font-mono text-xs text-slate-400 mb-2">${dayName}</span>
+                                    <div class="flex items-end space-x-2">
+                                        <span class="font-mono text-3xl text-white font-bold">${Math.round(daily.temperature_2m_max[i])}°</span>
+                                        <span class="font-mono text-sm text-slate-500 pb-1">${Math.round(daily.temperature_2m_min[i])}°</span>
+                                    </div>
+                                    <span class="font-mono text-[11px] text-cyan-400 text-center whitespace-normal leading-tight w-full mt-2 min-h-[28px]" title="${getWeatherDesc(daily.weather_code[i])}">
+                                        ${getWeatherDesc(daily.weather_code[i])}
+                                    </span>
+                                    <span class="text-[10px] font-mono text-slate-500 mt-2 group-open/day:hidden group-hover/day:text-cyan-500 transition-colors">▼ EXPAND DETAILS</span>
+                                    <span class="text-[10px] font-mono text-cyan-500 mt-2 hidden group-open/day:block">▲ COLLAPSE</span>
+                                </summary>
+                                
+                                <div class="space-y-2 text-[10px] font-mono text-slate-300">
+                                    <div class="flex justify-between items-center"><span>PRECIPITATION</span> <span class="${precip > 40 ? 'text-cyan-400 font-bold' : 'text-slate-400'}">${precip}%</span></div>
+                                    <div class="flex justify-between items-center"><span>WIND MAX</span> <span class="${maxWind > 15 ? 'text-yellow-400' : 'text-slate-400'}">${maxWind} mph</span></div>
+                                    <div class="flex justify-between items-center"><span>HUMIDITY</span> <span class="text-slate-400">${hum}%</span></div>
+                                    <div class="flex justify-between items-center"><span>UV INDEX</span> <span class="${uv > 6 ? 'text-red-400' : 'text-slate-400'}">${uv}</span></div>
+                                </div>
+                            </details>
+                        `;
+                    }
+                    DOM.forecast.innerHTML = forecastHTML;
                 }
-                DOM.forecast.innerHTML = forecastHTML;
 
                 return { temp: cur.temperature_2m, windSpeed: cur.wind_speed_10m };
             }
 
             async function fetchAQIData() {
                 const url = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${AppState.lat}&longitude=${AppState.lon}&current=us_aqi&timezone=auto`;
-                const data = await CacheEngine.fetchWithCache('aqi', url);
+                const data = await CacheEngine.fetchWithCache('aqi', url, 60000); 
                 
                 const aqiVal = data.current.us_aqi;
                 let t = 'HAZARDOUS', tColor = 'text-red-600', bColor = 'border-red-600';
@@ -458,8 +517,6 @@
 
                 DOM.aqiTop.textContent = aqiVal;
                 DOM.aqiDescTop.textContent = t;
-                
-                // Mutate classes dynamically without regex
                 DOM.aqiDescTop.className = `text-[10px] font-mono mt-2 uppercase tracking-wider text-center w-24 transition-colors duration-500 ${tColor}`;
                 DOM.aqiRing.className = `w-16 h-16 rounded-full border-4 flex items-center justify-center transition-colors duration-500 ${bColor} ${aqiVal > 200 ? 'animate-pulse' : ''}`;
                 
@@ -467,10 +524,9 @@
             }
 
             async function fetchNWSAlerts() {
-                DOM.alerts.innerHTML = '<div class="font-mono text-xs text-cyan-400 animate-pulse">> Connecting to NWS point node...</div>';
                 try {
                     const url = `https://api.weather.gov/alerts/active?point=${AppState.lat},${AppState.lon}`;
-                    const data = await CacheEngine.fetchWithCache('alerts', url);
+                    const data = await CacheEngine.fetchWithCache('alerts', url, 300000);
 
                     if (data.features && data.features.length > 0) {
                         let html = '';
@@ -513,7 +569,6 @@
 
                 score = Math.floor(score);
                 
-                // Toggle 0 state (Thumbs Up)
                 if (score === 0) {
                     DOM.doomScore.classList.add('hidden');
                     DOM.doomGood.classList.remove('hidden');
@@ -542,18 +597,39 @@
                 }
             }
 
-            // CUSTOM VANILLA MAP ENGINE (Pan, Zoom, Layering)
-            async function buildRadarEngine() {
+            // --- V1.0.2 TEMPORAL LAZY LOADING ENGINE ---
+            let currentRadarFrame = 0;
+            let isRadarPlaying = true;
+            let radarPanX = 0, radarPanY = 0;
+            let zoomDebounceTimer = null;
+            let visualScale = 1;
+
+            // Helper function to turn data-src into src for a specific layer
+            function triggerLazyLoadForLayer(layerIdx) {
+                const layer = document.getElementById(`radar-layer-${layerIdx}`);
+                if (!layer) return;
+                const lazyImages = layer.querySelectorAll('img[data-src]');
+                lazyImages.forEach(img => {
+                    img.src = img.getAttribute('data-src');
+                    img.removeAttribute('data-src');
+                });
+            }
+
+            async function buildRadarEngine(forceRefresh = false) {
                 DOM.radarLoader.style.opacity = '1';
+                
+                if (AppState.radarInterval) clearInterval(AppState.radarInterval);
+
                 try {
-                    const data = await CacheEngine.fetchWithCache('radar_timestamps', 'https://api.rainviewer.com/public/weather-maps.json');
+                    const data = await CacheEngine.fetchWithCache('radar_timestamps', 'https://api.rainviewer.com/public/weather-maps.json', 300000);
+                    AppState.radarCachedJson = data;
+                    AppState.radarMaxFrames = data.radar.past.length;
+                    DOM.radarScrubber.max = AppState.radarMaxFrames - 1;
+                    
                     const host = data.host;
                     const past = data.radar.past;
-                    AppState.radarMaxFrames = past.length;
-                    
-                    DOM.radarScrubber.max = past.length - 1;
 
-                    const zoom = 7;
+                    const zoom = AppState.radarZoom;
                     const latRad = AppState.lat * Math.PI / 180;
                     const n = Math.pow(2, zoom);
                     const center_x = parseInt((AppState.lon + 180.0) / 360.0 * n);
@@ -563,7 +639,7 @@
                     let framesHTMLArray = past.map(() => ''); 
                     
                     const tileSize = 256;
-                    // Build 5x5 tactical grid for panning room
+                    // Dialed to 5x5 Grid
                     const gridOffset = 2; 
                     
                     for(let y = center_y - gridOffset, row = 0; y <= center_y + gridOffset; y++, row++) {
@@ -571,24 +647,25 @@
                             const left = col * tileSize;
                             const top = row * tileSize;
                             
-                            // CartoDB Dark Matter (standard mix, no screen)
-                            baseHTML += `<img src="https://a.basemaps.cartocdn.com/dark_all/${zoom}/${x}/${y}.png" class="absolute w-[256px] h-[256px]" style="left:${left}px; top:${top}px;" loading="lazy" draggable="false">`;
+                            // Base map loads instantly
+                            baseHTML += `<img src="https://a.basemaps.cartocdn.com/dark_all/${zoom}/${x}/${y}.png" class="absolute w-[256px] h-[256px] radar-tile" style="left:${left}px; top:${top}px;" draggable="false">`;
                             
                             past.forEach((frame, fIndex) => {
                                 const url = `${host}${frame.path}/256/${zoom}/${x}/${y}/2/1_1.png`;
-                                framesHTMLArray[fIndex] += `<img src="${url}" class="absolute w-[256px] h-[256px]" style="left:${left}px; top:${top}px;" loading="lazy" draggable="false">`;
+                                // V1.0.2 - Set to data-src to prevent 429 requests
+                                framesHTMLArray[fIndex] += `<img data-src="${url}" class="absolute w-[256px] h-[256px] radar-tile" style="left:${left}px; top:${top}px;" draggable="false" onerror="this.onerror=null; this.src='data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs='">`;
                             });
                         }
                     }
 
-                    // Reset positioning so grid centers on the viewport container
                     const vpRect = DOM.radarClip.getBoundingClientRect();
-                    const gridPixelSize = (gridOffset * 2 + 1) * tileSize; // 5 * 256 = 1280
+                    const gridPixelSize = (gridOffset * 2 + 1) * tileSize; // 5 * 256 = 1280px
                     
-                    const initialTranslateX = (vpRect.width / 2) - (gridPixelSize / 2);
-                    const initialTranslateY = (vpRect.height / 2) - (gridPixelSize / 2);
+                    radarPanX = (vpRect.width / 2) - (gridPixelSize / 2);
+                    radarPanY = (vpRect.height / 2) - (gridPixelSize / 2);
+                    visualScale = 1; 
 
-                    DOM.radarDrag.style.transform = `translate(${initialTranslateX}px, ${initialTranslateY}px) scale(1)`;
+                    DOM.radarDrag.style.transform = `translate(${radarPanX}px, ${radarPanY}px) scale(${visualScale})`;
 
                     DOM.radarBase.innerHTML = baseHTML;
                     
@@ -602,76 +679,148 @@
                     });
                     DOM.radarFrames.innerHTML = compiledFrames;
 
-                    // Animation Logic
-                    if(AppState.radarInterval) clearInterval(AppState.radarInterval);
-                    
-                    let currentFrame = 0;
-                    let isPlaying = true;
-
                     const setFrame = (idx) => {
-                        document.getElementById(`radar-layer-${currentFrame}`).style.opacity = '0';
-                        currentFrame = idx;
-                        document.getElementById(`radar-layer-${currentFrame}`).style.opacity = '1';
+                        const oldEl = document.getElementById(`radar-layer-${currentRadarFrame}`);
+                        if (oldEl) oldEl.style.opacity = '0';
                         
-                        const timeUnix = parseInt(document.getElementById(`radar-layer-${currentFrame}`).getAttribute('data-time'));
-                        const date = new Date(timeUnix * 1000);
-                        DOM.radarTime.textContent = date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                        DOM.radarScrubber.value = currentFrame;
+                        currentRadarFrame = idx;
+                        const newEl = document.getElementById(`radar-layer-${currentRadarFrame}`);
+                        
+                        if (newEl) {
+                            // Temporal Lazy Load: Fetch current frame images ONLY when needed
+                            triggerLazyLoadForLayer(currentRadarFrame);
+                            
+                            // Pre-fetch the next frame in the sequence to ensure smooth playback
+                            const nextIdx = (currentRadarFrame + 1) % AppState.radarMaxFrames;
+                            triggerLazyLoadForLayer(nextIdx);
+
+                            newEl.style.opacity = '1';
+                            const timeUnix = parseInt(newEl.getAttribute('data-time'));
+                            const date = new Date(timeUnix * 1000);
+                            DOM.radarTime.textContent = date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                            DOM.radarScrubber.value = currentRadarFrame;
+                        }
                     };
 
-                    const tick = () => { setFrame((currentFrame + 1) % AppState.radarMaxFrames); };
-                    const play = () => { isPlaying = true; DOM.radarPlay.textContent = 'PAUSE'; AppState.radarInterval = setInterval(tick, AppState.radarSpeed); };
-                    const pause = () => { isPlaying = false; DOM.radarPlay.textContent = 'PLAY'; clearInterval(AppState.radarInterval); };
-
-                    DOM.radarPlay.onclick = () => isPlaying ? pause() : play();
+                    const tick = () => { setFrame((currentRadarFrame + 1) % AppState.radarMaxFrames); };
                     
-                    DOM.radarScrubber.addEventListener('input', (e) => {
-                        pause();
-                        setFrame(parseInt(e.target.value));
-                    });
-
-                    DOM.radarOpacity.addEventListener('input', (e) => {
-                        DOM.radarFrames.style.opacity = e.target.value;
-                    });
-
-                    // --- VANILLA PAN AND ZOOM INTERACTION ---
-                    let scale = 1, panX = initialTranslateX, panY = initialTranslateY, isDragging = false, startX, startY;
-                    
-                    const updateTransform = () => {
-                        DOM.radarDrag.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
+                    const play = () => { 
+                        isRadarPlaying = true; 
+                        DOM.radarPlay.textContent = 'PAUSE'; 
+                        clearInterval(AppState.radarInterval);
+                        AppState.radarInterval = setInterval(tick, AppState.radarSpeeds[AppState.radarSpeedIndex]); 
+                    };
+                    const pause = () => { 
+                        isRadarPlaying = false; 
+                        DOM.radarPlay.textContent = 'PLAY'; 
+                        clearInterval(AppState.radarInterval); 
                     };
 
-                    DOM.radarReset.onclick = () => {
-                        scale = 1; panX = initialTranslateX; panY = initialTranslateY;
-                        updateTransform();
-                    };
+                    if (!DOM.radarPlay.hasAttribute('data-bound')) {
+                        DOM.radarPlay.onclick = () => isRadarPlaying ? pause() : play();
+                        
+                        DOM.radarSpeedBtn.onclick = () => {
+                            AppState.radarSpeedIndex = (AppState.radarSpeedIndex + 1) % AppState.radarSpeeds.length;
+                            const labels = ['0.5x', '1x', '2x', '4x'];
+                            DOM.radarSpeedBtn.textContent = labels[AppState.radarSpeedIndex];
+                            if (isRadarPlaying) play();
+                        };
 
-                    DOM.radarClip.addEventListener('wheel', (e) => {
-                        e.preventDefault();
-                        scale += e.deltaY * -0.002;
-                        scale = Math.min(Math.max(0.5, scale), 3); // min .5, max 3x
-                        updateTransform();
-                    });
+                        DOM.radarScrubber.addEventListener('input', (e) => {
+                            pause();
+                            setFrame(parseInt(e.target.value));
+                        });
 
-                    DOM.radarClip.addEventListener('mousedown', (e) => {
-                        isDragging = true;
-                        startX = e.clientX - panX;
-                        startY = e.clientY - panY;
-                    });
+                        DOM.radarOpacity.addEventListener('input', (e) => {
+                            DOM.radarFrames.style.opacity = e.target.value;
+                        });
 
-                    window.addEventListener('mousemove', (e) => {
-                        if(!isDragging) return;
-                        panX = e.clientX - startX;
-                        panY = e.clientY - startY;
-                        updateTransform();
-                    });
+                        DOM.radarReset.onclick = () => {
+                            AppState.radarZoom = 8; 
+                            buildRadarEngine(false); 
+                        };
 
-                    window.addEventListener('mouseup', () => { isDragging = false; });
+                        const triggerDebouncedZoom = () => {
+                            DOM.radarDrag.style.transform = `translate(${radarPanX}px, ${radarPanY}px) scale(${visualScale})`;
+                            clearTimeout(zoomDebounceTimer);
+                            zoomDebounceTimer = setTimeout(() => { buildRadarEngine(false); }, 300);
+                        };
+
+                        DOM.radarZoomIn.onclick = () => {
+                            if(AppState.radarZoom < 10) { 
+                                AppState.radarZoom++; 
+                                visualScale = 1.2; 
+                                triggerDebouncedZoom();
+                            }
+                        };
+
+                        DOM.radarZoomOut.onclick = () => {
+                            if(AppState.radarZoom > 3) { 
+                                AppState.radarZoom--; 
+                                visualScale = 0.8; 
+                                triggerDebouncedZoom();
+                            }
+                        };
+
+                        DOM.radarClip.addEventListener('wheel', (e) => {
+                            if (!e.ctrlKey) return; 
+                            e.preventDefault();
+                            
+                            visualScale *= (e.deltaY < 0) ? 1.05 : 0.95;
+                            DOM.radarDrag.style.transform = `translate(${radarPanX}px, ${radarPanY}px) scale(${visualScale})`;
+                            
+                            let newZoom = AppState.radarZoom + (e.deltaY < 0 ? 1 : -1);
+                            newZoom = Math.max(3, Math.min(newZoom, 10));
+                            
+                            if (newZoom !== AppState.radarZoom) {
+                                AppState.radarZoom = newZoom;
+                                clearTimeout(zoomDebounceTimer);
+                                zoomDebounceTimer = setTimeout(() => { buildRadarEngine(false); }, 400);
+                            } else {
+                                clearTimeout(zoomDebounceTimer);
+                                zoomDebounceTimer = setTimeout(() => {
+                                    visualScale = 1;
+                                    DOM.radarDrag.style.transform = `translate(${radarPanX}px, ${radarPanY}px) scale(${visualScale})`;
+                                }, 300);
+                            }
+                        }, {passive: false});
+
+                        let isDragging = false, startX, startY;
+                        DOM.radarClip.addEventListener('mousedown', (e) => {
+                            isDragging = true;
+                            startX = e.clientX - radarPanX;
+                            startY = e.clientY - radarPanY;
+                        });
+
+                        window.addEventListener('mousemove', (e) => {
+                            if(!isDragging) return;
+                            radarPanX = e.clientX - startX;
+                            radarPanY = e.clientY - startY;
+                            DOM.radarDrag.style.transform = `translate(${radarPanX}px, ${radarPanY}px) scale(${visualScale})`;
+                        });
+                        window.addEventListener('mouseup', () => { isDragging = false; });
+
+                        DOM.radarClip.addEventListener('touchstart', (e) => {
+                            isDragging = true;
+                            startX = e.touches[0].clientX - radarPanX;
+                            startY = e.touches[0].clientY - radarPanY;
+                        }, {passive: true});
+                        
+                        window.addEventListener('touchmove', (e) => {
+                            if(!isDragging || e.touches.length > 1) return;
+                            e.preventDefault(); 
+                            radarPanX = e.touches[0].clientX - startX;
+                            radarPanY = e.touches[0].clientY - startY;
+                            DOM.radarDrag.style.transform = `translate(${radarPanX}px, ${radarPanY}px) scale(${visualScale})`;
+                        }, {passive: false});
+                        window.addEventListener('touchend', () => { isDragging = false; });
+
+                        DOM.radarPlay.setAttribute('data-bound', 'true');
+                    }
 
                     DOM.radarLoader.style.opacity = '0';
-                    setTimeout(() => DOM.radarLoader.style.display = 'none', 300);
                     setFrame(0);
-                    play();
+                    if (isRadarPlaying) play();
 
                 } catch(e) {
                     DOM.radarLoader.innerHTML = '<span class="font-mono text-sm text-red-500 bg-slate-900 p-2 rounded">> TACTICAL GRID FAILURE.</span>';
@@ -682,20 +831,32 @@
                 DOM.locName.textContent = AppState.name;
                 DOM.locCoords.textContent = `LAT: ${AppState.lat.toFixed(4)} | LON: ${AppState.lon.toFixed(4)}`;
 
+                TelemetrySim.init(); 
+
                 const [weather, aqi, alerts, radar] = await Promise.all([
                     fetchWeatherData(),
                     fetchAQIData(),
                     fetchNWSAlerts(),
-                    buildRadarEngine()
+                    buildRadarEngine(false)
                 ]);
                 
                 updateDoomIndex(weather, aqi, alerts);
+
+                if(AppState.microPollIntervalId) clearInterval(AppState.microPollIntervalId);
+                AppState.microPollIntervalId = setInterval(async () => {
+                    const [w, a] = await Promise.all([ fetchWeatherData(true), fetchAQIData() ]);
+                    updateDoomIndex(w, a, []); 
+                }, 60000);
+
+                if(AppState.radarIntervalId_5min) clearInterval(AppState.radarIntervalId_5min);
+                AppState.radarIntervalId_5min = setInterval(() => {
+                    fetchNWSAlerts(); 
+                    buildRadarEngine(true); 
+                }, 300000);
             }
 
             return {
                 init: () => {
-                    console.log("> KZICK SYS: ENGINE IGNITED");
-                    
                     DOM.locBtn.addEventListener('click', () => {
                         const val = DOM.locInput.value.trim();
                         if(val) geocodeAndSync(val);
