@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kzick Weather Hub v1.2.0</title>
-    <!-- Raw SVG Favicon -->
+    <title>Kzick Weather Hub v1.2.1</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23020617'/><path d='M50 15 L20 50 L45 50 L40 85 L80 40 L55 40 Z' fill='%2306b6d4'/></svg>">
     
     <script src="https://cdn.tailwindcss.com"></script>
@@ -70,28 +69,29 @@
         <a href="https://kzick001.github.io/dashboard/" class="text-xs font-black text-cyan-700 hover:text-cyan-400 transition-colors tracking-widest uppercase flex items-center gap-2">
             <span>&larr;</span> Return to Dashboard
         </a>
-        <span class="mt-1 font-mono text-[10px] px-2 py-0.5 bg-cyan-950/80 text-cyan-400 border border-cyan-500/30 rounded tracking-widest">SYS V1.2.0 SECURE</span>
+        <span class="mt-1 font-mono text-[10px] px-2 py-0.5 bg-cyan-950/80 text-cyan-400 border border-cyan-500/30 rounded tracking-widest">SYS V1.2.1 SECURE</span>
     </div>
 
     <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 relative mt-16 md:mt-20">
 
-        <!-- MODULE 1: COMMAND BAR (AQI + Hazards) -->
-        <div class="relative bg-slate-900/80 backdrop-blur-sm rounded-xl shadow-lg border border-cyan-500/20 p-6 hover-scale overflow-hidden group lg:col-span-3">
-            <div class="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent via-cyan-500/5 to-transparent h-20 w-full animate-scanline opacity-20"></div>
-            <div class="mt-2 flex flex-col md:flex-row justify-between items-center gap-6">
+        <div class="relative bg-slate-900/80 backdrop-blur-sm rounded-xl shadow-lg border border-cyan-500/20 p-6 hover-scale group lg:col-span-3">
+            <div class="absolute inset-0 overflow-hidden rounded-xl pointer-events-none z-0">
+                <div class="absolute inset-0 bg-gradient-to-b from-transparent via-cyan-500/5 to-transparent h-20 w-full animate-scanline opacity-20"></div>
+            </div>
+            
+            <div class="mt-2 flex flex-col md:flex-row justify-between items-center gap-6 relative z-10">
                 
                 <div class="flex-1 w-full text-center md:text-left">
                     <h1 class="text-3xl font-bold tracking-tight text-slate-100" id="ui-location-name">St. Louis Park, MN</h1>
                     <p class="font-mono text-cyan-400 text-sm mt-1" id="ui-coords">LAT: 44.9483 | LON: -93.3666</p>
-                    <div class="flex mt-4 w-full max-w-sm relative z-10 mx-auto md:mx-0">
+                    <div class="flex mt-4 w-full max-w-sm relative mx-auto md:mx-0">
                         <input type="text" id="location-input" placeholder="Zip code or City..." class="bg-slate-950/50 border border-cyan-500/30 text-slate-200 font-mono text-sm px-4 py-2 rounded-l outline-none focus:border-cyan-400 w-full">
                         <button id="location-btn" class="bg-cyan-950/80 border border-cyan-500/30 text-cyan-400 font-mono text-sm px-4 py-2 rounded-r hover:bg-cyan-900 hover:text-cyan-300 transition-colors">OVERRIDE</button>
                     </div>
                 </div>
                 
-                <div class="flex items-start space-x-6 md:space-x-8 bg-slate-950/40 p-4 rounded border border-slate-700/50 relative z-10 w-full md:w-auto justify-center">
+                <div class="flex items-start space-x-6 md:space-x-8 bg-slate-950/40 p-4 rounded border border-slate-700/50 relative w-full md:w-auto justify-center">
                     
-                    <!-- Feature D: Environmental Hazard Deep-Dive -->
                     <div class="flex flex-col items-center">
                         <span class="text-[10px] font-mono text-slate-400 tracking-widest mb-2">US AQI</span>
                         <div id="ui-aqi-ring" class="w-16 h-16 rounded-full border-4 border-cyan-500 flex items-center justify-center transition-colors duration-500">
@@ -99,22 +99,21 @@
                         </div>
                         <span id="ui-aqi-desc-top" class="text-[10px] font-mono mt-2 uppercase tracking-wider text-cyan-400 text-center w-24">SCANNING</span>
                         
-                        <details class="mt-3 group/env w-full text-center">
+                        <details class="mt-3 group/env w-full text-center relative z-50">
                             <summary class="cursor-pointer text-[10px] font-mono text-slate-500 hover:text-cyan-400 transition-colors outline-none list-none marker:hidden">
                                 <span class="group-open/env:hidden">▼ BIO-HAZARDS</span>
                                 <span class="hidden group-open/env:block text-cyan-500">▲ COLLAPSE</span>
                             </summary>
-                            <div class="mt-2 text-[10px] font-mono text-slate-400 space-y-1 bg-slate-900/80 border border-slate-700/50 rounded p-2 text-left absolute w-48 -translate-x-12 z-50">
-                                <div class="flex justify-between border-b border-slate-700/50 pb-1"><span>TREES</span><span id="ui-idx-tree" class="text-white">--</span></div>
-                                <div class="flex justify-between border-b border-slate-700/50 pb-1"><span>GRASS</span><span id="ui-idx-grass" class="text-white">--</span></div>
-                                <div class="flex justify-between"><span>WEED</span><span id="ui-idx-weed" class="text-white">--</span></div>
+                            <div class="mt-2 text-[10px] font-mono text-slate-300 space-y-1.5 bg-slate-900 border border-cyan-500/30 rounded p-3 text-left absolute w-48 shadow-2xl -translate-x-12 md:-translate-x-1/4">
+                                <div class="flex justify-between border-b border-slate-700/50 pb-1"><span>TREE POLLEN</span><span id="ui-idx-tree" class="text-white font-bold">--</span></div>
+                                <div class="flex justify-between border-b border-slate-700/50 pb-1"><span>GRASS POLLEN</span><span id="ui-idx-grass" class="text-white font-bold">--</span></div>
+                                <div class="flex justify-between"><span>WEED POLLEN</span><span id="ui-idx-weed" class="text-white font-bold">--</span></div>
                             </div>
                         </details>
                     </div>
 
                     <div class="w-px h-16 bg-slate-700/50"></div>
 
-                    <!-- DOOM INDEX -->
                     <div class="relative flex flex-col items-center">
                         <span class="text-[10px] font-mono text-slate-400 tracking-widest mb-2">DOOM INDEX</span>
                         <div class="relative w-16 h-16">
@@ -134,7 +133,6 @@
             </div>
         </div>
 
-        <!-- MODULE 2: CURRENTLY (Telemetry & Feature A/B/C/E) -->
         <div class="relative bg-slate-900/80 backdrop-blur-sm rounded-xl shadow-lg border border-cyan-500/20 p-6 hover-scale overflow-hidden group lg:col-span-1">
             <div class="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent via-cyan-500/5 to-transparent h-20 w-full animate-scanline opacity-20"></div>
             <div class="mt-2 relative z-10">
@@ -148,48 +146,51 @@
                     </div>
                 </div>
 
-                <div class="flex items-end">
-                    <div class="font-mono text-5xl text-white mt-2" id="ui-current-temp">--°F</div>
-                    <!-- Feature E: Frost Risk Badge -->
-                    <div id="ui-frost-badge" class="hidden bg-blue-900/50 text-blue-300 border border-blue-500/50 px-2 py-0.5 rounded text-[10px] ml-3 mb-2 animate-pulse font-mono tracking-widest">FROST RISK</div>
+                <div class="flex items-center mt-2">
+                    <div id="ui-current-icon" class="w-16 h-16 mr-4 text-cyan-400"></div>
+                    <div class="flex flex-col">
+                        <div class="flex items-center">
+                            <span class="font-mono text-5xl text-white font-bold" id="ui-current-temp">--°</span>
+                            <div id="ui-frost-badge" class="hidden bg-blue-900/50 text-blue-300 border border-blue-500/50 px-2 py-0.5 rounded text-[10px] ml-3 animate-pulse font-mono tracking-widest">FROST RISK</div>
+                        </div>
+                        <span class="font-mono text-sm text-cyan-400 mt-1" id="ui-current-desc">> Fetching arrays...</span>
+                    </div>
                 </div>
                 
-                <div class="font-mono text-sm text-cyan-400 mt-2 mb-4 flex items-center justify-between">
-                    <span id="ui-current-desc">> Fetching arrays...</span>
-                    <!-- Feature C: Solar Sync -->
-                    <div class="flex items-center space-x-2 text-[10px] text-slate-400 border border-slate-700/50 bg-slate-950/50 px-2 py-1 rounded">
-                        <svg class="w-3 h-3 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                        <span id="ui-sunrise">--:--</span>
-                        <span class="opacity-50">|</span>
-                        <span id="ui-sunset">--:--</span>
+                <div class="mt-6 mb-4 flex items-center justify-around text-sm text-slate-300 border border-slate-700/50 bg-slate-950/80 px-4 py-3 rounded shadow-inner">
+                    <div class="flex items-center space-x-2">
+                        <svg class="w-6 h-6 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                        <span id="ui-sunrise" class="font-mono font-bold text-white tracking-wide">--:--</span>
+                    </div>
+                    <span class="opacity-30">|</span>
+                    <div class="flex items-center space-x-2">
+                        <svg class="w-6 h-6 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 21v-1m0-16V3m9 9h1M4 12H3m15.364 6.364l.707.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z M12 16a4 4 0 004-4h-8a4 4 0 004 4z"></path></svg>
+                        <span id="ui-sunset" class="font-mono font-bold text-white tracking-wide">--:--</span>
                     </div>
                 </div>
                 
                 <div class="pt-3 border-t border-slate-700/50 space-y-3 font-mono text-sm text-slate-300">
-                    <div class="flex justify-between"><span>HUMIDITY</span> <span id="ui-hum" class="text-cyan-400">--%</span></div>
+                    <div class="flex justify-between"><span>HUMIDITY</span> <span id="ui-hum" class="text-cyan-400 font-bold">--%</span></div>
                     
-                    <!-- Feature B: Tactical Wind Vector -->
                     <div class="flex justify-between items-center">
                         <span>WIND</span> 
                         <div class="flex items-center space-x-2 text-cyan-400">
                             <svg id="ui-wind-compass" class="w-4 h-4 text-cyan-400 transition-transform duration-500" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-width="2" d="M12 2L16 10L12 8L8 10L12 2Z"></path><path stroke-width="2" d="M12 22v-4"></path></svg>
-                            <span id="ui-wind">--</span>
+                            <span id="ui-wind" class="font-bold">--</span>
                         </div>
                     </div>
 
-                    <!-- Feature E: Dew Point -->
-                    <div class="flex justify-between"><span>DEW POINT</span> <span id="ui-dew" class="text-cyan-400">--°F</span></div>
-                    <div class="flex justify-between"><span>UV MAX</span> <span id="ui-uv" class="text-cyan-400">--</span></div>
+                    <div class="flex justify-between"><span>DEW POINT</span> <span id="ui-dew" class="text-cyan-400 font-bold">--°F</span></div>
+                    <div class="flex justify-between"><span>UV MAX</span> <span id="ui-uv" class="text-cyan-400 font-bold">--</span></div>
                 </div>
 
-                <!-- Feature A: The 24-Hour Sparkline -->
                 <details class="mt-4 pt-4 border-t border-slate-700/50 group/hourly outline-none">
-                    <summary class="cursor-pointer text-[10px] font-mono text-slate-500 hover:text-cyan-400 transition-colors flex justify-center w-full bg-slate-950/40 py-1 rounded border border-slate-700/50">
-                        <span class="group-open/hourly:hidden">▼ VIEW 24-HOUR TRAJECTORY</span>
-                        <span class="hidden group-open/hourly:block text-cyan-500">▲ COLLAPSE TRAJECTORY</span>
+                    <summary class="cursor-pointer text-[10px] font-mono text-slate-500 hover:text-cyan-400 transition-colors flex justify-center w-full bg-slate-950/60 py-2 rounded border border-slate-700/50">
+                        <span class="group-open/hourly:hidden tracking-widest">▼ HOURLY FORECAST</span>
+                        <span class="hidden group-open/hourly:block text-cyan-500 tracking-widest">▲ COLLAPSE</span>
                     </summary>
                     <div class="overflow-x-auto custom-scrollbar mt-3 pb-2">
-                        <div class="flex space-x-2 min-w-max" id="hourly-container">
+                        <div class="flex space-x-3 min-w-max" id="hourly-container">
                             <span class="font-mono text-xs text-slate-500">> Awaiting pipeline...</span>
                         </div>
                     </div>
@@ -197,7 +198,6 @@
             </div>
         </div>
 
-        <!-- MODULE 3: 10-DAY FORECAST -->
         <div class="relative bg-slate-900/80 backdrop-blur-sm rounded-xl shadow-lg border border-cyan-500/20 p-6 hover-scale overflow-hidden group lg:col-span-2 flex flex-col">
             <div class="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent via-cyan-500/5 to-transparent h-20 w-full animate-scanline opacity-20"></div>
             <div class="mt-2 flex items-center space-x-3 mb-6 relative z-10">
@@ -213,7 +213,6 @@
             </div>
         </div>
 
-        <!-- MODULE 4: NWS ALERTS -->
         <div class="relative bg-slate-900/80 backdrop-blur-sm rounded-xl shadow-lg border border-cyan-500/20 p-6 hover-scale overflow-hidden group lg:col-span-3">
             <div class="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent via-cyan-500/5 to-transparent h-20 w-full animate-scanline opacity-20"></div>
             <div class="mt-2 flex items-center space-x-3 mb-4 relative z-10">
@@ -227,7 +226,6 @@
             </div>
         </div>
 
-        <!-- MODULE 5: V1.2 RADAR (IEM NEXRAD Migration) -->
         <div class="relative bg-slate-900/80 backdrop-blur-sm rounded-xl shadow-lg border border-cyan-500/20 p-6 overflow-hidden group lg:col-span-3 flex flex-col h-[750px]">
             <div class="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent via-cyan-500/5 to-transparent h-20 w-full animate-scanline opacity-20 z-0"></div>
             
@@ -242,11 +240,11 @@
                     </div>
                 </div>
                 <div class="flex items-center space-x-3">
-                    <div class="font-mono text-xs text-cyan-400 bg-slate-950/80 px-3 py-1.5 rounded border border-cyan-500/30" id="radar-time">--:--</div>
+                    <span class="text-[10px] font-mono text-slate-400 mr-2" id="radar-time-label">T-MINUS</span>
+                    <div class="font-mono text-sm font-bold text-cyan-400 bg-slate-950/80 px-3 py-1.5 rounded border border-cyan-500/30" id="radar-time">-50m</div>
                 </div>
             </div>
 
-            <!-- Custom Interactive Map Canvas -->
             <div class="relative flex-1 bg-[#1e1e1e] rounded border border-cyan-500/30 overflow-hidden z-10" id="radar-clip-window">
                 <button id="radar-reset" class="absolute top-4 left-4 bg-slate-900/90 backdrop-blur border border-slate-700 hover:border-cyan-500 text-slate-300 hover:text-cyan-400 font-mono px-3 py-2 rounded transition-colors shadow-lg z-30" title="Recenter Map">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
@@ -258,7 +256,7 @@
                 </div>
                 
                 <div class="absolute top-4 left-1/2 -translate-x-1/2 flex items-center justify-center bg-slate-900/90 px-4 py-2 rounded-full border border-cyan-500/50 z-20 transition-opacity duration-300 pointer-events-none shadow-lg" id="radar-loader">
-                    <span class="font-mono text-xs text-cyan-400 animate-pulse">> Hydrating Map Vector...</span>
+                    <span class="font-mono text-xs text-cyan-400 animate-pulse">> Hydrating NEXRAD Vector...</span>
                 </div>
 
                 <div class="absolute top-4 right-4 flex flex-col space-y-2 z-30">
@@ -274,12 +272,12 @@
                     <button id="radar-play" class="bg-cyan-950 border border-cyan-500 text-cyan-400 font-mono text-xs px-4 py-2 rounded hover:bg-cyan-900 hover:text-white transition-colors w-24">PAUSE</button>
                     <button id="radar-speed-btn" class="bg-slate-800 border border-slate-600 text-slate-300 font-mono text-xs px-3 py-2 rounded hover:bg-slate-700 transition-colors w-16">1x</button>
                     <div class="flex-1 flex items-center space-x-3 px-2 border-l border-slate-700 min-w-[150px]">
-                        <span class="text-[10px] font-mono text-slate-400 hidden sm:inline">TIME</span>
+                        <span class="text-[10px] font-mono text-slate-400 hidden sm:inline">TIMELINE</span>
                         <input type="range" id="radar-scrubber" min="0" max="9" step="1" value="0" class="flex-1">
                     </div>
                     <div class="flex items-center space-x-3 px-2 border-l border-slate-700 w-32 md:max-w-[200px]">
                         <span class="text-[10px] font-mono text-slate-400 hidden sm:inline">OPACITY</span>
-                        <input type="range" id="radar-opacity-slider" min="0" max="1" step="0.01" value="1" class="flex-1">
+                        <input type="range" id="radar-opacity-slider" min="0" max="1" step="0.01" value="0.85" class="flex-1">
                     </div>
                 </div>
             </div>
@@ -290,7 +288,7 @@
 
     <script>
         /**
-         * THE ENGINE ROOM. V1.2.0.
+         * THE ENGINE ROOM. V1.2.1.
          * Single-Pipe Protocol. IEM Unmetered Radar.
          */
 
@@ -318,9 +316,9 @@
                         if (age < ttlMs) return parsed.data; 
                     }
                     const res = await fetch(url);
+                    if (!res.ok) throw new Error("API Failure");
                     const data = await res.json();
                     
-                    // Don't cache proxy/API errors so it can recover cleanly
                     if (!data.error && !data.code && !data.message) {
                         sessionStorage.setItem(`kzick_weather_${endpointKey}`, JSON.stringify({
                             timestamp: Date.now(), data: data
@@ -331,7 +329,27 @@
             }
         })();
 
-        // Data Mapping Rewrite (Tomorrow.io)
+        // FIX 6: Custom SVG Logic Engine for dynamic weather rendering
+        const getWeatherIcon = (code) => {
+            const c = parseInt(code);
+            if(isNaN(c)) return `<svg class="w-full h-full text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path></svg>`;
+            
+            // Clear / Sunny
+            if(c === 1000) return `<svg class="w-full h-full text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>`;
+            // Partly/Mostly Cloudy
+            if([1100, 1101, 1102].includes(c)) return `<svg class="w-full h-full text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 5l.01-.01M19.07 7.93l.01-.01"></path></svg>`;
+            // Cloudy/Fog
+            if([1001, 2000, 2100].includes(c)) return `<svg class="w-full h-full text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path></svg>`;
+            // Rain / Drizzle / Freezing Rain
+            if((c >= 4000 && c < 5000) || (c >= 6000 && c < 7000)) return `<svg class="w-full h-full text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14.99A4 4 0 0015 11H9.5a5.5 5.5 0 00-5.5 5.5v.5h15v-2zM12 21v-4m-4 4v-4m8 4v-4"></path></svg>`;
+            // Snow / Flurries / Ice
+            if((c >= 5000 && c < 6000) || (c >= 7000 && c < 8000)) return `<svg class="w-full h-full text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v18m0-18l-4 4m4-4l4 4m-4 14l-4-4m4 4l4-4M5.636 6.636l12.728 12.728m-12.728 0L18.364 6.636"></path></svg>`;
+            // Thunderstorms
+            if(c >= 8000) return `<svg class="w-full h-full text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>`;
+            
+            return `<svg class="w-full h-full text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path></svg>`;
+        };
+
         const getTomorrowWeatherDesc = (code) => {
             const map = {
                 1000: 'Clear', 1100: 'Mostly Clear', 1101: 'Partly Cloudy', 1102: 'Mostly Cloudy',
@@ -403,25 +421,21 @@
                 } catch(e) { console.error(e); } finally { DOM.locInput.value = ""; DOM.locInput.disabled = false; }
             }
 
-            // V1.2 Single-Pipe Protocol
             async function fetchMasterTelemetry() {
                 try {
                     const secureUrl = `${PROXY_URL}?lat=${AppState.lat}&lon=${AppState.lon}`;
                     const data = await CacheEngine.fetchWithCache('tomorrow_master', secureUrl, 300000); 
                     
-                    // Handle Proxy/API level errors
                     if (data.error) throw new Error(data.error);
                     if (data.code && data.type) throw new Error(`${data.type}: ${data.message || 'API Error'}`);
                     if (data.message) throw new Error(data.message);
 
                     let currentLine, hourlyLine, dailyLine;
 
-                    // Handle various Tomorrow.io endpoint response structures (Arrays vs Objects)
                     if (data.timelines && !Array.isArray(data.timelines)) {
                         const minutely = data.timelines.minutely || [];
                         const hourly = data.timelines.hourly || [];
                         const daily = data.timelines.daily || [];
-                        
                         currentLine = { intervals: minutely.length > 0 ? [minutely[0]] : (hourly.length > 0 ? [hourly[0]] : []) };
                         hourlyLine = { intervals: hourly };
                         dailyLine = { intervals: daily };
@@ -436,21 +450,19 @@
                         hourlyLine = timelines.find(t => t.timestep === '1h');
                         dailyLine = timelines.find(t => t.timestep === '1d');
                     } else {
-                        console.error("Raw API Response:", data);
-                        throw new Error("Invalid API payload structure. Check API Key and limits.");
+                        throw new Error("Invalid API payload structure. Check Proxy Target URL.");
                     }
 
                     if(!currentLine || !currentLine.intervals || !currentLine.intervals[0]) {
-                        console.error("Raw payload:", data);
                         throw new Error("No payload intervals found.");
                     }
 
                     const cur = currentLine.intervals[0].values;
                     const dailyFirst = dailyLine?.intervals[0]?.values || {};
 
-                    // MODULE 1: Hazard Deep Dive (Feature D)
+                    // Hazard Deep Dive
                     let aqiVal = cur.epaPrimaryAQI !== undefined ? cur.epaPrimaryAQI : (cur.epaIndex !== undefined ? cur.epaIndex : 1);
-                    if(aqiVal <= 6 && aqiVal >= 1) { // Transform 1-6 EPA index to approximate AQI Number
+                    if(aqiVal <= 6 && aqiVal >= 1) { 
                         const aqiMap = {1:25, 2:75, 3:125, 4:175, 5:250, 6:400};
                         aqiVal = aqiMap[aqiVal] || 25;
                     }
@@ -471,21 +483,22 @@
                     DOM.idxGrass.textContent = cur.grassIndex !== undefined ? cur.grassIndex : '--';
                     DOM.idxWeed.textContent = cur.weedIndex !== undefined ? cur.weedIndex : '--';
 
-                    // MODULE 2: Currently
-                    document.getElementById('ui-current-temp').textContent = `${Math.round(cur.temperature || 0)}°F`;
+                    // Currently Panel
+                    document.getElementById('ui-current-temp').textContent = `${Math.round(cur.temperature || 0)}°`;
                     document.getElementById('ui-current-desc').textContent = `> ${getTomorrowWeatherDesc(cur.weatherCode).toUpperCase()}`;
+                    document.getElementById('ui-current-icon').innerHTML = getWeatherIcon(cur.weatherCode); // FIX 6: SVG injected
                     document.getElementById('ui-hum').textContent = `${Math.round(cur.humidity || 0)}%`;
                     document.getElementById('ui-dew').textContent = `${Math.round(cur.dewPoint || 0)}°F`;
                     document.getElementById('ui-uv').textContent = cur.uvIndex !== undefined ? cur.uvIndex : '--';
                     
-                    // Feature B: Tactical Wind Vector
+                    // Tactical Wind Vector
                     const wSpeed = Math.round(cur.windSpeed || 0);
                     const wGust = Math.round(cur.windGust || wSpeed);
                     const wDir = cur.windDirection || 0;
                     document.getElementById('ui-wind').textContent = `${wSpeed} mph (Gust ${wGust})`;
                     document.getElementById('ui-wind-compass').style.transform = `rotate(${wDir}deg)`;
 
-                    // Feature C: Solar Sync
+                    // Solar Sync
                     if(dailyFirst.sunriseTime && dailyFirst.sunsetTime) {
                         const sr = new Date(dailyFirst.sunriseTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                         const ss = new Date(dailyFirst.sunsetTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
@@ -493,7 +506,7 @@
                         document.getElementById('ui-sunset').textContent = ss;
                     }
 
-                    // Feature E: Frost Risk Badge
+                    // Frost Risk
                     const frostBadge = document.getElementById('ui-frost-badge');
                     if ((cur.temperature || 0) <= 36 && Math.abs((cur.temperature || 0) - (cur.dewPoint || 0)) <= 3) {
                         frostBadge.classList.remove('hidden');
@@ -501,7 +514,7 @@
                         frostBadge.classList.add('hidden');
                     }
 
-                    // Feature A: 24-Hour Sparkline
+                    // FIX 5: Hourly Forecast
                     if (hourlyLine && hourlyLine.intervals) {
                         let hourlyHTML = '';
                         const hTicks = hourlyLine.intervals.slice(0, 24);
@@ -510,13 +523,14 @@
                             const tStr = date.toLocaleTimeString([], {hour: 'numeric'});
                             const hVals = h.values;
                             hourlyHTML += `
-                                <div class="flex flex-col items-center bg-slate-950/60 border border-slate-700/50 rounded p-3 min-w-[90px] text-center">
-                                    <span class="font-mono text-xs text-slate-400 mb-1">${tStr}</span>
-                                    <span class="font-mono text-xl text-white font-bold">${Math.round(hVals.temperature || 0)}°</span>
-                                    <span class="font-mono text-[9px] text-cyan-500 truncate w-full mt-1" title="${getTomorrowWeatherDesc(hVals.weatherCode)}">${getTomorrowWeatherDesc(hVals.weatherCode)}</span>
-                                    <div class="mt-2 text-[9px] font-mono text-slate-400 w-full text-left space-y-0.5">
+                                <div class="flex flex-col items-center bg-slate-950/60 border border-slate-700/50 rounded p-4 min-w-[120px] text-center shadow-md">
+                                    <span class="font-mono text-sm text-slate-400 mb-2">${tStr}</span>
+                                    <div class="w-8 h-8 mb-2">${getWeatherIcon(hVals.weatherCode)}</div>
+                                    <span class="font-mono text-2xl text-white font-bold">${Math.round(hVals.temperature || 0)}°</span>
+                                    <span class="font-mono text-[10px] text-cyan-500 truncate w-full mt-1" title="${getTomorrowWeatherDesc(hVals.weatherCode)}">${getTomorrowWeatherDesc(hVals.weatherCode)}</span>
+                                    <div class="mt-3 text-[10px] font-mono text-slate-400 w-full text-left space-y-1">
                                         <div class="flex justify-between"><span>DP:</span><span class="text-cyan-400">${Math.round(hVals.dewPoint || 0)}°</span></div>
-                                        <div class="flex justify-between"><span>W:</span><span class="text-cyan-400">${Math.round(hVals.windSpeed || 0)}</span></div>
+                                        <div class="flex justify-between"><span>WND:</span><span class="text-cyan-400">${Math.round(hVals.windSpeed || 0)}</span></div>
                                     </div>
                                 </div>
                             `;
@@ -534,18 +548,22 @@
                             const v = d.values;
                             const precip = v.precipitationProbability || 0;
                             
-                            // Frost check inside detailed view
+                            // FIX 3: Fallback logic for Daily weatherCode 
+                            const wCodeDaily = v.weatherCodeMax || v.weatherCodeMin || v.weatherCode || 0;
                             const hasFrost = ((v.temperatureMin || 0) <= 36 && Math.abs((v.temperatureMin || 0) - (v.dewPoint || 0)) <= 3);
                             
                             forecastHTML += `
-                                <details class="group/day bg-slate-950/60 border border-slate-700/50 rounded p-4 min-w-[200px] hover:border-cyan-500/50 transition-colors cursor-pointer shadow-md">
+                                <details class="group/day bg-slate-950/60 border border-slate-700/50 rounded p-4 min-w-[220px] hover:border-cyan-500/50 transition-colors cursor-pointer shadow-md">
                                     <summary class="list-none marker:hidden outline-none flex flex-col items-center border-b border-transparent group-open/day:border-slate-700/50 pb-2 mb-2 transition-colors">
-                                        <span class="font-mono text-xs text-slate-400 mb-2">${dayName}</span>
-                                        <div class="flex items-end space-x-2">
-                                            <span class="font-mono text-3xl text-white font-bold">${Math.round(v.temperatureMax || 0)}°</span>
-                                            <span class="font-mono text-sm text-slate-500 pb-1">${Math.round(v.temperatureMin || 0)}°</span>
+                                        <span class="font-mono text-xs text-slate-400 mb-3">${dayName}</span>
+                                        <div class="flex items-center space-x-4 mb-2">
+                                            <div class="w-10 h-10">${getWeatherIcon(wCodeDaily)}</div>
+                                            <div class="flex items-end space-x-2">
+                                                <span class="font-mono text-3xl text-white font-bold">${Math.round(v.temperatureMax || 0)}°</span>
+                                                <span class="font-mono text-sm text-slate-500 pb-1">${Math.round(v.temperatureMin || 0)}°</span>
+                                            </div>
                                         </div>
-                                        <span class="font-mono text-[11px] text-cyan-400 text-center whitespace-normal leading-tight w-full mt-2 min-h-[28px]">${getTomorrowWeatherDesc(v.weatherCode)}</span>
+                                        <span class="font-mono text-[11px] text-cyan-400 text-center whitespace-normal leading-tight w-full mt-1 min-h-[28px]">${getTomorrowWeatherDesc(wCodeDaily)}</span>
                                         <span class="text-[10px] font-mono text-slate-500 mt-2 group-open/day:hidden group-hover/day:text-cyan-500 transition-colors">▼ EXPAND DETAILS</span>
                                         <span class="text-[10px] font-mono text-cyan-500 mt-2 hidden group-open/day:block">▲ COLLAPSE</span>
                                     </summary>
@@ -564,7 +582,6 @@
                     return { temp: cur.temperature || 0, windSpeed: cur.windSpeed || 0, aqi: aqiVal };
                 } catch(e) { 
                     console.error("Master Sync Failure:", e);
-                    // Surface actual error to UI for debugging
                     document.getElementById('ui-current-desc').textContent = `> ${e.message.toUpperCase().substring(0, 35)}`;
                     return { temp: 50, windSpeed: 0, aqi: 1 };
                 }
@@ -628,7 +645,7 @@
                 else DOM.doomRing.classList.add('text-red-600', 'animate-pulse');
             }
 
-            // Feature F: IEM NEXRAD Radar Engine
+            // FIX 4: IEM NEXRAD Radar Engine Rewrite
             let currentRadarFrame = 0, isRadarPlaying = true, radarPanX = 0, radarPanY = 0, zoomDebounceTimer = null, visualScale = 1;
             let mapObserver = null;
 
@@ -644,26 +661,15 @@
                 if (AppState.radarInterval) clearInterval(AppState.radarInterval);
 
                 try {
-                    // Feature F: Bulletproof IEM Time-Stepping Logic
-                    const frames = [];
-                    const now = new Date();
-                    const coeff = 1000 * 60 * 5;
-                    // Round down to nearest 5 minutes, subtract 5 mins safety processing buffer
-                    const safeTime = new Date(Math.floor((now.getTime() - coeff) / coeff) * coeff);
-
-                    for (let i = 9; i >= 0; i--) {
-                        const ft = new Date(safeTime.getTime() - (i * coeff));
-                        const year = ft.getUTCFullYear();
-                        const mo = String(ft.getUTCMonth() + 1).padStart(2, '0');
-                        const da = String(ft.getUTCDate()).padStart(2, '0');
-                        const hr = String(ft.getUTCHours()).padStart(2, '0');
-                        const mi = String(ft.getUTCMinutes()).padStart(2, '0');
-                        
-                        frames.push({
-                            timeCode: `nexrad-n0q-900913-${year}${mo}${da}${hr}${mi}`,
-                            timestamp: ft.getTime()
-                        });
-                    }
+                    // FIX 4: Hardcoded temporal offset array for IEM 1.0.0 cache (m50m up to m05m to prevent bleeding edge 404s)
+                    const timeOffsets = [50, 45, 40, 35, 30, 25, 20, 15, 10, 5];
+                    const frames = timeOffsets.map(offset => {
+                        const mm = offset.toString().padStart(2, '0');
+                        return {
+                            timeCode: `nexrad-n0q-900913-m${mm}m`,
+                            label: `-${offset}m`
+                        };
+                    });
 
                     const zoom = AppState.radarZoom;
                     const latRad = AppState.lat * Math.PI / 180;
@@ -680,7 +686,6 @@
                             baseHTML += `<img data-src="https://a.basemaps.cartocdn.com/dark_all/${zoom}/${x}/${y}.png" class="absolute w-[256px] h-[256px] radar-tile" style="left:${left}px; top:${top}px;" draggable="false">`;
                             
                             frames.forEach((fObj, fIndex) => {
-                                // IEM cache URL payload
                                 const url = `https://mesonet.agron.iastate.edu/cache/tile.py/1.0.0/${fObj.timeCode}/${zoom}/${x}/${y}.png`;
                                 framesHTMLArray[fIndex] += `<img data-src="${url}" class="absolute w-[256px] h-[256px] radar-tile" style="left:${left}px; top:${top}px;" draggable="false" onerror="this.onerror=null; this.src='data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs='">`;
                             });
@@ -705,7 +710,7 @@
                     DOM.radarBase.innerHTML = baseHTML;
                     
                     let compiledFrames = '';
-                    frames.forEach((fObj, index) => { compiledFrames += `<div id="radar-layer-${index}" class="absolute inset-0 radar-layer" style="opacity: ${index === 0 ? 1 : 0};" data-time="${fObj.timestamp}">${framesHTMLArray[index]}</div>`; });
+                    frames.forEach((fObj, index) => { compiledFrames += `<div id="radar-layer-${index}" class="absolute inset-0 radar-layer" style="opacity: ${index === 0 ? 1 : 0};" data-label="${fObj.label}">${framesHTMLArray[index]}</div>`; });
                     DOM.radarFrames.innerHTML = compiledFrames;
 
                     document.querySelectorAll('.radar-tile').forEach(img => mapObserver.observe(img));
@@ -718,8 +723,7 @@
                         if (newEl) {
                             triggerLazyLoadForLayer(currentRadarFrame); triggerLazyLoadForLayer((currentRadarFrame + 1) % AppState.radarMaxFrames);
                             newEl.style.opacity = '1';
-                            const date = new Date(parseInt(newEl.getAttribute('data-time')));
-                            DOM.radarTime.textContent = date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                            document.getElementById('radar-time').textContent = newEl.getAttribute('data-label');
                             DOM.radarScrubber.value = currentRadarFrame;
                         }
                     };
