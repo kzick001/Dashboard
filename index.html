@@ -590,10 +590,23 @@
 
                     // -- MAIN SPRINGBOARD WIDGET INJECTION --
                     let html = '<div class="flex gap-4 w-full justify-between items-center">';
-                    for (let i = 0; i < 4 && i < daily.length; i++) {
-                        const date = new Date(daily[i].startTime);
-                        const day = new Intl.DateTimeFormat('en-US', { weekday: 'short' }).format(date);
-                        const vals = daily[i].values;
+                  for (let i = 0; i < 4 && i < daily.length; i++) {
+    // 1. Check both possible keys from Tomorrow.io payload
+    const rawTime = daily[i].startTime || daily[i].time;
+    
+    // 2. Fallback to calculating the future date mathematically if missing
+    const date = rawTime ? new Date(rawTime) : new Date(Date.now() + (i * 86400000));
+    
+    // 3. Ultimate safety catch: If Date is STILL invalid, manually map the day
+    let day = 'UNK';
+    if (!isNaN(date.getTime())) {
+        day = new Intl.DateTimeFormat('en-US', { weekday: 'short' }).format(date);
+    } else {
+        const fallbackDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        day = fallbackDays[(new Date().getDay() + i) % 7];
+    }
+
+    const vals = daily[i].values;
                         const dCode = vals.weatherCodeMax || vals.weatherCodeMin || vals.weatherCode || 1100;
                         const icon = codeMap[dCode] || '🌤';
                         
