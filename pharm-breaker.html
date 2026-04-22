@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Pharmacy Breaker v1.1c (Final)</title>
+    <title>Pharmacy Breaker v1.1.2</title>
     
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -102,6 +102,14 @@
         
         #powerup-queue { display: flex; gap: 10px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
 
+        .powerup-btn {
+            border: none; padding: 4px 10px; font-size: 11px; cursor: pointer; border-radius: 4px; 
+            font-family: 'Roboto Mono', monospace; font-weight: bold; transition: filter 0.2s;
+        }
+        .powerup-btn:hover { filter: brightness(1.1); }
+        .powerup-btn:active { transform: translateY(1px); }
+        .powerup-btn:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(100%); }
+
         .tooltip { position: relative; cursor: help; border-bottom: 1px dotted #b2bec3; }
         .tooltip .tooltip-text {
             visibility: hidden; width: 150px; background-color: #2d3436; color: #fff;
@@ -156,6 +164,9 @@
         .card-desc { font-size: 10px; font-weight: normal; color: #636e72; line-height: 1.3;}
         .card-type { font-size: 10px; text-transform: uppercase; margin-bottom: 5px; color: var(--primary); font-weight: bold;}
         .card-type.consumable { color: #e17055; }
+
+        #briefing-tip { font-size: 15px !important; line-height: 1.4; color: #d63031 !important; font-weight: bold; text-align: center; }
+        #briefing-title, #briefing-condition { display: none; }
     </style>
 </head>
 <body>
@@ -187,8 +198,8 @@
             <div class="header-bottom-row">
                 <div id="tolerance-label">MISDISPENSE TOLERANCE</div>
                 <div id="powerup-queue">
-                    <span class="tooltip" style="color:#a29bfe;">SPL: <span id="active-split">0</span><span class="tooltip-text">Split Rounds: Fragments into 3 tablets.</span></span>
-                    <span class="tooltip" style="color:#00cec9;">PRC: <span id="active-pierce">0</span><span class="tooltip-text">Pierce Rounds: Punches through targets.</span></span>
+                    <button id="btn-use-split" class="powerup-btn tooltip" style="background:#a29bfe; color:#fff;">SPL: <span id="active-split">0</span><span class="tooltip-text">Click to load Split Round</span></button>
+                    <button id="btn-use-pierce" class="powerup-btn tooltip" style="background:#00cec9; color:#fff;">PRC: <span id="active-pierce">0</span><span class="tooltip-text">Click to load Pierce Round</span></button>
                 </div>
             </div>
             <div id="tolerance-bar-bg"><div id="tolerance-bar-fill"></div><span id="tolerance-text"></span></div>
@@ -207,13 +218,13 @@
 
     <div id="menu-level-briefing" class="overlay hidden">
         <div class="panel">
-            <h2 id="briefing-color" style="text-transform: uppercase; font-size: 14px; color:#636e72;">Target Colors</h2>
-            <h1 id="briefing-title" style="font-family: 'Caveat', cursive; color: var(--primary); font-size: 34px; line-height: 1.1; margin: 10px 0;">Take 1, twice daily...</h1>
-            <p id="briefing-condition" style="font-size: 13px; color: #2d3436; text-align: left; margin-bottom: 10px;">Indication: ...</p>
-            <div style="background: #f8f9fa; padding: 12px; border-left: 4px solid var(--primary); margin-bottom: 20px; text-align: left; border-radius: 0 4px 4px 0;">
-                <p id="briefing-tip" style="margin: 0; font-size: 12px; color:#2d3436;">Note: ...</p>
+            <h1 id="briefing-shift-header" style="color: var(--primary); font-size: 32px; margin-bottom: 15px;">SHIFT 1</h1>
+            <h2 id="briefing-color" style="text-transform: uppercase; font-size: 14px; color:#636e72; margin-bottom: 10px;">Target Quotas</h2>
+            <div id="briefing-visual-quotas" style="display: flex; gap: 10px; justify-content: center; margin-bottom: 20px;"></div>
+            <div style="background: #f8f9fa; padding: 15px; border-left: 4px solid var(--danger); margin-bottom: 20px; text-align: left; border-radius: 0 4px 4px 0;">
+                <p id="briefing-tip" style="margin: 0;"></p>
             </div>
-            <button id="btn-start-level" class="action-btn">Acknowledge</button>
+            <button id="btn-start-level" class="action-btn">Clock In</button>
         </div>
     </div>
 
@@ -234,23 +245,23 @@
         </div>
     </div>
 
+    <div id="menu-win" class="overlay hidden">
+        <div class="panel">
+            <h1 class="safe-text">PRESCRIPTION FILLED</h1>
+            <p>Quota met. Ready for the next patient.</p>
+            <button id="btn-next" class="action-btn">Next Patient</button>
+        </div>
+    </div>
+
     <div id="menu-gameover" class="overlay hidden">
         <div class="panel">
-            <h1 class="danger-text">TERMINATED WITH CAUSE</h1>
-            <p>Too many mis-dispenses, security will escort you out.</p>
+            <h1 class="danger-text">TERMINATED</h1>
+            <p>Malpractice tolerance exceeded. Surrender your spatula.</p>
             <div class="stats-block">
                 <p style="margin-bottom:5px;">Severance Pay: <span id="stats-score" style="color:var(--primary); font-weight:bold;">0</span></p>
                 <p style="margin:0;">Shift Duration: <span id="stats-filled" style="font-weight:bold;">0</span></p>
             </div>
             <button id="btn-retry" class="action-btn">Apply for Rehire</button>
-        </div>
-    </div>
-
-    <div id="menu-win" class="overlay hidden">
-        <div class="panel">
-            <h1 class="safe-text">A MEDICAL MIRACLE!</h1>
-            <p>They survived! It's a true testament to your haphazard flinging.</p>
-            <button id="btn-next" class="action-btn">Next Patient</button>
         </div>
     </div>
     
@@ -267,10 +278,6 @@
 </div>
 
 <script>
-/**
- * config.js - Pharmacy Breaker v1.1c (Phase 3 Execution)
- */
-
 const CONFIG = {
     physics: { baseVelocity: 550, maxVelocity: 950, velocityMultiplier: 1.03, hitboxRadius: 8 },
     launcher: { minAngleDeg: 15, maxActiveTablets: 1 },
@@ -290,7 +297,6 @@ const CONFIG = {
         ],
         consumables: [
             { id: "laser_pointer", name: "Laser Pointer", desc: "Dashed trajectory aiming line returns for this level only." },
-            { id: "alchemists_vial", name: "Alchemist's Vial", desc: "First tablet fired acts as a Generic Substitution bomb." },
             { id: "safety_goggles", name: "Safety Goggles", desc: "Red hazard explosions deal exactly half their normal tolerance damage." },
             { id: "controlled_demo", name: "Controlled Demolition", desc: "Hitting a red pill safely destroys the entire row it sits on without draining tolerance." }
         ]
@@ -315,10 +321,10 @@ const LORE_DB = {
         1: "Welcome, intern. Point the spatula, hit the required pills. Try not to poison anyone on your first day.",
         2: "New inventory approved. Cyan pills give you the pierce ability. Purple pills give you the 3-split power. Green crosses give you extra lives and prevent immediate termination.",
         3: "The patients need a cocktail now. Fill both quotas. Smash a color we don't need, and you'll cause toxic reactions.",
-        4: "RED MEANS DEAD! Avoid the red pills! They explode! Hit a Rainbow pill to magically turn bombs into medicine! Science is just a suggestion here.",
+        4: "RED MEANS DEAD! Red pills are rigid hazards. Avoid them to prevent malpractice penalties.",
         5: "Mandatory union break. Enter the lounge to select one permanent career perk or a single-shift consumable.",
         11: "NEW PROTOCOL: XR (Extended Release) targets introduced. They require 2 hits to successfully dispense.",
-        16: "WARNING: Fortress formations detected. Utilize Pierce and Split to extract targets safely.",
+        16: "WARNING: Deep Run detected. Quotas will increase. Maintain pinpoint accuracy.",
         21: "CODE BLACK: Malpractice penalties have doubled. Accuracy is paramount.",
         26: "Welcome to the Night Shift. Only the best survive this ward.",
         30: "Well done, intern. Your training is complete. Let's see how long you last until you burn out. Welcome to the real pharmacy."
@@ -328,7 +334,7 @@ const LORE_DB = {
 const COLORS = {
     'Blue': 0x0984e3, 'Green': 0x00b894, 'Orange': 0xe17055, 'Yellow': 0xfdcb6e, 
     'Pink': 0xfd79a8, 'Red': 0xd63031, 'White': 0xffffff, 'Purple': 0xa29bfe, 
-    'Cyan': 0x00cec9, 'Rainbow': 0xffa500, 'BrightGreen': 0x00b894 
+    'Cyan': 0x00cec9, 'BrightGreen': 0x00b894 
 };
 
 const CAPSULE_SCHEMA = {
@@ -338,8 +344,7 @@ const CAPSULE_SCHEMA = {
     "Placebo":      { hp: 1, type: "neutral", visual: "stamped_PLACEBO" },
     "Splitter":     { hp: 1, type: "powerup", buff: "split", visual: "stamped_SPLIT" },
     "Pierce":       { hp: 1, type: "powerup", buff: "pierce", visual: "stamped_PIERCE" },
-    "1-Up":         { hp: 1, type: "powerup", buff: "life", visual: "green_cross" },
-    "Substitution": { hp: 1, type: "powerup", buff: "transmute", visual: "rainbow_pill" } 
+    "1-Up":         { hp: 1, type: "powerup", buff: "life", visual: "green_cross" }
 };
 
 let gameState = {};
@@ -350,7 +355,7 @@ function resetState() {
         isAiming: true, activeTablets: 0, powerupQueue: { split: 0, pierce: 0 },
         activeRounds: { split: 0, pierce: 0 }, lives: 3, score: 0, 
         activeRelics: [], currentConsumable: null, inProgress: false, breakRoomShownThisLevel: false,
-        targetsHitThisLevel: 0, shotsFiredThisLevel: 0
+        targetsHitThisLevel: 0, shotsFiredThisLevel: 0, isSecured: false
     };
 }
 resetState();
@@ -364,15 +369,28 @@ try {
 let globalIsMuted = savedSettings.mute;
 window.addEventListener('muteToggled', (e) => { globalIsMuted = e.detail; });
 
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+// DEFERRED AUDIO INITIALIZATION (Fixes autoplay lockouts)
+let audioCtx = null;
+function initAudio() {
+    if (!audioCtx) {
+        try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } 
+        catch(e) { console.warn("Web Audio API blocked or unsupported."); }
+    }
+    if (audioCtx && audioCtx.state === 'suspended') {
+        try { audioCtx.resume(); } catch(e) {}
+    }
+}
+
 function playTone(freq, type, duration, vol = 0.1) {
-    if (globalIsMuted) return;
-    const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-    osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-    gain.gain.setValueAtTime(vol, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
-    osc.connect(gain); gain.connect(audioCtx.destination);
-    osc.start(); osc.stop(audioCtx.currentTime + duration);
+    if (globalIsMuted || !audioCtx) return;
+    try {
+        const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+        osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(audioCtx.currentTime + duration);
+    } catch(e) {}
 }
 
 class MainScene extends Phaser.Scene {
@@ -392,16 +410,7 @@ class MainScene extends Phaser.Scene {
 
         const drawPill = (key, colorHex, visualType) => {
             g.clear();
-            if (visualType === 'rainbow_pill') {
-                const colors = [0xff0000, 0xff7f00, 0xffff00, 0x00ff00, 0x0000ff, 0x4b0082, 0x9400d3];
-                for (let i = 0; i < colors.length; i++) {
-                    g.fillStyle(colors[i], 1);
-                    g.fillRect((50/colors.length) * i, 0, Math.ceil(50/colors.length), 20);
-                }
-            } else {
-                g.fillStyle(colorHex, 1); g.fillRoundedRect(0, 0, 50, 20, 10);
-            }
-
+            g.fillStyle(colorHex, 1); g.fillRoundedRect(0, 0, 50, 20, 10);
             g.fillStyle(0xffffff, 0.2); g.fillRoundedRect(4, 2, 42, 5, 2);
 
             if (visualType && visualType.startsWith('stamped_')) {
@@ -432,7 +441,6 @@ class MainScene extends Phaser.Scene {
             let schema = CAPSULE_SCHEMA[key];
             if(key === 'Explosive') drawPill(key, COLORS['Red'], schema.visual);
             else if(key === '1-Up') drawPill(key, COLORS['BrightGreen'], schema.visual);
-            else if(key === 'Substitution') drawPill(key, COLORS['Rainbow'], schema.visual);
             else drawPill(key, COLORS['White'], schema.visual); 
         });
         Object.entries(COLORS).forEach(([cName, cHex]) => drawPill(cName, cHex, 'solid_color'));
@@ -440,7 +448,8 @@ class MainScene extends Phaser.Scene {
 
     create() {
         this.isLevelTransitioning = false;
-        this.victoryEmitters = [];
+        this.avalancheGroup = null;
+        this.endGameStamp = null;
         
         this.physics.world.setBounds(0, 0, 600, 750);
         this.physics.world.setBoundsCollision(true, true, true, false);
@@ -465,35 +474,37 @@ class MainScene extends Phaser.Scene {
 
         this.hasBouncedThisLevel = false;
 
-        document.getElementById('hud-best').innerText = (parseInt(localStorage.getItem('pharmacy_best_shift')) || 0).toString();
+        try { document.getElementById('hud-best').innerText = (parseInt(localStorage.getItem('pharmacy_best_shift')) || 0).toString(); } catch(e) {}
         this.handleSerialization();
     }
 
     handleSerialization() {
-        let saved = localStorage.getItem('pharmacy_save');
-        if (saved) {
-            try {
+        try {
+            let saved = localStorage.getItem('pharmacy_save');
+            if (saved) {
                 let data = JSON.parse(saved);
                 if (data.inProgress) {
                     gameState = data.state; gameState.lives--;
                     if (gameState.lives <= 0) { this.triggerGameOver(); return; } 
                     else { this.showFloatText(300, 400, "SHIFT ABANDONED\n-1 LIFE", COLORS['Red']); playTone(150, 'sawtooth', 0.5); }
                 } else gameState = data.state;
-            } catch(e) { resetState(); }
-        } else resetState();
+            } else resetState();
+        } catch(e) { resetState(); }
         
-        if(gameState.lives > 0) this.prepareLevelData(gameState.level);
+        switchOverlay('menu-start'); // Safe fallback ensures main menu is displayed on load.
     }
 
     saveState(inProgressFlag) {
         gameState.inProgress = inProgressFlag;
-        localStorage.setItem('pharmacy_save', JSON.stringify({ state: gameState }));
+        try { localStorage.setItem('pharmacy_save', JSON.stringify({ state: gameState })); } catch(e) {}
     }
 
     prepareLevelData(levelNumber) {
         gameState.level = levelNumber;
         gameState.targetsHitThisLevel = 0;
         gameState.shotsFiredThisLevel = 0;
+        
+        this.spatula.y = this.launcherOrigin.y;
         
         let baseTol = CONFIG.rules.baseTolerance - ((levelNumber - 1) * CONFIG.rules.toleranceDecayPerLevel);
         gameState.maxTolerance = Math.max(100, baseTol);
@@ -513,6 +524,11 @@ class MainScene extends Phaser.Scene {
             let sColor = Phaser.Math.RND.pick(standardColors.filter(c => c !== pColor));
             gameState.rxQuota[sColor] = Math.floor(targetCount / 2);
         }
+        
+        if (levelNumber >= 21) {
+            let tColor = Phaser.Math.RND.pick(standardColors.filter(c => c !== pColor && !gameState.rxQuota[c]));
+            if (tColor) gameState.rxQuota[tColor] = Math.floor(targetCount / 4);
+        }
 
         let dosage = 1, freq = 1;
         if (targetCount % 4 === 0) { dosage = 2; freq = 2; }
@@ -526,13 +542,15 @@ class MainScene extends Phaser.Scene {
         let marqueeText = `/// PATIENT: ${pName} /// ADMITTED FOR: ${condition.name} /// SYMPTOMS: ${condition.desc} /// DIRECTIONS: ${titleStr} ///`;
         document.getElementById('rx-marquee').innerText = marqueeText;
         
-        document.getElementById('rx-list').innerHTML = ''; 
-        
-        let colorKeys = Object.keys(gameState.rxQuota).join(' & ');
-        document.getElementById('briefing-color').innerText = `${colorKeys} Capsules Required`;
-        document.getElementById('briefing-title').innerText = titleStr;
-        document.getElementById('briefing-condition').innerText = `Indication: ${condition.name}`;
-        document.getElementById('briefing-tip').innerText = `Note: ${tutText}`;
+        document.getElementById('briefing-shift-header').innerText = `SHIFT ${levelNumber}`;
+        const briefQuotas = document.getElementById('briefing-visual-quotas');
+        briefQuotas.innerHTML = '';
+        for (const [color, count] of Object.entries(gameState.rxQuota)) {
+            let div = document.createElement('div');
+            div.className = 'rx-item'; div.style.backgroundColor = '#' + COLORS[color].toString(16).padStart(6, '0');
+            div.innerText = count; briefQuotas.appendChild(div);
+        }
+        document.getElementById('briefing-tip').innerText = tutText;
 
         this.saveState(true); 
         
@@ -547,17 +565,19 @@ class MainScene extends Phaser.Scene {
 
     renderLevelBoard() {
         this.isLevelTransitioning = false;
+        gameState.isSecured = false;
+        this.spatula.clearTint();
+
+        if (this.avalancheGroup) { this.avalancheGroup.clear(true, true); this.avalancheGroup = null; }
+        if (this.endGameStamp) { this.endGameStamp.destroy(); this.endGameStamp = null; }
+        
         this.capsules.clear(true, true);
+        document.getElementById('tolerance-bar-fill').style.transition = 'none';
         
         this.tablets.getChildren().forEach(t => { 
             t.setActive(false).setVisible(false); 
             if (t.body) { t.body.stop(); t.body.enable = false; }
         });
-        
-        if (this.victoryEmitters && this.victoryEmitters.length > 0) {
-            this.victoryEmitters.forEach(e => e.destroy());
-            this.victoryEmitters = [];
-        }
 
         gameState.activeTablets = 0; gameState.isAiming = true; this.hasBouncedThisLevel = false;
 
@@ -565,23 +585,21 @@ class MainScene extends Phaser.Scene {
         if (gameState.activeRelics.includes("otc_access")) gameState.activeRounds.split = Math.max(gameState.activeRounds.split, 1);
 
         this.laserPointerActive = gameState.currentConsumable === "laser_pointer";
-        this.alchemistActive = gameState.currentConsumable === "alchemists_vial";
         
         let slots = Array(7).fill(null).map(() => Array(9).fill(null));
         let availablePositions = [];
 
-        // PHASE 3: Procedural Hazards
-        if (gameState.level >= 10) {
+        if (gameState.level >= 16) {
             let patternType = gameState.level % 3;
             for (let r=0; r<7; r++) {
                 for (let c=0; c<9; c++) {
                     let isHazard = false;
-                    if (patternType === 0 && r === 5 && c >= 1 && c <= 7) isHazard = true; // Fortress Wall
-                    if (patternType === 1 && r >= 3 && (r+c)%2 === 0) isHazard = true; // Checkerboard
-                    if (patternType === 2 && r === 4 && (c === 2 || c === 6)) isHazard = true; // Pillars
+                    if (patternType === 0 && r === 5 && c >= 1 && c <= 7) isHazard = true; 
+                    if (patternType === 1 && r >= 3 && (r+c)%2 === 0) isHazard = true; 
+                    if (patternType === 2 && r === 4 && (c === 2 || c === 6)) isHazard = true; 
 
                     if (isHazard) {
-                        slots[r][c] = { typeKey: 'Explosive', tex: 'Explosive', color: 'Red' };
+                        slots[r][c] = { typeKey: 'Explosive', tex: 'Explosive', color: 'Red', indestructible: true };
                     } else {
                         availablePositions.push({r, c});
                     }
@@ -593,17 +611,12 @@ class MainScene extends Phaser.Scene {
             }
         }
 
-        // PHASE 3: Dynamic Squeeze Calculator (Prevents Array Overflow on Dense Boards)
-        let oneUpCount = 0;
         let safeSlots = availablePositions.length;
         let requestedSlots = 0;
-
-        for (const amount of Object.values(gameState.rxQuota)) { 
-            requestedSlots += (amount + 3); // Calculate total quotas + padding
-        }
+        for (const amount of Object.values(gameState.rxQuota)) { requestedSlots += (amount + 3); }
 
         if (requestedSlots > safeSlots) {
-            let scaleFactor = (safeSlots - (Object.keys(gameState.rxQuota).length * 3)) / requestedSlots;
+            let scaleFactor = Math.max(1, (safeSlots - (Object.keys(gameState.rxQuota).length * 3)) / requestedSlots);
             for (let color in gameState.rxQuota) {
                 gameState.rxQuota[color] = Math.max(1, Math.floor(gameState.rxQuota[color] * scaleFactor));
             }
@@ -611,7 +624,6 @@ class MainScene extends Phaser.Scene {
 
         Phaser.Math.RND.shuffle(availablePositions);
 
-        // Safely place the padded targets (+3 Over-dispense mines)
         for (const [quotaColor, amount] of Object.entries(gameState.rxQuota)) {
             let paddedAmount = amount + 3; 
             for (let i = 0; i < paddedAmount; i++) {
@@ -623,27 +635,36 @@ class MainScene extends Phaser.Scene {
             }
         }
 
-        // Procedural Scatter
+        let redCount = 0;
+        let finalAvailable = [];
+
         availablePositions.forEach(pos => {
-            let rand = Phaser.Math.RND.frac();
-            let typeKey = 'Standard', tex = 'Blue', color = 'Blue';
-            
-            if (gameState.level >= 2) {
-                if (rand < 0.1) { typeKey = 'Pierce'; tex = 'Pierce'; color = 'Cyan'; }
-                else if (rand < 0.2) { typeKey = 'Splitter'; tex = 'Splitter'; color = 'Purple'; }
-                else if (rand < 0.25 && oneUpCount < 1) { typeKey = '1-Up'; tex = '1-Up'; color = 'BrightGreen'; oneUpCount++; }
+            if (gameState.level >= 4 && redCount < 4 && Phaser.Math.RND.frac() < 0.15) {
+                let isAdjacent = false;
+                const dirs = [[-1,0], [1,0], [0,-1], [0,1], [-1,-1], [-1,1], [1,-1], [1,1]];
+                for(let d of dirs) {
+                    let nr = pos.r + d[0]; let nc = pos.c + d[1];
+                    if(nr>=0 && nr<7 && nc>=0 && nc<9 && slots[nr][nc] && slots[nr][nc].typeKey === 'Explosive') {
+                        isAdjacent = true; break;
+                    }
+                }
+                if(!isAdjacent) {
+                    slots[pos.r][pos.c] = { typeKey: 'Explosive', tex: 'Explosive', color: 'Red', indestructible: false };
+                    redCount++; return; 
+                }
             }
+            finalAvailable.push(pos);
+        });
 
-            if (gameState.level >= 4 && typeKey === 'Standard') {
-                if (rand < 0.40) { typeKey = 'Explosive'; tex = 'Explosive'; color = 'Red'; }
-                else if (rand < 0.50) { typeKey = 'Substitution'; tex = 'Substitution'; color = 'Rainbow'; }
+        let activeColors = Object.keys(gameState.rxQuota);
+
+        finalAvailable.forEach(pos => {
+            if (gameState.level <= 3) {
+                let fillCol = Phaser.Math.RND.pick(activeColors);
+                slots[pos.r][pos.c] = { typeKey: 'Standard', tex: fillCol, color: fillCol, indestructible: false };
+            } else {
+                slots[pos.r][pos.c] = { typeKey: 'Placebo', tex: 'Placebo', color: 'White', indestructible: false };
             }
-
-            if (typeKey === 'Standard' && rand > 0.8) { 
-                typeKey = 'Placebo'; tex = 'Placebo'; color = 'White'; 
-            }
-
-            slots[pos.r][pos.c] = { typeKey, tex, color };
         });
 
         for (let r = 0; r < 7; r++) {
@@ -656,19 +677,20 @@ class MainScene extends Phaser.Scene {
 
                 let cap = this.capsules.create(x, y, slot.tex);
                 cap.schema = CAPSULE_SCHEMA[slot.typeKey]; cap.color = slot.color; cap.hp = cap.schema.hp;
+                cap.indestructible = slot.indestructible || false;
+                cap.body.setSize(50, 20);
                 
                 if (slot.typeKey === 'Explosive' && gameState.activeRelics.includes('child_proof')) {
                     cap.hp = 2; cap.setTint(0xffaaaa);
-                }
-
-                cap.body.setSize(50, 20);
-                if (slot.typeKey === 'Explosive') {
-                    this.tweens.add({ targets: cap, alpha: 0.6, scaleX: 1.05, scaleY: 1.05, yoyo: true, repeat: -1, duration: 600 });
                 }
             }
         }
 
         this.updateUI();
+        
+        setTimeout(() => {
+            document.getElementById('tolerance-bar-fill').style.transition = 'width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), background 0.3s ease-out';
+        }, 50);
     }
 
     updateAim(pointer) {
@@ -699,18 +721,11 @@ class MainScene extends Phaser.Scene {
         let angleRad = this.spatula.rotation - Math.PI/2;
         let tipX = this.launcherOrigin.x + Math.cos(angleRad) * 90; let tipY = this.launcherOrigin.y + Math.sin(angleRad) * 90;
 
-        if (gameState.activeRounds.split === 0 && gameState.powerupQueue.split > 0) { gameState.powerupQueue.split--; gameState.activeRounds.split = 1; }
-        if (gameState.activeRounds.pierce === 0 && gameState.powerupQueue.pierce > 0) { gameState.powerupQueue.pierce--; gameState.activeRounds.pierce = 3; }
-
         let isPiercing = gameState.activeRounds.pierce > 0; let isSplitting = gameState.activeRounds.split > 0;
         
         let t1 = this.spawnTablet(tipX, tipY, angleRad);
         if(t1) { t1.setData('combo', 0); gameState.activeTablets++; }
         
-        if (this.alchemistActive && t1) {
-            t1.setData('isSubstitutionBomb', true); t1.setTint(0xffa500);
-            this.alchemistActive = false; gameState.currentConsumable = null;
-        }
         if (isPiercing && t1) { t1.setData('pierceCount', CONFIG.modifiers.strength.pierceLimit); t1.setTint(0x00ffff); }
 
         if (isSplitting) {
@@ -729,6 +744,7 @@ class MainScene extends Phaser.Scene {
         }
 
         if (isPiercing) gameState.activeRounds.pierce--;
+        this.spatula.clearTint();
         this.updateUI();
     }
 
@@ -780,14 +796,19 @@ class MainScene extends Phaser.Scene {
     damageCapsule(capsule, tablet) {
         if (!capsule.active || capsule.isDying) return;
 
-        if (tablet && tablet.getData('isSubstitutionBomb')) {
-            this.triggerSubstitutionBlast(capsule.x, capsule.y, CONFIG.feedback.blastRadiusPx * 1.5);
-            tablet.setData('isSubstitutionBomb', false); tablet.clearTint();
+        if (capsule.schema.type === 'hazard') {
+            this.triggerHazardPenalty(capsule.x, capsule.y, "MALPRACTICE!");
+            if (capsule.indestructible) {
+                capsule.setTint(0xffaaaa);
+                this.time.delayedCall(100, () => capsule.clearTint());
+                return; 
+            }
         }
 
         capsule.hp--;
         if (capsule.hp > 0) {
-            capsule.setTint(0x7f8c8d); this.tweens.add({ targets: capsule, scaleX: 1.2, scaleY: 0.8, duration: 40, yoyo: true }); return;
+            capsule.setTint(0x7f8c8d); 
+            this.tweens.add({ targets: capsule, scaleX: 1.2, scaleY: 0.8, duration: 40, yoyo: true }); return;
         }
         
         capsule.isDying = true; capsule.body.enable = false;
@@ -821,10 +842,18 @@ class MainScene extends Phaser.Scene {
                     } else {
                         gameState.rxQuota[color]--;
                     }
+                    
+                    const remainingRx = Object.values(gameState.rxQuota).reduce((a, b) => a + Math.max(0, b), 0);
+                    if (remainingRx === 0) gameState.isSecured = true;
+
                 } else if (gameState.rxQuota[color] !== undefined && gameState.rxQuota[color] === 0) {
                     if (capsule.graceTimestamp && this.time.now <= capsule.graceTimestamp) {
                         gameState.score += 10; this.safeDust.emitParticleAt(capsule.x, capsule.y, 5);
-                    } else this.triggerHazardPenalty(capsule.x, capsule.y, "OVERDOSE!");
+                    } else if (!gameState.isSecured) {
+                        this.triggerHazardPenalty(capsule.x, capsule.y, "OVERDOSE!");
+                    }
+                } else if (!gameState.isSecured) {
+                    this.triggerHazardPenalty(capsule.x, capsule.y, "WRONG MEDS!");
                 }
                 break;
             case "hazard":
@@ -832,23 +861,20 @@ class MainScene extends Phaser.Scene {
                     this.destroyRow(capsule.y, tablet);
                     this.showFloatText(capsule.x, capsule.y, "STERILIZED!", COLORS['Orange']); playTone(700, 'square', 0.2);
                 } else {
-                    this.triggerHazardPenalty(capsule.x, capsule.y, "MALPRACTICE!");
-                    this.destroyAdjacentCapsules(capsule.x, capsule.y, CONFIG.feedback.blastRadiusPx, tablet);
+                    this.dangerDust.emitParticleAt(capsule.x, capsule.y, 10);
                 }
                 break;
             case "neutral":
-                if (color === 'White' && gameState.activeRelics.includes('placebo_effect')) {
-                    gameState.currentTolerance = Math.min(gameState.maxTolerance, gameState.currentTolerance + 5);
-                    this.showFloatText(capsule.x, capsule.y, "PLACEBO!", COLORS['White']); playTone(500, 'sine', 0.1);
-                } else {
-                    this.showFloatText(capsule.x, capsule.y, "WRONG MEDS!", COLORS['White']);
+                if (color === 'White') {
+                    this.showFloatText(capsule.x, capsule.y, "PLACEBO!", COLORS['White']); 
+                    if(gameState.activeRelics.includes('placebo_effect')) {
+                        gameState.currentTolerance = Math.min(gameState.maxTolerance, gameState.currentTolerance + 5);
+                    }
                 }
                 break;
             case "powerup":
                 if (capsule.schema.buff === 'life') {
                     gameState.lives++; this.showFloatText(capsule.x, capsule.y, "REFILL AUTHORIZED!", COLORS['BrightGreen']); playTone(800, 'square', 0.2);
-                } else if (capsule.schema.buff === 'transmute') {
-                    this.triggerSubstitutionBlast(capsule.x, capsule.y, CONFIG.feedback.blastRadiusPx);
                 } else {
                     gameState.powerupQueue[capsule.schema.buff] += 3;
                     this.showFloatText(capsule.x, capsule.y, "+3 " + capsule.schema.buff.toUpperCase(), COLORS[color]); playTone(500, 'triangle', 0.1);
@@ -859,11 +885,12 @@ class MainScene extends Phaser.Scene {
     }
 
     triggerHazardPenalty(x, y, text) {
+        if (gameState.isSecured) return;
+
         if (gameState.activeRelics.includes("hazard_pay")) {
             gameState.score += 500; this.showFloatText(x, y-20, "+500 HAZARD PAY", COLORS['Red']);
         }
         
-        // PHASE 3: Toxic Squeeze scaling past level 20
         let baseDrainPct = (gameState.level >= 21) ? 0.50 : 0.25;
         if (gameState.currentConsumable === "safety_goggles") baseDrainPct /= 2;
 
@@ -881,40 +908,8 @@ class MainScene extends Phaser.Scene {
                         cap.hp = 0; cap.isDying = true; cap.body.enable = false;
                         this.tweens.killTweensOf(cap); 
                         cap.destroy(); this.dangerDust.emitParticleAt(cap.x, cap.y, 10);
-                    } else this.damageCapsule(cap, tablet);
+                    } else this.damageCapsule(cap, null);
                 });
-            }
-        });
-    }
-
-    triggerSubstitutionBlast(x, y, radius) {
-        let targetColor = null; let maxNeeded = -1;
-        for (const [col, count] of Object.entries(gameState.rxQuota)) {
-            if (count > maxNeeded) { maxNeeded = count; targetColor = col; }
-        }
-        if (!targetColor || maxNeeded <= 0) return;
-
-        let blast = new Phaser.Geom.Circle(x, y, radius);
-        this.capsules.getChildren().forEach(cap => {
-            if (cap.active && !cap.isDying && Phaser.Geom.Intersects.CircleToRectangle(blast, cap.getBounds())) {
-                if (cap.schema.type === 'hazard' || gameState.rxQuota[cap.color] === 0 || gameState.rxQuota[cap.color] === undefined) {
-                    this.tweens.killTweensOf(cap);
-                    cap.scaleX = 1; cap.scaleY = 1; cap.alpha = 1;
-                    
-                    cap.color = targetColor; cap.schema = CAPSULE_SCHEMA['Standard'];
-                    cap.setTexture(targetColor); cap.clearTint();
-                    this.showFloatText(cap.x, cap.y, "GENERIC SUBSTITUTION!", COLORS['Rainbow']);
-                }
-            }
-        });
-        playTone(900, 'sine', 0.4);
-    }
-
-    destroyAdjacentCapsules(x, y, radius, tablet) {
-        let blast = new Phaser.Geom.Circle(x, y, radius);
-        this.capsules.getChildren().forEach(cap => {
-            if (cap.active && !cap.isDying && Phaser.Geom.Intersects.CircleToRectangle(blast, cap.getBounds())) {
-                this.time.delayedCall(50, () => this.damageCapsule(cap, tablet)); 
             }
         });
     }
@@ -935,7 +930,7 @@ class MainScene extends Phaser.Scene {
             let div = document.createElement('div');
             div.className = 'rx-item'; div.id = 'rx-item-' + color;
             div.style.backgroundColor = '#' + COLORS[color].toString(16).padStart(6, '0');
-            div.innerText = Math.max(0, count); // Number only
+            div.innerText = Math.max(0, count); 
             if (count <= 0) div.classList.add('rx-filled');
             rxList.appendChild(div);
         }
@@ -965,53 +960,68 @@ class MainScene extends Phaser.Scene {
         if (this.isLevelTransitioning) return; 
 
         if (gameState.currentTolerance <= 0) {
-            this.isLevelTransitioning = true; this.scene.pause(); gameState.lives--; 
-            gameState.currentConsumable = null; this.saveState(false);
-            if (gameState.lives <= 0) this.triggerGameOver();
-            else { this.prepareLevelData(gameState.level); document.getElementById('btn-play').click(); }
+            this.isLevelTransitioning = true; 
+            this.physics.pause(); 
+            
+            gameState.lives--; gameState.currentConsumable = null; this.saveState(false);
+            
+            this.cameras.main.flash(500, 255, 0, 0);
+            playTone(150, 'sawtooth', 1.5, 0.4); 
+            this.tweens.add({ targets: this.spatula, y: 850, duration: 800, ease: 'Power2' });
+
+            this.endGameStamp = this.add.text(300, 375, 'TERMINATED', { fontSize: '64px', fontFamily: 'Roboto Mono', color: '#d63031', fontStyle: 'bold', stroke: '#000', strokeThickness: 8 }).setOrigin(0.5).setAlpha(0).setScale(5);
+            this.tweens.add({ 
+                targets: this.endGameStamp, scale: 1, alpha: 1, duration: 250, ease: 'Cubic.easeIn', 
+                onComplete: () => { 
+                    this.cameras.main.shake(400, 0.03); 
+                    this.dangerDust.emitParticleAt(300, 375, 50);
+                }
+            });
+
+            this.time.delayedCall(1500, () => {
+                if (gameState.lives <= 0) this.triggerGameOver();
+                else { this.prepareLevelData(gameState.level); document.getElementById('btn-play').click(); }
+            });
+            
         } else {
             const remainingRx = Object.values(gameState.rxQuota).reduce((a, b) => a + Math.max(0, b), 0);
-            if (remainingRx === 0) {
-                this.isLevelTransitioning = true; this.physics.pause(); 
-                
-                this.tablets.getChildren().forEach(t => { 
-                    t.setActive(false).setVisible(false); 
-                    if (t.body) { t.body.stop(); t.body.enable = false; }
-                }); 
+            if (remainingRx === 0 && gameState.activeTablets === 0) {
+                this.isLevelTransitioning = true; 
+                this.physics.pause(); 
                 
                 gameState.isAiming = false; gameState.currentConsumable = null; 
+                gameState.score += Math.floor(gameState.currentTolerance);
                 
-                let accuracy = gameState.targetsHitThisLevel / Math.max(gameState.shotsFiredThisLevel, 1);
-                let accuracyBonus = Math.floor(accuracy * 1000);
-                let tolBonus = Math.floor(gameState.currentTolerance);
-                gameState.score += (tolBonus + accuracyBonus);
-                
-                let bestShift = parseInt(localStorage.getItem('pharmacy_best_shift')) || 0;
-                if (gameState.level > bestShift) {
-                    bestShift = gameState.level; localStorage.setItem('pharmacy_best_shift', bestShift);
-                    document.getElementById('hud-best').innerText = bestShift.toString();
-                }
-
+                try {
+                    let bestShift = parseInt(localStorage.getItem('pharmacy_best_shift')) || 0;
+                    if (gameState.level > bestShift) {
+                        bestShift = gameState.level; localStorage.setItem('pharmacy_best_shift', bestShift);
+                        document.getElementById('hud-best').innerText = bestShift.toString();
+                    }
+                } catch(e) {}
                 this.saveState(false); this.updateUI();
-                playTone(400, 'sine', 0.2); setTimeout(() => playTone(600, 'sine', 0.4), 200);
 
-                const colors = [0xf1c40f, 0x2ecc71, 0x3498db, 0xe74c3c, 0x9b59b6];
-                colors.forEach((color, index) => {
-                    let emitter = this.add.particles(100 + (index * 100), 750, 'tablet_tex', {
-                        speed: { min: 300, max: 700 }, angle: { min: 240, max: 300 },
-                        scale: { start: 0.6, end: 0 }, gravityY: 1000,
-                        tint: color, lifespan: 2000, frequency: 20, maxParticles: 30
-                    });
-                    this.victoryEmitters.push(emitter);
+                this.avalancheGroup = this.physics.add.group();
+                const colors = ['Blue', 'Green', 'Orange', 'Yellow', 'Pink', 'Red', 'White'];
+                for(let i=0; i<75; i++) {
+                    let color = Phaser.Math.RND.pick(colors);
+                    let p = this.avalancheGroup.create(Phaser.Math.Between(50, 550), Phaser.Math.Between(-800, -50), color);
+                    p.setCircle(10); p.setBounce(0.6); p.setCollideWorldBounds(true);
+                }
+                this.physics.add.collider(this.avalancheGroup, this.floor);
+                this.physics.resume(); 
+                
+                this.endGameStamp = this.add.text(300, 375, 'FILLED!', { fontSize: '72px', fontFamily: 'Roboto Mono', color: '#00b894', fontStyle: 'bold', stroke: '#000', strokeThickness: 8 }).setOrigin(0.5).setAlpha(0).setScale(5);
+                this.tweens.add({ 
+                    targets: this.endGameStamp, scale: 1, alpha: 1, duration: 300, ease: 'Bounce.easeOut', 
+                    onComplete: () => { this.cameras.main.shake(200, 0.02); playTone(800, 'square', 0.4); }
                 });
 
-                // PHASE 3: Level 30 Victory Check
-                if (gameState.level >= 30) {
-                    document.getElementById('win-score').innerText = gameState.score;
-                    this.time.delayedCall(2000, () => { this.scene.pause(); switchOverlay('menu-game-complete'); });
-                } else {
-                    this.time.delayedCall(2000, () => { this.scene.pause(); switchOverlay('menu-win'); });
-                }
+                this.time.delayedCall(2500, () => { 
+                    this.scene.pause(); 
+                    if (gameState.level >= 30) switchOverlay('menu-game-complete'); 
+                    else switchOverlay('menu-win'); 
+                });
             }
         }
     }
@@ -1033,6 +1043,7 @@ class MainScene extends Phaser.Scene {
             let isConsumable = CONFIG.pool.consumables.some(c => c.id === opt.id);
             card.innerHTML = `<div class="card-type ${isConsumable ? 'consumable' : ''}">${isConsumable ? 'Consumable' : 'Relic'}</div><div class="card-title">${opt.name}</div><div class="card-desc">${opt.desc}</div>`;
             card.onclick = () => {
+                initAudio();
                 if (isConsumable) {
                     gameState.currentConsumable = opt.id; 
                 } else {
@@ -1065,47 +1076,77 @@ function switchOverlay(id) {
     if (id) document.getElementById(id).classList.remove('hidden');
 }
 
-document.getElementById('btn-play').addEventListener('click', () => { 
-    if (audioCtx.state === 'suspended') audioCtx.resume(); switchOverlay('menu-level-briefing'); 
+// SAFE EVENT LISTENERS (Guaranteed Audio Unlocking)
+document.getElementById('btn-use-split').addEventListener('click', () => {
+    initAudio();
+    if(gameState.powerupQueue.split > 0 && gameState.activeRounds.split === 0 && gameState.isAiming) {
+        gameState.powerupQueue.split--; gameState.activeRounds.split = 1;
+        let scene = game.scene.getScene('MainScene'); scene.updateUI(); playTone(400, 'sine', 0.1);
+        scene.spatula.setTint(0xa29bfe);
+    }
 });
+
+document.getElementById('btn-use-pierce').addEventListener('click', () => {
+    initAudio();
+    if(gameState.powerupQueue.pierce > 0 && gameState.activeRounds.pierce === 0 && gameState.isAiming) {
+        gameState.powerupQueue.pierce--; gameState.activeRounds.pierce = 3;
+        let scene = game.scene.getScene('MainScene'); scene.updateUI(); playTone(400, 'sine', 0.1);
+        scene.spatula.setTint(0x00cec9);
+    }
+});
+
+document.getElementById('btn-play').addEventListener('click', () => { 
+    initAudio(); 
+    let scene = game.scene.getScene('MainScene');
+    if (scene) scene.prepareLevelData(gameState.level);
+});
+
 document.getElementById('btn-start-level').addEventListener('click', () => {
+    initAudio(); 
     switchOverlay(null); let scene = game.scene.getScene('MainScene');
     scene.scene.resume(); scene.physics.resume(); scene.renderLevelBoard();
 });
-document.getElementById('btn-skip-break').addEventListener('click', () => { switchOverlay('menu-level-briefing'); });
+
+document.getElementById('btn-skip-break').addEventListener('click', () => { 
+    initAudio(); 
+    switchOverlay('menu-level-briefing'); 
+});
+
 document.getElementById('btn-retry').addEventListener('click', () => {
+    initAudio();
+    try { localStorage.removeItem('pharmacy_save'); } catch(e) {}
     resetState(); let scene = game.scene.getScene('MainScene');
     scene.handleSerialization(); document.getElementById('btn-play').click();
 });
+
 document.getElementById('btn-next').addEventListener('click', () => {
+    initAudio(); 
     let scene = game.scene.getScene('MainScene');
     scene.scene.resume(); scene.prepareLevelData(gameState.level + 1);
 });
-document.getElementById('btn-pause-toggle').addEventListener('click', () => { game.scene.pause('MainScene'); switchOverlay('menu-pause'); });
-document.getElementById('btn-resume').addEventListener('click', () => { switchOverlay(null); game.scene.resume('MainScene'); });
+
+document.getElementById('btn-pause-toggle').addEventListener('click', () => { 
+    initAudio(); 
+    game.scene.pause('MainScene'); switchOverlay('menu-pause'); 
+});
+
+document.getElementById('btn-resume').addEventListener('click', () => { 
+    initAudio(); 
+    switchOverlay(null); game.scene.resume('MainScene'); 
+});
+
 document.getElementById('btn-restart-run').addEventListener('click', () => {
+    initAudio();
+    try { localStorage.removeItem('pharmacy_save'); } catch(e) {}
     game.scene.resume('MainScene'); resetState();
-    let scene = game.scene.getScene('MainScene'); scene.handleSerialization(); switchOverlay('menu-start');
+    let scene = game.scene.getScene('MainScene'); scene.handleSerialization();
 });
 
-// PHASE 3: Retire Button Event Listener
 document.getElementById('btn-retire').addEventListener('click', () => {
+    initAudio();
+    try { localStorage.removeItem('pharmacy_save'); } catch(e) {}
     resetState(); let scene = game.scene.getScene('MainScene');
-    scene.handleSerialization(); switchOverlay('menu-start');
-});
-
-document.addEventListener('DOMContentLoaded', () => {
-    const muteBtn = document.getElementById('btn-mute');
-    const updateMuteUI = () => {
-        muteBtn.innerText = globalIsMuted ? 'Sound: OFF' : 'Sound: ON';
-        if(!globalIsMuted) muteBtn.classList.add('active-toggle'); else muteBtn.classList.remove('active-toggle');
-    };
-    muteBtn.addEventListener('click', () => {
-        globalIsMuted = !globalIsMuted;
-        try { localStorage.setItem('pharmacy_settings', JSON.stringify({ mute: globalIsMuted })); } catch(e){}
-        updateMuteUI(); window.dispatchEvent(new CustomEvent('muteToggled', { detail: globalIsMuted }));
-    });
-    updateMuteUI();
+    scene.handleSerialization();
 });
 </script>
 </body>
