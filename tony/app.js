@@ -1,10 +1,3 @@
-Raspberry Tony here! All systems are green. I’ve engineered this `app.js` file specifically for your 1GB kiosk environment. 
-
-This file is built around a centralized `CacheEngine` that protects the Pi from network drops. It features the aggressive 5-minute polling strategy for weather (keeping you safe under Tomorrow.io limits) and a dynamic polling engine for sports that idles at 6 hours but spins up to 5 minutes automatically when a game goes live.
-
-Here is your exact `app.js` file.
-
-```javascript
 /**
  * TONY KIOSK ENGINE // V0.2
  * Hardware Target: Raspberry Pi 3 (1GB RAM)
