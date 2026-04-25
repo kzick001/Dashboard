@@ -1,8 +1,3 @@
-/**
- * TONY KIOSK ENGINE // V0.3.1 (HOTFIX 1)
- * Core Logic: Strict Type Checking & Fault Tolerance
- */
-
 const CONFIG = {
     location: { lat: 44.9483, lon: -93.3666 },
     api: {
@@ -13,16 +8,16 @@ const CONFIG = {
     },
     teams: {
         pro: [
-            { id: '15', league: 'football/nfl', name: 'Vikings' },
-            { id: '9', league: 'football/nfl', name: 'Packers' },
-            { id: '10', league: 'baseball/mlb', name: 'Twins' },
-            { id: '8', league: 'baseball/mlb', name: 'Brewers' }
+            { id: '15', domId: '15', league: 'football/nfl', name: 'Vikings' },
+            { id: '9', domId: '9', league: 'football/nfl', name: 'Packers' },
+            { id: '10', domId: '10', league: 'baseball/mlb', name: 'Twins' },
+            { id: '8', domId: '8', league: 'baseball/mlb', name: 'Brewers' }
         ],
         college: [
-            { id: '275', league: 'football/college-football', name: 'Badgers FB' },
-            { id: '135', league: 'football/college-football', name: 'Gophers FB' },
-            { id: '275', league: 'basketball/mens-college-basketball', name: 'Badgers MBB' },
-            { id: '275', league: 'basketball/womens-college-basketball', name: 'Badgers WBB' }
+            { id: '275', domId: '275-fb', league: 'football/college-football', name: 'Badgers FB' },
+            { id: '135', domId: '135-fb', league: 'football/college-football', name: 'Gophers FB' },
+            { id: '275', domId: '275-mbb', league: 'basketball/mens-college-basketball', name: 'Badgers MBB' },
+            { id: '275', domId: '275-wbb', league: 'basketball/womens-college-basketball', name: 'Badgers WBB' }
         ]
     }
 };
@@ -37,7 +32,9 @@ const StorageEngine = {
     set(key, data) {
         try {
             localStorage.setItem(`tony_v03_${key}`, JSON.stringify({ timestamp: Date.now(), data }));
-        } catch (e) { console.error("Storage Write Error"); }
+        } catch (e) {
+            console.error("StorageEngine Write Fault", e);
+        }
     },
     async fetch(key, url, ttl) {
         const cached = this.get(key);
@@ -49,7 +46,7 @@ const StorageEngine = {
             this.set(key, data);
             return data;
         } catch (e) { 
-            console.warn(`[Network] ${key} degraded.`, e);
+            console.warn(`[Network Degraded] ${key} using cache.`, e);
             return cached ? cached.data : null; 
         }
     }
@@ -62,7 +59,8 @@ function startClock() {
         document.getElementById('comp-minute').textContent = now.toLocaleTimeString('en-US', { minute: '2-digit' });
         document.getElementById('comp-date').textContent = now.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
     };
-    update(); setInterval(update, 1000);
+    update(); 
+    setInterval(update, 1000);
 }
 
 const WeatherPipeline = {
@@ -81,7 +79,6 @@ const WeatherPipeline = {
         
         try {
             const timelines = data.data?.timelines || data.timelines;
-            // Safe traversal: fallback through minutely, hourly, then daily
             const current = timelines.minutely?.[0]?.values || timelines.hourly?.[0]?.values || timelines.daily?.[0]?.values;
             const today = timelines.daily?.[0]?.values;
 
@@ -103,20 +100,16 @@ const WeatherPipeline = {
             document.getElementById('sunset-time').textContent = new Date(today.sunsetTime).toLocaleTimeString([], {hour:'numeric', minute:'2-digit'});
             document.getElementById('golden-hour-time').textContent = new Date(new Date(today.sunsetTime).getTime() - 3600000).toLocaleTimeString([], {hour:'numeric', minute:'2-digit'});
 
-            let forecast = '';
-            timelines.daily.slice(1, 6).forEach(day => {
+            timelines.daily.slice(1, 6).forEach((day, index) => {
+                const i = index + 1;
                 const v = day.values;
-                forecast += `
-                    <div class="flex flex-col items-center gap-2">
-                        <span class="text-[10px] font-mono text-slate-500">${new Date(day.startTime).toLocaleDateString([], {weekday:'short'}).toUpperCase()}</span>
-                        <div class="w-10 h-10 text-slate-400">${this.getIcon(v.weatherCodeMax)}</div>
-                        <div class="font-mono text-sm"><span class="text-white">${Math.round(v.temperatureMax)}°</span></div>
-                        <div class="text-[9px] font-mono text-slate-600">💧${Math.round(v.precipitationProbabilityMax)}%</div>
-                    </div>`;
+                document.getElementById(`forecast-day-${i}-name`).textContent = new Date(day.startTime).toLocaleDateString([], {weekday:'short'}).toUpperCase();
+                document.getElementById(`forecast-day-${i}-icon`).innerHTML = this.getIcon(v.weatherCodeMax);
+                document.getElementById(`forecast-day-${i}-temp`).textContent = `${Math.round(v.temperatureMax)}°`;
+                document.getElementById(`forecast-day-${i}-precip`).textContent = `💧${Math.round(v.precipitationProbabilityMax)}%`;
             });
-            document.getElementById('forecast-container').innerHTML = forecast;
         } catch (e) {
-            console.error("[Weather Pipeline Error]", e);
+            console.error("[Weather Pipeline Fault]", e);
         }
     }
 };
@@ -124,85 +117,119 @@ const WeatherPipeline = {
 const SportsPipeline = {
     async fetchTeam(team) {
         const url = `https://site.api.espn.com/apis/site/v2/sports/${team.league}/teams/${team.id}/schedule`;
-        return await StorageEngine.fetch(`sports_${team.id}`, url, CONFIG.api.sportsIdleInterval);
+        return await StorageEngine.fetch(`sports_${team.domId}`, url, CONFIG.api.sportsIdleInterval);
     },
 
-    renderRow(team, data) {
-        try {
-            const events = data?.events || [];
-            if (events.length === 0) return this.buildHibernation(team.name, "NO DATA");
+    mutateDom(domId, renderData) {
+        const card = document.getElementById(`sports-card-${domId}`);
+        if (!card) return;
 
-            const now = new Date();
-            const live = events.find(e => e.competitions?.[0]?.status?.type?.state === 'in');
-            const past = events.filter(e => new Date(e.competitions?.[0]?.date) < now).sort((a,b) => new Date(b.competitions[0].date) - new Date(a.competitions[0].date));
-            const next = events.find(e => new Date(e.competitions?.[0]?.date) > now);
+        card.classList.remove('hidden');
 
-            const target = live || next || past[0];
-            if (!target) return this.buildHibernation(team.name, "HIBERNATION");
+        document.getElementById(`sports-name-${domId}`).textContent = renderData.name;
+        document.getElementById(`sports-record-${domId}`).textContent = renderData.record;
+        document.getElementById(`sports-opp-${domId}`).textContent = renderData.opp;
+        document.getElementById(`sports-score-${domId}`).textContent = renderData.score;
+        document.getElementById(`sports-status-${domId}`).textContent = renderData.status;
 
-            const comp = target.competitions[0];
-            
-            // STRICT ID PATHING FIX
-            const myTeam = comp.competitors.find(c => c.team.id === team.id);
-            const opp = comp.competitors.find(c => c.team.id !== team.id);
-            
-            if (!myTeam || !opp) return this.buildHibernation(team.name, "DATA ANOMALY");
+        const scoreEl = document.getElementById(`sports-score-${domId}`);
+        if (renderData.isLive) {
+            card.classList.replace('bg-slate-900/40', 'bg-slate-800/80');
+            card.classList.replace('border-slate-800', 'border-slate-500');
+            scoreEl.classList.add('text-red-500', 'animate-pulse');
+            scoreEl.classList.remove('text-white');
+        } else {
+            card.classList.replace('bg-slate-800/80', 'bg-slate-900/40');
+            card.classList.replace('border-slate-500', 'border-slate-800');
+            scoreEl.classList.remove('text-red-500', 'animate-pulse');
+            scoreEl.classList.add('text-white');
+        }
 
-            let record = "0-0";
-            if (myTeam.record && myTeam.record[0]) record = myTeam.record[0].summary;
-            else if (myTeam.records && myTeam.records[0]) record = myTeam.records[0].summary;
-            else if (myTeam.team?.standings) record = myTeam.team.standings.summary;
-
-            let lastResult = '';
-            if (past.length > 0) {
-                const lastGameMyTeam = past[0].competitions[0].competitors.find(c => c.team.id === team.id);
-                if (lastGameMyTeam && lastGameMyTeam.winner !== undefined) {
-                    lastResult = lastGameMyTeam.winner ? 'W' : 'L';
-                }
-            }
-
-            if (target.status.type.state === 'post' && (now - new Date(target.date)) > 864000000) {
-                 return this.buildHibernation(team.name, `OFFSEASON // ${record}`);
-            }
-
-            const isLive = target.status.type.state === 'in';
-            const logoHref = myTeam.team.logos?.[0]?.href || '';
-
-            return `
-                <div class="${isLive ? 'bg-slate-800/80 border-slate-500' : 'bg-slate-900/40 border-slate-800'} border rounded-2xl p-4 flex justify-between items-center transition-colors duration-500">
-                    <div class="flex items-center gap-4">
-                        ${logoHref ? `<img src="${logoHref}" class="w-8 h-8 object-contain">` : `<div class="w-8 h-8 bg-slate-800 rounded-full"></div>`}
-                        <div>
-                            <div class="font-bold text-sm text-slate-200">${team.name} <span class="text-[10px] font-mono text-slate-500 ml-1">${record}</span></div>
-                            <div class="text-[10px] text-slate-400">vs ${opp.team.abbreviation} ${lastResult ? `<span class="ml-2 text-slate-600 font-mono">PREV: ${lastResult}</span>` : ''}</div>
-                        </div>
-                    </div>
-                    <div class="text-right font-mono">
-                        <div class="text-sm ${isLive ? 'text-red-500 animate-pulse' : 'text-white'}">${isLive ? `${myTeam.score || 0}-${opp.score || 0}` : new Date(target.date).toLocaleTimeString([], {hour:'numeric', minute:'2-digit'})}</div>
-                        <div class="text-[9px] text-slate-500 uppercase mt-1">${isLive ? target.status.type.shortDetail : new Date(target.date).toLocaleDateString([], {month:'short', day:'numeric'})}</div>
-                    </div>
-                </div>`;
-        } catch (e) {
-            console.error(`[Sports Pipeline Error] ${team.name}:`, e);
-            return this.buildHibernation(team.name, "PIPELINE FAULT");
+        const logoEl = document.getElementById(`sports-logo-${domId}`);
+        const fallbackEl = document.getElementById(`sports-logo-fallback-${domId}`);
+        
+        if (renderData.logoHref) {
+            logoEl.src = renderData.logoHref;
+            logoEl.classList.remove('hidden');
+            fallbackEl.classList.add('hidden');
+        } else {
+            logoEl.classList.add('hidden');
+            fallbackEl.classList.remove('hidden');
         }
     },
-    
-    buildHibernation(name, subtext) {
-        return `<div class="h-8 flex justify-between items-center px-4 bg-slate-900/20 rounded-lg text-[10px] font-mono text-slate-600 uppercase tracking-widest border border-transparent"><span>${name}</span><span>${subtext}</span></div>`;
+
+    processTeamData(team, data) {
+        const payload = {
+            name: team.name, record: '', opp: '', score: '--', status: '', isLive: false, logoHref: ''
+        };
+
+        const events = data?.events || [];
+        if (events.length === 0) {
+            payload.opp = 'NO DATA';
+            return this.mutateDom(team.domId, payload);
+        }
+
+        const now = new Date();
+        const live = events.find(e => e.competitions?.[0]?.status?.type?.state === 'in');
+        const past = events.filter(e => new Date(e.competitions?.[0]?.date) < now).sort((a,b) => new Date(b.competitions[0].date) - new Date(a.competitions[0].date));
+        const next = events.find(e => new Date(e.competitions?.[0]?.date) > now);
+
+        const target = live || next || past[0];
+        if (!target) {
+            payload.opp = 'HIBERNATION';
+            return this.mutateDom(team.domId, payload);
+        }
+
+        const comp = target.competitions[0];
+        const myTeam = comp.competitors.find(c => c.team.id === team.id);
+        const opp = comp.competitors.find(c => c.team.id !== team.id);
+        
+        if (!myTeam || !opp) {
+            payload.opp = 'DATA ANOMALY';
+            return this.mutateDom(team.domId, payload);
+        }
+
+        if (myTeam.record && myTeam.record[0]) payload.record = myTeam.record[0].summary;
+        else if (myTeam.records && myTeam.records[0]) payload.record = myTeam.records[0].summary;
+        else if (myTeam.team?.standings) payload.record = myTeam.team.standings.summary;
+
+        if (target.status.type.state === 'post' && (now - new Date(target.date)) > 864000000) {
+            payload.opp = `OFFSEASON`;
+            return this.mutateDom(team.domId, payload);
+        }
+
+        payload.isLive = target.status.type.state === 'in';
+        payload.logoHref = myTeam.team.logos?.[0]?.href || '';
+
+        let lastResult = '';
+        if (past.length > 0) {
+            const lastGameMyTeam = past[0].competitions[0].competitors.find(c => c.team.id === team.id);
+            if (lastGameMyTeam && lastGameMyTeam.winner !== undefined) {
+                lastResult = lastGameMyTeam.winner ? 'W' : 'L';
+            }
+        }
+
+        payload.opp = `vs ${opp.team.abbreviation} ${lastResult ? `// PREV: ${lastResult}` : ''}`;
+        payload.score = payload.isLive ? `${myTeam.score || 0}-${opp.score || 0}` : new Date(target.date).toLocaleTimeString([], {hour:'numeric', minute:'2-digit'});
+        payload.status = payload.isLive ? target.status.type.shortDetail : new Date(target.date).toLocaleDateString([], {month:'short', day:'numeric'});
+
+        this.mutateDom(team.domId, payload);
     },
 
     async sync() {
-        const render = async (teams, cid) => {
-            let h = '';
+        const processGroup = async (teams) => {
             for (const t of teams) {
-                const d = await this.fetchTeam(t);
-                h += this.renderRow(t, d);
+                try {
+                    const d = await this.fetchTeam(t);
+                    this.processTeamData(t, d);
+                } catch (e) {
+                    console.error(`[Sports Pipeline Fault] ${t.name}:`, e);
+                    this.mutateDom(t.domId, { name: t.name, record: '', opp: 'PIPELINE FAULT', score: '--', status: '', isLive: false, logoHref: '' });
+                }
             }
-            document.getElementById(cid).innerHTML = h;
         };
-        await render(CONFIG.teams.pro, 'pro-sports-container');
-        await render(CONFIG.teams.college, 'college-sports-container');
+        await processGroup(CONFIG.teams.pro);
+        await processGroup(CONFIG.teams.college);
     }
 };
 
@@ -210,6 +237,11 @@ function boot() {
     startClock();
     WeatherPipeline.sync();
     SportsPipeline.sync();
+    
     setInterval(() => WeatherPipeline.sync(), CONFIG.api.weatherInterval);
+    
+    if (sportsIntervalTimer) clearInterval(sportsIntervalTimer);
+    sportsIntervalTimer = setInterval(() => SportsPipeline.sync(), CONFIG.api.sportsLiveInterval);
 }
+
 document.addEventListener('DOMContentLoaded', boot);
