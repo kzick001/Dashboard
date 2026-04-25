@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tony Kiosk V0.3.1</title>
+    <title>Tony Kiosk V0.3.2</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -51,7 +51,7 @@
     </div>
 
     <div class="z-10 flex justify-between items-center mb-8 border-b border-slate-800/60 pb-4">
-        <div class="text-[10px] font-mono tracking-[0.3em] text-slate-500 uppercase">Raspberry Tony // V0.3.1 Dashboard</div>
+        <div class="text-[10px] font-mono tracking-[0.3em] text-slate-500 uppercase">Raspberry Tony // V0.3.2 Dashboard</div>
         <div class="flex items-center gap-2">
             <span id="sys-status-dot" class="text-green-500 animate-blink">●</span> 
             <span id="sys-status-text" class="text-[10px] font-mono text-slate-400 uppercase tracking-widest">System Online</span>
@@ -86,7 +86,38 @@
         <div class="col-span-6 flex flex-col gap-8">
             <div class="bg-slate-900/40 backdrop-blur-md border border-slate-700/30 rounded-[2.5rem] p-8">
                 <div class="text-[10px] font-mono text-slate-500 tracking-widest uppercase mb-6 border-b border-slate-800 pb-4">5 Day Forecast</div>
-                <div id="forecast-container" class="flex justify-between items-center h-40"></div>
+                <div id="forecast-container" class="flex justify-between items-center h-40">
+                    <div id="forecast-slot-1" class="flex flex-col items-center gap-2">
+                        <span id="forecast-day-1-name" class="text-[10px] font-mono text-slate-500">--</span>
+                        <div id="forecast-day-1-icon" class="w-10 h-10 text-slate-400"></div>
+                        <div class="font-mono text-sm"><span id="forecast-day-1-temp" class="text-white">--°</span></div>
+                        <div id="forecast-day-1-precip" class="text-[9px] font-mono text-slate-600">💧--%</div>
+                    </div>
+                    <div id="forecast-slot-2" class="flex flex-col items-center gap-2">
+                        <span id="forecast-day-2-name" class="text-[10px] font-mono text-slate-500">--</span>
+                        <div id="forecast-day-2-icon" class="w-10 h-10 text-slate-400"></div>
+                        <div class="font-mono text-sm"><span id="forecast-day-2-temp" class="text-white">--°</span></div>
+                        <div id="forecast-day-2-precip" class="text-[9px] font-mono text-slate-600">💧--%</div>
+                    </div>
+                    <div id="forecast-slot-3" class="flex flex-col items-center gap-2">
+                        <span id="forecast-day-3-name" class="text-[10px] font-mono text-slate-500">--</span>
+                        <div id="forecast-day-3-icon" class="w-10 h-10 text-slate-400"></div>
+                        <div class="font-mono text-sm"><span id="forecast-day-3-temp" class="text-white">--°</span></div>
+                        <div id="forecast-day-3-precip" class="text-[9px] font-mono text-slate-600">💧--%</div>
+                    </div>
+                    <div id="forecast-slot-4" class="flex flex-col items-center gap-2">
+                        <span id="forecast-day-4-name" class="text-[10px] font-mono text-slate-500">--</span>
+                        <div id="forecast-day-4-icon" class="w-10 h-10 text-slate-400"></div>
+                        <div class="font-mono text-sm"><span id="forecast-day-4-temp" class="text-white">--°</span></div>
+                        <div id="forecast-day-4-precip" class="text-[9px] font-mono text-slate-600">💧--%</div>
+                    </div>
+                    <div id="forecast-slot-5" class="flex flex-col items-center gap-2">
+                        <span id="forecast-day-5-name" class="text-[10px] font-mono text-slate-500">--</span>
+                        <div id="forecast-day-5-icon" class="w-10 h-10 text-slate-400"></div>
+                        <div class="font-mono text-sm"><span id="forecast-day-5-temp" class="text-white">--°</span></div>
+                        <div id="forecast-day-5-precip" class="text-[9px] font-mono text-slate-600">💧--%</div>
+                    </div>
+                </div>
             </div>
 
             <div class="bg-slate-900/40 backdrop-blur-md border border-slate-700/30 rounded-[2.5rem] p-8 flex-1 flex flex-col min-h-0">
@@ -95,9 +126,126 @@
                     <span class="text-blue-500/60">ESPN // NCAA</span>
                 </div>
                 <div class="flex flex-col gap-4 overflow-hidden flex-1">
-                    <div id="pro-sports-container" class="flex flex-col gap-3"></div>
+                    
+                    <div id="pro-sports-container" class="flex flex-col gap-3">
+                        <div id="sports-card-15" class="bg-slate-900/40 border-slate-800 border rounded-2xl p-4 flex justify-between items-center transition-colors duration-500 hidden">
+                            <div class="flex items-center gap-4">
+                                <img id="sports-logo-15" src="" class="w-8 h-8 object-contain hidden">
+                                <div id="sports-logo-fallback-15" class="w-8 h-8 bg-slate-800 rounded-full"></div>
+                                <div>
+                                    <div class="font-bold text-sm text-slate-200"><span id="sports-name-15">Vikings</span> <span id="sports-record-15" class="text-[10px] font-mono text-slate-500 ml-1"></span></div>
+                                    <div id="sports-opp-15" class="text-[10px] text-slate-400">Awaiting Sync</div>
+                                </div>
+                            </div>
+                            <div class="text-right font-mono">
+                                <div id="sports-score-15" class="text-sm text-white">--</div>
+                                <div id="sports-status-15" class="text-[9px] text-slate-500 uppercase mt-1">--</div>
+                            </div>
+                        </div>
+                        <div id="sports-card-9" class="bg-slate-900/40 border-slate-800 border rounded-2xl p-4 flex justify-between items-center transition-colors duration-500 hidden">
+                            <div class="flex items-center gap-4">
+                                <img id="sports-logo-9" src="" class="w-8 h-8 object-contain hidden">
+                                <div id="sports-logo-fallback-9" class="w-8 h-8 bg-slate-800 rounded-full"></div>
+                                <div>
+                                    <div class="font-bold text-sm text-slate-200"><span id="sports-name-9">Packers</span> <span id="sports-record-9" class="text-[10px] font-mono text-slate-500 ml-1"></span></div>
+                                    <div id="sports-opp-9" class="text-[10px] text-slate-400">Awaiting Sync</div>
+                                </div>
+                            </div>
+                            <div class="text-right font-mono">
+                                <div id="sports-score-9" class="text-sm text-white">--</div>
+                                <div id="sports-status-9" class="text-[9px] text-slate-500 uppercase mt-1">--</div>
+                            </div>
+                        </div>
+                        <div id="sports-card-10" class="bg-slate-900/40 border-slate-800 border rounded-2xl p-4 flex justify-between items-center transition-colors duration-500 hidden">
+                            <div class="flex items-center gap-4">
+                                <img id="sports-logo-10" src="" class="w-8 h-8 object-contain hidden">
+                                <div id="sports-logo-fallback-10" class="w-8 h-8 bg-slate-800 rounded-full"></div>
+                                <div>
+                                    <div class="font-bold text-sm text-slate-200"><span id="sports-name-10">Twins</span> <span id="sports-record-10" class="text-[10px] font-mono text-slate-500 ml-1"></span></div>
+                                    <div id="sports-opp-10" class="text-[10px] text-slate-400">Awaiting Sync</div>
+                                </div>
+                            </div>
+                            <div class="text-right font-mono">
+                                <div id="sports-score-10" class="text-sm text-white">--</div>
+                                <div id="sports-status-10" class="text-[9px] text-slate-500 uppercase mt-1">--</div>
+                            </div>
+                        </div>
+                        <div id="sports-card-8" class="bg-slate-900/40 border-slate-800 border rounded-2xl p-4 flex justify-between items-center transition-colors duration-500 hidden">
+                            <div class="flex items-center gap-4">
+                                <img id="sports-logo-8" src="" class="w-8 h-8 object-contain hidden">
+                                <div id="sports-logo-fallback-8" class="w-8 h-8 bg-slate-800 rounded-full"></div>
+                                <div>
+                                    <div class="font-bold text-sm text-slate-200"><span id="sports-name-8">Brewers</span> <span id="sports-record-8" class="text-[10px] font-mono text-slate-500 ml-1"></span></div>
+                                    <div id="sports-opp-8" class="text-[10px] text-slate-400">Awaiting Sync</div>
+                                </div>
+                            </div>
+                            <div class="text-right font-mono">
+                                <div id="sports-score-8" class="text-sm text-white">--</div>
+                                <div id="sports-status-8" class="text-[9px] text-slate-500 uppercase mt-1">--</div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="h-px bg-slate-800/50 my-2"></div>
-                    <div id="college-sports-container" class="flex flex-col gap-3"></div>
+                    
+                    <div id="college-sports-container" class="flex flex-col gap-3">
+                        <div id="sports-card-275-fb" class="bg-slate-900/40 border-slate-800 border rounded-2xl p-4 flex justify-between items-center transition-colors duration-500 hidden">
+                            <div class="flex items-center gap-4">
+                                <img id="sports-logo-275-fb" src="" class="w-8 h-8 object-contain hidden">
+                                <div id="sports-logo-fallback-275-fb" class="w-8 h-8 bg-slate-800 rounded-full"></div>
+                                <div>
+                                    <div class="font-bold text-sm text-slate-200"><span id="sports-name-275-fb">Badgers FB</span> <span id="sports-record-275-fb" class="text-[10px] font-mono text-slate-500 ml-1"></span></div>
+                                    <div id="sports-opp-275-fb" class="text-[10px] text-slate-400">Awaiting Sync</div>
+                                </div>
+                            </div>
+                            <div class="text-right font-mono">
+                                <div id="sports-score-275-fb" class="text-sm text-white">--</div>
+                                <div id="sports-status-275-fb" class="text-[9px] text-slate-500 uppercase mt-1">--</div>
+                            </div>
+                        </div>
+                        <div id="sports-card-135-fb" class="bg-slate-900/40 border-slate-800 border rounded-2xl p-4 flex justify-between items-center transition-colors duration-500 hidden">
+                            <div class="flex items-center gap-4">
+                                <img id="sports-logo-135-fb" src="" class="w-8 h-8 object-contain hidden">
+                                <div id="sports-logo-fallback-135-fb" class="w-8 h-8 bg-slate-800 rounded-full"></div>
+                                <div>
+                                    <div class="font-bold text-sm text-slate-200"><span id="sports-name-135-fb">Gophers FB</span> <span id="sports-record-135-fb" class="text-[10px] font-mono text-slate-500 ml-1"></span></div>
+                                    <div id="sports-opp-135-fb" class="text-[10px] text-slate-400">Awaiting Sync</div>
+                                </div>
+                            </div>
+                            <div class="text-right font-mono">
+                                <div id="sports-score-135-fb" class="text-sm text-white">--</div>
+                                <div id="sports-status-135-fb" class="text-[9px] text-slate-500 uppercase mt-1">--</div>
+                            </div>
+                        </div>
+                        <div id="sports-card-275-mbb" class="bg-slate-900/40 border-slate-800 border rounded-2xl p-4 flex justify-between items-center transition-colors duration-500 hidden">
+                            <div class="flex items-center gap-4">
+                                <img id="sports-logo-275-mbb" src="" class="w-8 h-8 object-contain hidden">
+                                <div id="sports-logo-fallback-275-mbb" class="w-8 h-8 bg-slate-800 rounded-full"></div>
+                                <div>
+                                    <div class="font-bold text-sm text-slate-200"><span id="sports-name-275-mbb">Badgers MBB</span> <span id="sports-record-275-mbb" class="text-[10px] font-mono text-slate-500 ml-1"></span></div>
+                                    <div id="sports-opp-275-mbb" class="text-[10px] text-slate-400">Awaiting Sync</div>
+                                </div>
+                            </div>
+                            <div class="text-right font-mono">
+                                <div id="sports-score-275-mbb" class="text-sm text-white">--</div>
+                                <div id="sports-status-275-mbb" class="text-[9px] text-slate-500 uppercase mt-1">--</div>
+                            </div>
+                        </div>
+                        <div id="sports-card-275-wbb" class="bg-slate-900/40 border-slate-800 border rounded-2xl p-4 flex justify-between items-center transition-colors duration-500 hidden">
+                            <div class="flex items-center gap-4">
+                                <img id="sports-logo-275-wbb" src="" class="w-8 h-8 object-contain hidden">
+                                <div id="sports-logo-fallback-275-wbb" class="w-8 h-8 bg-slate-800 rounded-full"></div>
+                                <div>
+                                    <div class="font-bold text-sm text-slate-200"><span id="sports-name-275-wbb">Badgers WBB</span> <span id="sports-record-275-wbb" class="text-[10px] font-mono text-slate-500 ml-1"></span></div>
+                                    <div id="sports-opp-275-wbb" class="text-[10px] text-slate-400">Awaiting Sync</div>
+                                </div>
+                            </div>
+                            <div class="text-right font-mono">
+                                <div id="sports-score-275-wbb" class="text-sm text-white">--</div>
+                                <div id="sports-status-275-wbb" class="text-[9px] text-slate-500 uppercase mt-1">--</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -148,7 +296,7 @@
             </div>
 
             <div class="flex-1 flex flex-col justify-end items-end pr-4 opacity-30 mix-blend-screen">
-                <img src="rt-logo.png" class="w-48 h-auto grayscale brightness-150">
+                <img src="rt-logo.png" class="w-48 h-auto grayscale brightness-150" alt="Tony Kiosk Logo">
             </div>
         </div>
     </div>
