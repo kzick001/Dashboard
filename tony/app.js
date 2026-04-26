@@ -26,12 +26,12 @@ let sportsIntervalTimer = null;
 
 const StorageEngine = {
     get(key) {
-        const cached = localStorage.getItem(`tony_v03_${key}`);
+        const cached = localStorage.getItem(`t_v4_${key}`);
         return cached ? JSON.parse(cached) : null;
     },
     set(key, data) {
         try {
-            localStorage.setItem(`tony_v03_${key}`, JSON.stringify({ timestamp: Date.now(), data }));
+            localStorage.setItem(`t_v4_${key}`, JSON.stringify({ timestamp: Date.now(), data }));
         } catch (e) {
             console.error("StorageEngine Write Fault", e);
         }
@@ -142,7 +142,46 @@ const SportsPipeline = {
     async fetchTeam(team) {
         const url = `https://site.api.espn.com/apis/site/v2/sports/${team.sport}/${team.league}/teams/${team.id}/schedule`;
         const ttl = (sportsIntervalTimer && sportsIntervalTimer._repeat === CONFIG.api.sportsLiveInterval) ? CONFIG.api.sportsLiveInterval : CONFIG.api.sportsIdleInterval;
-        return await StorageEngine.fetch(`sports_${team.domId}`, url, ttl);
+        const cacheKey = `sports_${team.domId}`;
+        
+        const cached = StorageEngine.get(cacheKey);
+        if (cached && (Date.now() - cached.timestamp < ttl)) return cached.data;
+
+        try {
+            const res = await fetch(url);
+            if (!res.ok) throw new Error("HTTP " + res.status);
+            const rawData = await res.json();
+
+            // Aggressive Payload Trimmer
+            const trimmedEvents = (rawData?.events || []).map(e => {
+                const comp = e.competitions?.[0];
+                return {
+                    competitions: [{
+                        date: comp?.date,
+                        status: { type: { state: comp?.status?.type?.state, shortDetail: comp?.status?.type?.shortDetail } },
+                        broadcasts: [{ names: [comp?.broadcasts?.[0]?.names?.[0]] }],
+                        competitors: (comp?.competitors || []).map(c => ({
+                            homeAway: c?.homeAway,
+                            winner: c?.winner,
+                            score: c?.score,
+                            records: [{ summary: c?.records?.[0]?.summary }],
+                            team: {
+                                id: c?.team?.id,
+                                abbreviation: c?.team?.abbreviation,
+                                logos: [{ href: c?.team?.logos?.[0]?.href }]
+                            }
+                        }))
+                    }]
+                };
+            });
+
+            const trimmedData = { events: trimmedEvents };
+            StorageEngine.set(cacheKey, trimmedData);
+            return trimmedData;
+        } catch (e) {
+            console.warn(`[Network Degraded] ${team.name} using cache.`, e);
+            return cached ? cached.data : null;
+        }
     },
 
     mutateDom(domId, renderData) {
@@ -207,9 +246,9 @@ const SportsPipeline = {
         }
 
         const now = new Date();
-        const live = events.find(e => e.competitions?.[0]?.status?.type?.state === 'in');
-        const past = events.filter(e => new Date(e.competitions?.[0]?.date) < now).sort((a,b) => new Date(b.competitions[0].date) - new Date(a.competitions[0].date));
-        const next = events.find(e => new Date(e.competitions?.[0]?.date) > now);
+        const live = events.find(e => e?.competitions?.[0]?.status?.type?.state === 'in');
+        const past = events.filter(e => new Date(e?.competitions?.[0]?.date) < now).sort((a,b) => new Date(b?.competitions?.[0]?.date) - new Date(a?.competitions?.[0]?.date));
+        const next = events.find(e => new Date(e?.competitions?.[0]?.date) > now);
 
         const target = live || next || past[0];
         if (!target) {
@@ -218,9 +257,12 @@ const SportsPipeline = {
             return payload.isLive;
         }
 
-        const comp = target.competitions[0];
-        const myTeam = comp.competitors.find(c => String(c.team.id) === String(team.id));
-        const opp = comp.competitors.find(c => String(c.team.id) !== String(team.id));
+        const comp = target.competitions?.[0];
+        const home = comp?.competitors?.find(c => c?.homeAway === 'home') || comp?.competitors?.[0];
+        const away = comp?.competitors?.find(c => c?.homeAway === 'away') || comp?.competitors?.[1];
+
+        const myTeam = String(home?.team?.id) === String(team.id) ? home : (String(away?.team?.id) === String(team.id) ? away : null);
+        const opp = String(home?.team?.id) === String(team.id) ? away : home;
         
         if (!myTeam || !opp) {
             payload.opp = 'DATA ANOMALY';
@@ -228,23 +270,26 @@ const SportsPipeline = {
             return payload.isLive;
         }
 
-        payload.record = myTeam.records?.[0]?.summary || '';
+        payload.record = myTeam?.records?.[0]?.summary || '';
 
-        if (target.status.type.state === 'post' && (now - new Date(target.date)) > 864000000) {
+        if (comp?.status?.type?.state === 'post' && (now - new Date(comp?.date)) > 864000000) {
             payload.opp = `OFFSEASON`;
             this.mutateDom(team.domId, payload);
             return payload.isLive;
         }
 
-        payload.isLive = target.status.type.state === 'in';
-        payload.isPast = target.status.type.state === 'post';
-        payload.logoHref = myTeam.team.logos?.[0]?.href || '';
-        payload.broadcast = comp.broadcasts?.[0]?.names?.[0] || '';
+        payload.isLive = comp?.status?.type?.state === 'in';
+        payload.isPast = comp?.status?.type?.state === 'post';
+        payload.logoHref = myTeam?.team?.logos?.[0]?.href || '';
+        payload.broadcast = comp?.broadcasts?.[0]?.names?.[0] || '';
 
         if (past.length > 0) {
-            const lastGame = past[0].competitions[0];
-            const lastMyTeam = lastGame.competitors.find(c => String(c.team.id) === String(team.id));
-            const lastOpp = lastGame.competitors.find(c => String(c.team.id) !== String(team.id));
+            const lastGame = past[0]?.competitions?.[0];
+            const lastHome = lastGame?.competitors?.find(c => c?.homeAway === 'home') || lastGame?.competitors?.[0];
+            const lastAway = lastGame?.competitors?.find(c => c?.homeAway === 'away') || lastGame?.competitors?.[1];
+
+            const lastMyTeam = String(lastHome?.team?.id) === String(team.id) ? lastHome : (String(lastAway?.team?.id) === String(team.id) ? lastAway : null);
+            const lastOpp = String(lastHome?.team?.id) === String(team.id) ? lastAway : lastHome;
             
             if (lastMyTeam && lastOpp && lastMyTeam.winner !== undefined) {
                 const resStr = lastMyTeam.winner ? 'W' : 'L';
@@ -252,9 +297,9 @@ const SportsPipeline = {
             }
         }
 
-        payload.opp = `vs ${opp.team.abbreviation}`;
-        payload.score = payload.isLive || payload.isPast ? `${myTeam.score || 0}-${opp.score || 0}` : new Date(target.date).toLocaleTimeString([], {hour:'numeric', minute:'2-digit'});
-        payload.status = payload.isLive ? target.status.type.shortDetail : new Date(target.date).toLocaleDateString([], {month:'short', day:'numeric'});
+        payload.opp = `vs ${opp?.team?.abbreviation || 'TBA'}`;
+        payload.score = payload.isLive || payload.isPast ? `${myTeam?.score || 0}-${opp?.score || 0}` : new Date(comp?.date).toLocaleTimeString([], {hour:'numeric', minute:'2-digit'});
+        payload.status = payload.isLive ? comp?.status?.type?.shortDetail : new Date(comp?.date).toLocaleDateString([], {month:'short', day:'numeric'});
 
         this.mutateDom(team.domId, payload);
         return payload.isLive;
@@ -262,22 +307,19 @@ const SportsPipeline = {
 
     async sync() {
         let anyGameLive = false;
+        const allTeams = [...CONFIG.teams.pro, ...CONFIG.teams.college];
 
-        const processGroup = async (teams) => {
-            for (const t of teams) {
-                try {
-                    const d = await this.fetchTeam(t);
-                    const isLive = this.processTeamData(t, d);
-                    if (isLive) anyGameLive = true;
-                } catch (e) {
-                    console.error(`[Sports Pipeline Fault] ${t.name}:`, e);
-                    this.mutateDom(t.domId, { name: t.name, record: '', opp: 'PIPELINE FAULT', score: '--', status: '', isLive: false, isPast: false, logoHref: '', broadcast: '', prevResult: '' });
-                }
+        // Strict sequential fetch loop to bypass HTTP 429 blocks
+        for (const t of allTeams) {
+            try {
+                const d = await this.fetchTeam(t);
+                const isLive = this.processTeamData(t, d);
+                if (isLive) anyGameLive = true;
+            } catch (e) {
+                console.error(`[Sports Pipeline Fault] ${t.name}:`, e);
+                this.mutateDom(t.domId, { name: t.name, record: '', opp: 'PIPELINE FAULT', score: '--', status: '', isLive: false, isPast: false, logoHref: '', broadcast: '', prevResult: '' });
             }
-        };
-
-        await processGroup(CONFIG.teams.pro);
-        await processGroup(CONFIG.teams.college);
+        }
 
         const targetInterval = anyGameLive ? CONFIG.api.sportsLiveInterval : CONFIG.api.sportsIdleInterval;
         
@@ -290,6 +332,13 @@ const SportsPipeline = {
 };
 
 function boot() {
+    // Garbage Collector: Nuke corrupted V0.3 storage blocks
+    Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('tony_v03')) {
+            localStorage.removeItem(key);
+        }
+    });
+
     startClock();
     WeatherPipeline.sync();
     SportsPipeline.sync();
